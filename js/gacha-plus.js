@@ -1,6 +1,6 @@
 /* GACHA: ONE SPECIAL SUMMON BANNER
    - A single banner instead of nine regions. It draws from the Special Gacha pool (js/special-gacha.js):
-     first-stage Pokemon, Rare and below, plus your allowed Legendaries (Magearna, Meloetta, Manaphy, Phione)
+     the starter Pokemon of every region, plus your allowed Legendaries (Magearna, Meloetta, Manaphy, Phione)
      with the same 1.5% Legendary chance (and the same 70-pull guarantee) as before.
    - Shiny chance raised from 1% to 1.5%.
    - New look built from the game's own assets: Poke Ball watermark, the Legendaries on a pedestal, Poke / Great /
@@ -64,7 +64,7 @@
   #ps-grates .r b{margin-left:auto}
   #ps-grates small{display:block;opacity:.75;font-weight:600;margin-top:8px;line-height:1.35}`;
   const BALL = { 'pull-1': 'ball-poke', 'pull-10': 'ball-great', 'pull-10b': 'ball-great', 'pull-100': 'ball-ultra', 'pull-100b': 'ball-ultra' };
-  const MSG = 'Starters, Dratini, Beldum, Chansey and more, plus the rare Legendaries Magearna, Meloetta, Manaphy and Phione!';
+  const MSG = 'The starter Pokémon of every region, plus the rare Legendaries Magearna, Meloetta, Manaphy and Phione! Every other Pokémon is found in the wild.';
   let poolKey = '';
   function decorate() {
     const N = E(), S = N?.DB?.save, scr = document.getElementById('scr-gacha'); if (!scr || scr.classList.contains('hidden') || !S || !SP()) return;
@@ -73,7 +73,7 @@
     const bn = document.getElementById('banner');
     if (bn && !document.getElementById('ps-gtag')) { bn.insertAdjacentHTML('beforeend', '<span id="ps-gtag">LEGENDARY 1.5%</span><span id="ps-gshiny">✦ SHINY 1.5%</span>'); }
     for (const [id, b] of Object.entries(BALL)) { const el = document.getElementById(id); if (el && !el.querySelector('.psg-ball')) el.insertAdjacentHTML('afterbegin', '<img class="psg-ball" src="assets/fx/' + b + '.png?v=1" alt="">'); }
-    const sp = SP(), pool = sp.POOL.map(x => x[0]).concat(Object.keys(sp.LEGENDS).map(Number));
+    const sp = SP(), pool = Object.keys(sp.LEGENDS).map(Number).concat(sp.pool());   if (pool.length < 5) return;
     const own = pool.filter(dx => S.owned && S.owned[dx]).length, sh = pool.filter(dx => S.shiny && S.shiny[dx]).length;
     const ow = document.getElementById('gacha-owned'), owTxt = 'You have ' + own + ' of ' + pool.length + ' · ' + sh + ' shiny'; if (ow && ow.textContent !== owTxt) ow.textContent = owTxt;
     // collection strip
@@ -88,10 +88,9 @@
     const rates = document.getElementById('gacha-rates');
     if (rates && !rates.querySelector('#ps-grates')) rates.innerHTML = '<div id="ps-grates"><h4>Odds</h4>' +
       '<div class="r"><img src="assets/fx/ball-master.png?v=1" alt="">Legendary<br>Magearna · Meloetta · Manaphy · Phione<b>1.5%</b></div>' +
-      '<div class="r"><img src="assets/fx/ball-ultra.png?v=1" alt="">Rare (starters, Dratini, Beldum, Chansey)<b>23.5%</b></div>' +
-      '<div class="r"><img src="assets/fx/ball-great.png?v=1" alt="">Any Pokémon of the banner<b>75%</b></div>' +
+      '<div class="r"><img src="assets/fx/ball-great.png?v=1" alt="">A starter Pokémon<br>(Bulbasaur, Charmander, Squirtle… every region)<b>98.5%</b></div>' +
       '<div class="r"><img src="assets/fx/ball-poke.png?v=1" alt="">✦ Shiny (any pull)<b>1.5%</b></div>' +
-      '<small>70 pulls without a Legendary guarantee one. Every ×10 pull has at least one Rare.<br>Duplicates turn into PokéCoins. Only first-stage Pokémon: evolve them in battle!</small></div>';
+      '<small>70 pulls without a Legendary guarantee one.<br>Duplicates turn into PokéCoins. Every other Pokémon comes from the wild.</small></div>';
   }
   function init() {
     document.head.append(css);

@@ -1,5 +1,8 @@
 /* =====================================================================================================
    SPECIAL GACHA (both modes; your friend's Story Gacha, adapted)
+   [Gard, v66] With the single Special Summon banner (js/gacha-plus.js) the pool is EVERY first-form Pokemon that
+   evolves (babies and first stages: Pichu, Ralts, Ekans, Koffing, the starters...), plus the allowed Legendaries
+   on Legendary rolls. The region lists below are only used if the old nine banners ever come back.
    The Gacha now only gives first-stage Pokemon of Rare rarity and below, from a special pool, by region:
      Kanto     Bulbasaur, Charmander, Squirtle, Dratini, Chansey, Meowth, Psyduck, Slowpoke
      Johto     Chikorita, Cyndaquil, Totodile          Hoenn  Treecko, Torchic, Mudkip, Beldum
@@ -9,8 +12,7 @@
    The Legendaries you allowed on the banners stay, with exactly the same chance as before (a Legendary roll on
    their region's banner): Magearna (Alola), Meloetta (Unova), Manaphy and Phione (Sinnoh).
    The game's own pull still runs (ticket costs, pity, shiny luck, stats); each result is then swapped.
-   Story Mode only: starters and the other special Pokemon never appear as wild Pokemon (catching), so the Gacha is
-   the only way to get them.
+   Every Pokemon can still appear as a wild Pokemon (both modes).
    ===================================================================================================== */
 (()=>{'use strict';
  const E=()=>window.PS_HOOPA_ENGINE,STORY=()=>!!(window.PS_STORY&&window.PS_STORY.on());
@@ -21,7 +23,7 @@
    [650,3],[653,3],[656,3],[722,3],[725,3],[728,3],[810,3],[813,3],[816,3],[906,3],[909,3],[912,3]];
  // the Legendaries allowed on the banners (same list and weights as js/dens.js)
  const LEGENDS={801:3,648:3,490:1,489:1};
- // Evolution families of the special pool: never spawned as wild Pokemon in Story Mode.
+ // Evolution families of the special pool (kept for reference; no longer filtered from the wild).
  const NOT_WILD=new Set([1,2,3,4,5,6,7,8,9,52,53,54,55,79,80,113,147,148,149,152,153,154,155,156,157,158,159,160,199,242,252,253,254,255,256,257,258,259,260,374,375,376,387,388,389,390,391,392,393,394,395,440,495,496,497,498,499,500,501,502,503,531,650,651,652,653,654,655,656,657,658,722,723,724,725,726,727,728,729,730,801,810,811,812,813,814,815,816,817,818,863,906,907,908,909,910,911,912,913,914]);
  const genOf=d=>{const p=E()?.DEX_BY?.[d];return p?p.gen:0;};
  function poolFor(gen,rarity){
@@ -35,7 +37,14 @@
    if(leg.length)return [rest[0],leg[0],rest[1]].filter(Boolean);
    return rest.slice(0,3);
  }
- window.PS_SPECIAL_GACHA={POOL,LEGENDS,NOT_WILD,featured,poolFor};
+ // [Gard] the Special Summon pool: EVERY first-form Pokemon that evolves (babies included: Pichu, Ralts, Ekans,
+ // Koffing, Dratini, the starters...). Legendaries are only the allowed ones above, on Legendary rolls.
+ let FIRST=null;
+ // [Gard, v69] The Special Summon now gives ONLY the starters (first forms, every region). Everything else comes from
+ // the wild (Original: defeat it for a chance; Story: catch it). The 4 allowed Legendaries stay on Legendary rolls.
+ const STARTERS=[1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912];
+ function firstForms(){const N=E();return STARTERS.filter(d=>!N||N.SPRITE_META[d]).map(d=>[d,3]);}
+ window.PS_SPECIAL_GACHA={POOL,LEGENDS,NOT_WILD,STARTERS,featured,poolFor,firstForms,pool:()=>firstForms().map(x=>x[0])};
  let hooked=false;
  function hook(){
    const X=E();if(hooked||!X?.Gacha?.pull||!X.Enemies?.bagAt||!X.DEX_BY)return;hooked=true;const G=X.Gacha;
@@ -52,9 +61,9 @@
        save.coins=(Number(save.coins)||0)-(Number(r.refund)||0);
        // ...and give one from the special pool instead (same shiny luck)
        let dex,rarity;
-       if(single){   // one Special Summon banner: Legendary roll -> an allowed Legendary; Rare/Epic roll -> a Rare one; otherwise any of the pool
+       if(single){   // one Special Summon banner: Legendary roll -> an allowed Legendary; anything else -> any first-form Pokemon
          if(legendRoll){const L=[];for(const [d,w] of Object.entries(LEGENDS))for(let i=0;i<w;i++)L.push(Number(d));dex=L[Math.floor(Math.random()*L.length)];rarity=5;}
-         else{const rr=Number(r.rarity)||1,L=rr>=3?POOL.filter(x=>x[1]===3):POOL;[dex,rarity]=pick(L.filter(x=>E().SPRITE_META[x[0]]).length?L.filter(x=>E().SPRITE_META[x[0]]):L);}
+         else{const F=firstForms();[dex,rarity]=pick(F.length?F:POOL);}   // a starter
        }else{const g=bannerGen||genOf(r.dex)||1;[dex,rarity]=pick(poolFor(g,Number(r.rarity)||1));}
        // shiny chance 1.5% (the game rolls 1%; top it up)
        if(!r.shiny&&Math.random()<0.0072&&E().Sprites?.hasShiny?.(dex))r.shiny=true;
@@ -65,9 +74,7 @@
      }
      return res;
    };
-   // wild Pokemon (Story Mode): never a starter or another Gacha-only Pokemon (all maps)
-   const EN=X.Enemies,bag=EN.bagAt;
-   EN.bagAt=function(){const r=bag.apply(this,arguments);if(!Array.isArray(r)||!STORY())return r;const f=r.filter(d=>!NOT_WILD.has(Number(d.dex)));return f.length?f:r;};
+   // wild Pokemon: every Pokemon can appear in the overworld (no filter).
  }
  (function tick(){hook();if(!hooked)setTimeout(tick,200);})();
 })();
