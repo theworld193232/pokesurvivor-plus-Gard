@@ -38,6 +38,11 @@
     'pallet':    { title: 'Pallet Town',                         file: 'assets/music/pallet-town.mp3' },
     'littleroot':{ title: 'Littleroot Town',                     file: 'assets/music/littleroot-town.mp3' },
     'rustboro':  { title: 'Rustboro City',                       file: 'assets/music/rustboro-city.mp3' },
+    'cerulean':  { title: 'Cerulean City',                       file: 'assets/music/cerulean-city.mp3' },
+    'dewford':   { title: 'Dewford Town',                        file: 'assets/music/dewford-town.mp3' },
+    'petalburg': { title: 'Petalburg City',                      file: 'assets/music/petalburg-city.mp3' },
+    'oldale':    { title: 'Oldale Town',                         file: 'assets/music/oldale-town.mp3' },
+    'viridian':  { title: 'Viridian City',                       file: 'assets/music/viridian-city.mp3' },
     'trainer-red':      { title: 'Battle! Trainer Red',        file: 'assets/music/trainer-red.mp3' },
     'trainer-gym-oras': { title: 'Battle! Gym Leader (ORAS)',  file: 'assets/music/trainer-gym-oras.mp3' },
     'trainer-oras':     { title: 'Battle! Trainer (ORAS)',     file: 'assets/music/trainer-oras.mp3' },
@@ -58,7 +63,8 @@
     'vs-regi':          { title: 'Battle! Regi Trio',           file: 'assets/music/legend-regi.mp3' },
   };
   const RULES = {
-    menu:    { songs: ['pallet', 'littleroot', 'rustboro'] },
+    menu:    { songs: ['pallet', 'littleroot', 'rustboro', 'cerulean', 'dewford', 'petalburg', 'oldale', 'viridian'] },
+    safezone:{ songs: ['pallet', 'littleroot', 'rustboro', 'cerulean', 'dewford', 'petalburg', 'oldale', 'viridian'] },   // pink-rift Safe Zones
     mega:    { songs: ['gym-tera'] },
     special: {
       rift:     { songs: ['tera'] },
@@ -122,6 +128,7 @@
     const g = B()?.game, st = g?.state;
     const battle = !!(st && st !== 'ui' && st !== 'over');          // 'ui' = menus, 'over' = run ended
     if (!battle) return 'menu';
+    if (window.PS_SAFEZONE && window.PS_SAFEZONE.active) return 'safezone';   // Safe Zones play the town music (the run's timer is kept)
     const lg = legendSong(); if (lg) return 'legend:' + lg;
     if (gameTrack && RULES.special && RULES.special[gameTrack]) return 'special:' + gameTrack;
     return 'battle';
@@ -132,30 +139,33 @@
     return null;
   }
   const isMega = () => { const p = B()?.game?.player; return !!(p && p.megaForm && !/primal/.test(String(p.megaForm))); };   // Mega only, never Primal
-  const rule = ctx => ctx === 'menu' ? RULES.menu : ctx === 'mega' ? RULES.mega : ctx.startsWith('lowhp:') ? lowRules()[Number(ctx.slice(6))] : ctx.startsWith('event:') ? (RULES.events || {})[ctx.slice(6)] : ctx === 'battle' ? battleRule() : ctx.startsWith('legend:') ? { songs: [ctx.slice(7)] } : (RULES.special || {})[ctx.slice(8)];
+  const menuish = c => c === 'menu' || c === 'safezone';
+  const rule = ctx => ctx === 'menu' ? RULES.menu : ctx === 'safezone' ? (RULES.safezone || RULES.menu) : ctx === 'mega' ? RULES.mega : ctx.startsWith('lowhp:') ? lowRules()[Number(ctx.slice(6))] : ctx.startsWith('event:') ? (RULES.events || {})[ctx.slice(6)] : ctx === 'battle' ? battleRule() : ctx.startsWith('legend:') ? { songs: [ctx.slice(7)] } : (RULES.special || {})[ctx.slice(8)];
   const loops = ctx => ctx.startsWith('special:') || ctx.startsWith('legend:');
   const lowRules = () => (Array.isArray(RULES.lowhp) ? RULES.lowhp : RULES.lowhp ? [RULES.lowhp] : []).slice().sort((a, b) => (a.below ?? 0.2) - (b.below ?? 0.2));
   let runTime = 0, runLast = 0;   // seconds of actual play this run (for RULES.late)
   function battleRule() { const r = RULES.battle; if (!r) return null; return { songs: runTime >= (r.after ?? 900) ? (r.late || []) : runTime >= (r.midAt ?? 480) && (r.mid || []).length ? r.mid : (r.early || []) }; }   // special moments loop; menu shuffles; battle + Mega play once
 
   // ---- player ----
-  const audio = new Audio(); audio.preload = 'auto'; audio.volume = S.volume;
+  const BG_MIX = 0.5;   // songs play as background music: the slider's value x this, so moves and effects are easy to hear
+  const V = () => Math.max(0, Math.min(1, S.volume * BG_MIX));
+  const audio = new Audio(); audio.preload = 'auto'; audio.volume = V();
   let cur = null;               // { id, ctx }  the song playing now
   let unlocked = false, nextRoll = 0, lastCtx = null, wasMega = false, wasLow = 99, fadeT = null;
   function start(id, ctx) {
     const t = TRACKS[id]; if (!t) return false;
     clearInterval(fadeT); fadeT = null; cur = { id, ctx };
-    audio.src = new URL(t.file, document.baseURI).href; audio.loop = loops(ctx); audio.currentTime = 0; audio.volume = S.volume;
+    audio.src = new URL(t.file, document.baseURI).href; audio.loop = loops(ctx); audio.currentTime = 0; audio.volume = V();
     audio.play().then(() => { quietGame(); render(); }).catch(() => render());
     render(); return true;
   }
-  function hush() { clearInterval(fadeT); fadeT = null; cur = null; audio.pause(); audio.volume = S.volume; restoreGame(); render(); }
+  function hush() { clearInterval(fadeT); fadeT = null; cur = null; audio.pause(); audio.volume = V(); restoreGame(); render(); }
   function cut(then) {          // quick fade-out of the current song, then run 'then' (or go back to the game's music)
     clearInterval(fadeT); fadeT = null; const was = cur; cur = null;
-    if (!was || audio.paused) { audio.pause(); audio.volume = S.volume; if (!(then && then())) restoreGame(); render(); return; }
+    if (!was || audio.paused) { audio.pause(); audio.volume = V(); if (!(then && then())) restoreGame(); render(); return; }
     fadeT = setInterval(() => {
-      audio.volume = Math.max(0, audio.volume - S.volume / 6);
-      if (audio.volume <= 0.001) { clearInterval(fadeT); fadeT = null; audio.pause(); audio.volume = S.volume; if (!(then && then())) restoreGame(); render(); }
+      audio.volume = Math.max(0, audio.volume - V() / 6);
+      if (audio.volume <= 0.001) { clearInterval(fadeT); fadeT = null; audio.pause(); audio.volume = V(); if (!(then && then())) restoreGame(); render(); }
     }, 50);
     render();
   }
@@ -178,7 +188,7 @@
     const ctx = context(), mega = isMega();
     const megaNow = mega && !wasMega; wasMega = mega;
     { const st = B()?.game?.state, t = now(); if (ctx === 'menu') runTime = 0; else if (st === 'playing' && runLast) runTime += Math.min(1, (t - runLast) / 1000); runLast = t; }
-    const leftOrEnteredMenu = lastCtx != null && ctx !== lastCtx && (ctx === 'menu' || lastCtx === 'menu');
+    const leftOrEnteredMenu = lastCtx != null && ctx !== lastCtx && (menuish(ctx) || menuish(lastCtx));
     if (ctx !== lastCtx) { if (ctx === 'battle' && (lastCtx === 'menu' || lastCtx == null)) nextRoll = RULES.battle?.random?.first ? now() : now() + (RULES.battle?.random?.every ?? 150) * 1000; }
     lastCtx = ctx;
     if (!S.on || !unlocked) { if (cur) hush(); return; }
@@ -190,7 +200,7 @@
     }
     // 1a) low HP: the low-HP song cuts in (not over the Mega song or a legendary theme)
     { const p = B()?.game?.player, L = lowRules(), hp = p && p.maxHp > 0 ? p.hp / p.maxHp : 1;
-      let tier = 99; if (ctx !== 'menu' && p && !p.dead) L.forEach((r, i) => { if (hp < (r.below ?? 0.2) && i < tier) tier = i; });
+      let tier = 99; if (!menuish(ctx) && p && !p.dead) L.forEach((r, i) => { if (hp < (r.below ?? 0.2) && i < tier) tier = i; });
       const worse = tier < wasLow; wasLow = tier;
       if (worse && !(cur && cur.ctx === 'mega') && !ctx.startsWith('legend:')) { const id = pick(L[tier].songs);
         if (id) { if (cur && cur.id === id) { cur.ctx = 'lowhp:' + tier; audio.loop = false; } else cut(() => start(id, 'lowhp:' + tier)); render(); return; } } }
@@ -201,9 +211,9 @@
       if (!fadeT) { cut(() => start(id, ctx)); render(); return; }
     }
     // 2) going between the menu and a battle switches music right away (title songs never follow you into battle)
-    if (leftOrEnteredMenu && cur && cur.ctx !== ctx) {
+    if (leftOrEnteredMenu && ((cur && cur.ctx !== ctx) || fadeT)) {   // also catches a song that was mid-fade-in
       const r = rule(ctx);
-      if (!(r && r.songs && r.songs.includes(cur.id))) { cut(() => { const id = chooseNext(ctx, null); return id ? start(id, ctx) : false; }); return; }
+      if (!(cur && r && r.songs && r.songs.includes(cur.id))) { cut(() => { const id = chooseNext(ctx, null); return id ? start(id, ctx) : false; }); return; }
     }
     // 3) inside a battle, a playing song is never interrupted; if the new moment wants the same song it just keeps going
     if (cur) {
@@ -257,7 +267,7 @@
   $('.pm-on').addEventListener('click', () => { S.on = !S.on; save(); unlocked = true; if (!S.on) hush(); tick(); render(); });
   $('.pm-skip').addEventListener('click', skip);
   const vol = $('input'); vol.value = String(S.volume);
-  vol.addEventListener('input', () => { S.volume = Number(vol.value); audio.volume = S.volume; save(); });
+  vol.addEventListener('input', () => { S.volume = Number(vol.value); audio.volume = V(); save(); });
   function render() {
     const t = cur && TRACKS[cur.id];
     $('.pm-title').textContent = !S.on ? 'Custom music off' : t ? (cur.ctx === 'mega' ? '✨ ' : '') + t.title : 'Game music' + (gameTrack ? ': ' + gameTrack : '');
@@ -274,6 +284,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
   function event(name) {   // special events: PS_MUSIC.event('trainer') plays one of that event's songs right away (once)
     const r = (RULES.events || {})[name]; if (!r || !S.on) return false; const id = pick(r.songs); if (!id) return false;
+    if (cur && cur.ctx === 'mega') return false;   // the Mega Evolution song always wins over events (e.g. Dynamax)
     unlocked = true; if (cur && cur.id === id) { cur.ctx = 'event:' + name; return true; } cut(() => start(id, 'event:' + name)); return true;
   }
   window.PS_MUSIC = { skip, event, stop: hush, rules: RULES, tracks: TRACKS, _audio: audio, get playing() { return cur && { ...cur }; }, get gameTrack() { return gameTrack; } };

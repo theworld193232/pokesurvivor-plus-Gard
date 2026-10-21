@@ -7,6 +7,7 @@ let current=null, used=false, restore=null;
 let lastLevel=0, rewardPending=false;
 const ROLL_CHANCE=0.50; // TESTING: 50%. For release, set to 0.01 (1%).
 let stoneOwned=false;
+let MEGA_CTL=null;   // set inside start(): trainer text box + forced Mega Evolution (used by Echo's Z-move line and J's Will)
 function allowMegaByLevel(player, forms){
   const lv=Number(player?.level||1);
   if(player!==current){lastLevel=lv; rewardPending=false; return;}
@@ -602,7 +603,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  }
  // ---- QUEEN'S GAZE: a private passive for the LoverGare account's Pheromosa only.
  //      Nobody else's game ever applies or shows it.
- const QUEEN={user:'lovergare',dex:795,spd:1.25,perKill:0.0001,killCap:1000,regen:20,
+ const QUEEN={user:'lovergare',dex:795,spd:1.25,perKill:0.005,killCap:1000,regen:20,
    summonEvery:12,summonCount:2,maxAllies:5,allyLife:20,allyDmg:20,
    // share = how much of Pheromosa's own stats (damage, speed) the ally gets
    // Every Bug-type Pokemon in the game (except Pheromosa), [dex, its other type]. Rolled by rarity:
@@ -651,7 +652,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    if(!p.__echoCrit){p.__echoCrit=true;p.critChance=(Number(p.critChance)||0)+ECHO.crit;}   // Echo's Love: +25% crit chance
    if(!p.__jInt){p.__jInt=true;p.rerollBonus=(Number(p.rerollBonus)||0)*2+1;}   // J's Intuition: double rerolls (6 -> 12)
    if(p.megaForm==='282-mega'){const d=getBridge()?.moves?.BY_ID?.['true-moon-blast'];   // Echo's True Potential replaces True Moon Blast (her game only)
-     const patch=o=>{if(!o||o.__echo)return;o.__echo=true;o.psCast='echoblast';o.name="Echo's True Potential";o.desc='A giant moon orb rolls forward leaving damaging glitter, then a moon meteor crashes down where it stops.';o.fx=Object.assign({},o.fx||{},{size:54,speed:380,range:290,boom:165,boomMult:2.6,colors:['#ffffff','#ffc8f0','#b8a0ff']});};
+     const patch=o=>{if(!o||o.__echo)return;o.__echo=true;o.psCast='echoblast';o.name="Echo's True Potential";o.desc='A giant moon orb rolls forward leaving damaging glitter, then three moon meteors crash down where it stops.';o.fx=Object.assign({},o.fx||{},{size:54,speed:380,range:290,boom:165,boomMult:2.6,meteors:3,colors:['#ffffff','#ffc8f0','#b8a0ff']});};
      patch(d);for(const inst of p.moves||[])if(inst&&inst.id==='true-moon-blast'){patch(inst);if(inst.def&&inst.def!==d)patch(inst.def);}}
    const B2=ECHO.bond;if(p.megaForm!==B2.form)return;
    const hp=p.maxHp>0?p.hp/p.maxHp:1,bd=p.__echoBond;
@@ -665,7 +666,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  window.PS_ZCAST=function(p,def){
    try{if(!echoOn(p)||!def||def.type!=='psychic'||!window.PS_FX||!window.PS_FX.has('echoz'))return false;
      window.PS_FX.cast('echoz',p,{id:'echo-z',type:'psychic',dmg:Number(def.dmg)||28,knock:220,fx:{dur:Math.min(9,Number(def.dur)||9),reach:330,barrier:130,boomR:420,boomMult:6}},null,false);
-     try{trainerLine('Echo',"I'll call you... {n}!");}catch(e){}
+     try{MEGA_CTL&&MEGA_CTL.line('Echo',"I'll call you... {n}!");}catch(e){}
      return true;}catch(e){console.warn('echo z',e);return false;}
  };
  function echoUndo(p){if(p&&p.__echoXp&&!echoOn(p)){p.xpMul=(Number(p.xpMul)||ECHO.xp)/ECHO.xp;p.__echoXp=false;}}
@@ -848,17 +849,31 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    const UB=(window.PS_ULTRA_BEASTS||[]).includes(Number(p.dex));
    const lines=P.src==='legend'?passiveLines(UB?'Ultra Beast ability':'Legendary ability',P.abilityId,P.types,P.deal,true):[describeDamage(P.types,{},true)];
    if(P.src==='legend'&&TRAITS[Number(p.dex)])for(const t of TRAITS[Number(p.dex)])lines.push('Trait \u2013 '+describeTrait(t));
-   if(queenOn(p))lines.push('\u{1F451} Queen\'s Gaze (only you can see this): Speed \u00d71.25 \u00b7 +0.01% damage per KO (now +'+(queenKills(p)*QUEEN.perKill*100).toFixed(2)+'%, max +10% at 1000) \u00b7 heals 20 HP/s \u00b7 summons Bug Pok\u00e9mon to fight for her, up to 5 at a time, 20s each (70% Common \u00b7 15% Uncommon at 50% of her stats; 10% Rare \u00b7 5% Epic at 100%). They open chests and stay on screen');
+   if(queenOn(p))lines.push('\u{1F451} Queen\'s Gaze (only you can see this): Speed \u00d71.25 \u00b7 +0.5% damage per KO (now +'+(queenKills(p)*QUEEN.perKill*100).toFixed(2)+'%, max +500% at 1000) \u00b7 heals 20 HP/s \u00b7 summons Bug Pok\u00e9mon to fight for her, up to 5 at a time, 20s each (70% Common \u00b7 15% Uncommon at 50% of her stats; 10% Rare \u00b7 5% Epic at 100%). They open chests and stay on screen');
    if(P.src==='legend'&&window.PS_LEGEND_MOVES&&window.PS_LEGEND_MOVES[Number(p.dex)])lines.push('Signature move (from level-up rewards): '+window.PS_LEGEND_MOVES[Number(p.dex)].map(m=>m.name).join(', '));
    return '\n\n'+lines.filter(Boolean).join('\n');
  }
+ // J's Will (LoverGare's Gardevoir only): level 50+, not Mega yet, out of hearts -> revive with 2 hearts and instantly Mega Evolve. Once per run.
+ const JWILL={level:50,lives:2,line:"We're not done yet, Echo!... Show them our bond!..",after:'Echo refused to give up!'};
+ window.PS_LASTSTAND=function(p){
+   try{if(!p||p!==getPlayer()||!echoOn(p)||p.__jWillUsed||p.megaForm||used||(Number(p.level)||1)<JWILL.level||(Number(p.lives)||0)>0)return false;
+     p.__jWillUsed=true;p.lives=JWILL.lives+1;   // the game's own revive uses one right after this -> 2 hearts left
+     window.__psJWill=true;
+     const tryMega=(n)=>{const b=getBridge();if(!b||getPlayer()!==p)return;if(b.game?.state!=='playing'&&n<60){setTimeout(()=>tryMega(n+1),100);return;}
+       try{MEGA_CTL.mega('282','282-mega');}catch(e){console.warn("J's Will mega",e);}
+       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.line,'J');}catch(_){}},1150);
+       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.after,'Echo');b.fx.dmgText(p.x,p.y-(p.bodyH||40)-30,JWILL.after,'#ff9ad8');}catch(_){}window.__psJWill=false;},4600);};
+     setTimeout(()=>tryMega(0),30);
+     try{const b=getBridge();b.fx.ring(p.x,p.y,10,200,'#ff9ad8',0.8,8);b.fx.burst(p.x,p.y-20,'#ffd0f0',40,280);modKick(0.5);}catch(_){}
+     return true;}catch(e){console.warn("J's Will",e);return false;}};
  function echoText(p){
    if(!echoOn(p))return '';const B2=ECHO.bond,bd=p.__echoBond,now=performance.now();
    const l=['\u{1F496} Echo (only you can see this): EXP ×1.6 · damage ×1.3 · speed ×1.15',
      "\u{1F496} Echo's Resolve For J: +2 second chances (extra hearts) each run",
      "\u{1F496} J's Intuition: twice the rerolls (e.g. 6 \u2192 12)",
      "\u{1F496} Echo's Love: +25% critical-hit chance \u00b7 15% less damage taken",
-     "\u{1F496} J and Echo's Bond (Mega Gardevoir): when HP drops below 50% → heals 20 HP/s for 10s, attack ×10 for 10s, speed ×1.5 for 5s, 20% less damage taken for 30s (every 30s at most)"+(bd&&now<bd.take?' — ACTIVE':'')];
+     "\u{1F496} J and Echo's Bond (Mega Gardevoir): when HP drops below 50% → heals 20 HP/s for 10s, attack ×10 for 10s, speed ×1.5 for 5s, 20% less damage taken for 30s (every 30s at most)"+(bd&&now<bd.take?' — ACTIVE':''),
+     "\u{1F496} J's Will: at level 50+, if you're not Mega yet and you run out of hearts, you revive with 2 hearts and instantly Mega Evolve (once per run)"+(p.__jWillUsed?' — USED':'')];
    return '\n\n'+l.join('\n');}
  function passiveLines(title,abilityId,types,deal,inScope){
    const A=ABIL[abilityId],out=[];
@@ -1012,7 +1027,7 @@ function start(){
      try{const newAnim=p.anim;if(newAnim!==baseline.anim){p.anim=baseline.anim;}p.invuln=Math.max(Number(p.invuln)||0,1.4);
        const cry=MEGA_CRIES[String(Number(p.dex))]||null;
        window.PS_FX.cast('megaevo',p,{id:'mega-evolution',type:'normal',dmg:0,fx:{newAnim,form:f.key,cry}},null,true);}catch(e){console.warn('mega fx',e);}
-     try{const nm=String(f.en||f.name||'').replace(/^Mega[- ]?/i,'').replace(/\s+[XYZ]$/,'').trim()||'partner';setTimeout(()=>trainerLine(nm),1150);}catch(e){}
+     try{const nm=String(f.en||f.name||'').replace(/^Mega[- ]?/i,'').replace(/\s+[XYZ]$/,'').trim()||'partner';setTimeout(()=>{if(!window.__psJWill)trainerLine(nm);},1150);}catch(e){}
    }
    restore=()=>{if(undoSignature)undoSignature();delete p.megaKit;clearPrimal();p.mon=baseline.mon;p.anim=baseline.anim;p.baseAtk=baseline.baseAtk;p.baseSpd=baseline.baseSpd;if(Number.isFinite(baseline.baseSpa))p.baseSpa=baseline.baseSpa;p.maxHp=baseline.maxHp;p.hp=Math.min(p.hp,baseline.maxHp);p.r=baseline.r;p.bodyH=baseline.bodyH;delete p.megaForm;};
    hint.textContent=WEATHER[f.key]?'Primal Reversion! '+WEATHER[f.key].name+' is active.'+(undoSignature?' Learned '+SIGNATURE_MOVES[f.key].name+'!':''):'Mega Evolution activated!'+(kit&&ABIL[kit.passive.ability]?' Ability: '+ABIL[kit.passive.ability].name+'.':'')+(undoSignature?' Learned '+SIGNATURE_MOVES[f.key].name+'!':'');
@@ -1025,7 +1040,8 @@ function start(){
    "Show them what we're made of, {n}!","You've got this, {n}!","Hang in there, {n}!","Let's go all out, {n}!",
    "This is our moment, {n}!","Together we're unstoppable, {n}!","I believe in you, {n}!","Let's turn this around, {n}!",
    "Unleash your true power, {n}!","Our bond is our strength, {n}!","Time to shine, {n}!","No holding back now, {n}!"];
- function trainerLine(name,forced){
+ MEGA_CTL={line:(...a)=>trainerLine(...a),mega(dex,key){chosenForm[String(dex)]=key;stoneOwned=true;rewardPending=false;btn.onclick();}};
+ function trainerLine(name,forced,tag){
    // Pokemon-game style text box: white panel, double border, name tag, typewriter text, blinking arrow
    if(!document.getElementById('ps-trainer-css')){const st=document.createElement('style');st.id='ps-trainer-css';st.textContent=`
    #ps-trainer{position:fixed;left:50%;bottom:120px;z-index:65;pointer-events:none;width:min(560px,calc(100vw - 32px));transform:translate(-50%,24px);opacity:0;transition:opacity .22s ease,transform .3s cubic-bezier(.2,1.4,.4,1)}
@@ -1040,6 +1056,7 @@ function start(){
    @media (max-width:700px){#ps-trainer{bottom:96px}#ps-trainer .tb-text{font-size:16px}#ps-trainer img{width:32px}}`;document.head.append(st);}
    let el=document.getElementById('ps-trainer');
    if(!el){el=document.createElement('div');el.id='ps-trainer';el.innerHTML='<div class="tb-box"><span class="tb-tag">Trainer</span><img src="assets/fx/mega-symbol.png?v=1" alt=""><div class="tb-text"></div><span class="tb-arrow"></span></div>';document.body.append(el);}
+   {const tg=el.querySelector('.tb-tag');if(tg)tg.textContent=tag||'Trainer';}
    const line=(forced||TRAINER_LINES[Math.floor(Math.random()*TRAINER_LINES.length)]).replace('{n}',name),tx=el.querySelector('.tb-text');
    clearInterval(el.__type);clearTimeout(el.__t);tx.textContent='';el.classList.remove('show');void el.offsetWidth;el.classList.add('show');
    let n=0;el.__type=setInterval(()=>{n+=1;tx.textContent=line.slice(0,n);if(n>=line.length)clearInterval(el.__type);},28);

@@ -3,7 +3,7 @@
    - ⚙ settings button (next to ♫): Minimap, FPS counter, Reduce screen shake (base game only; the mod's effects always keep theirs)
    - Minimap: circular radar (foes, bosses, items, chests, rifts, allies, north marker)
    - Melee buff: melee moves +25% damage, +10% reach, short invincibility on each swing
-   - DYNAMAX: from level 20, press G (or the red button) to go giant for 60s: +30% damage / defense / speed / HP,
+   - DYNAMAX: earn the Dynamax Band by clearing a Max Raid Den (see dens.js), then press G (or the red button) to go giant for 60s: +30% damage / defense / speed / HP,
      red aura and a Max shockwave of your type every 1.5s (every 3rd one is big). 4-minute cooldown after it ends. */
 (() => {
   'use strict';
@@ -48,7 +48,7 @@
   // ---------------- DYNAMAX ----------------
   function animBase(a) { if (!a) return 1; if (!dyn.base.has(a)) dyn.base.set(a, Number(a.scale) || 1); return dyn.base.get(a); }
   function applyScale() { const p = dyn.player; if (!p || !p.anim) return; p.anim.scale = animBase(p.anim) * dyn.f; }
-  function canDynamax(p) { return !!(p && !p.dead && playing() && !dyn.active && dyn.cd <= 0 && (Number(p.level) || 1) >= DYN.minLevel); }
+  function canDynamax(p) { return !!(p && !p.dead && playing() && !dyn.active && dyn.cd <= 0 && !!p.__dynBand); }
   function startDynamax() {
     const p = B()?.game?.player, b = B(); if (!canDynamax(p)) return false;
     dyn.active = true; dyn.t = DYN.dur; dyn.n = 0; dyn.pulse = 0.6; dyn.player = p;
@@ -116,7 +116,7 @@
     '<label>Minimap<input type="checkbox" data-k="minimap"></label>' +
     '<label>FPS counter<input type="checkbox" data-k="fps"></label>' +
     '<label>Reduce screen shake (base game only)<input type="checkbox" data-k="calm"></label>' +
-    '<small>DYNAMAX: from level 20 press <b>G</b> (or the red button) to go giant for 60 s. 4 min cooldown.</small>';
+    '<small>DYNAMAX: clear a Max Raid Den (red beam of light) to earn the Dynamax Band, then press <b>G</b> (or the red button) to go giant for 60 s. 4 min cooldown.</small>';
   const mm = document.createElement('canvas'); mm.id = 'ps-minimap'; mm.width = 248; mm.height = 248;
   const fpsEl = document.createElement('div'); fpsEl.id = 'ps-fps';
   const dynBtn = document.createElement('button'); dynBtn.id = 'ps-dyn'; dynBtn.type = 'button';
@@ -134,7 +134,7 @@
     if (!battle || !p) { dynBtn.style.display = 'none'; return; }
     dynBtn.style.display = 'block';
     if (dyn.active) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX ' + Math.ceil(dyn.t) + 's'; }
-    else if (lvl < DYN.minLevel) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX · Lv ' + DYN.minLevel; }
+    else if (!p.__dynBand) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX · clear a Den'; }
     else if (dyn.cd > 0) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX ' + Math.floor(dyn.cd / 60) + ':' + String(Math.ceil(dyn.cd % 60)).padStart(2, '0'); }
     else { dynBtn.className = 'ready'; dynBtn.textContent = 'DYNAMAX (G)'; }
   }
@@ -185,5 +185,5 @@
   }
   function init() { document.head.append(css); document.body.append(btn, panel, mm, fpsEl, dynBtn); render(); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_QUALITY = { dynamax: startDynamax, get dyn() { return { active: dyn.active, t: dyn.t, cd: dyn.cd, f: dyn.f }; }, settings: Q };
+  window.PS_QUALITY = { dynamax: startDynamax, dynRecharge() { if (!dyn.active) dyn.cd = 0; }, get dyn() { return { active: dyn.active, t: dyn.t, cd: dyn.cd, f: dyn.f }; }, settings: Q };
 })();
