@@ -53,6 +53,7 @@
   let chSel = 'route1';
   css.textContent += `
   html.ps-story #menu-maps{display:none !important}
+  html.ps-story #ps-dyn{display:none !important}
   #ps-chapters{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
   #ps-chapters .ch{display:flex;align-items:center;gap:8px;flex:1 1 180px;padding:6px 10px;border-radius:10px;border:2px solid #2a3a6a;background:rgba(10,20,48,.75);color:#dfe8ff;font:800 14px Pixelify,Fredoka,system-ui,sans-serif;cursor:pointer;text-align:left}
   #ps-chapters .ch.on{border-color:#8fd0ff;background:linear-gradient(rgba(74,140,255,.35),rgba(10,20,48,.8))}

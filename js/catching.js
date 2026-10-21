@@ -286,7 +286,7 @@
      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin:12px 0;max-height:min(330px,46vh);overflow-y:auto;padding-right:4px">${TRAINERS.map(t=>card(t[0],t[1])).join('')}</div>
      <small style="opacity:.7;display:block">Your Pokémon's size is under its Upgrades button on the main menu.</small></div>`;
  }
- // ---- [Gard] Pokemon size: its own button right under the partner's Upgrades button (Story mode) ----
+ // ---- [Gard] Pokemon size: its own button right under the partner's Upgrades button (both modes) ----
  function sizeMenu(){
    let m=document.getElementById('ps-size-menu');
    if(!m){m=document.createElement('div');m.id='ps-size-menu';m.style.cssText='position:fixed;inset:0;z-index:2147483100;display:flex;align-items:center;justify-content:center;background:rgba(6,8,16,.6)';document.body.append(m);
@@ -306,7 +306,7 @@
  }
  function sizeButton(force){
    const up=document.getElementById('menu-partner-upg');let row=document.getElementById('ps-size-row');
-   if(!up||!STORY()){if(row)row.style.display='none';return;}
+   if(!up){if(row)row.style.display='none';return;}
    const S=E()?.DB?.save;if(!S)return;
    if(!row){row=document.createElement('div');row.id='ps-size-row';row.style.cssText='display:flex;justify-content:center;width:100%';
      const b=document.createElement('button');b.type='button';b.className='pp-upg';b.id='ps-size-btn';row.append(b);
@@ -405,6 +405,7 @@
    if(toastT>0){toastT-=dt;if(toastT<=0&&toastEl)toastEl.style.display='none';}
    const p=B()?.game?.player;
    if(running()){const tm=document.getElementById('ps-trainer-menu');if(tm&&tm.style.display!=='none')tm.style.display='none';}   // menus never stay over a run
+   if(p&&!STORY()){const st=B()?.game?.state;if(st&&st!=='ui'&&st!=='over')sizePlayer(p);}   // [Gard] your Pokemon's size works in Original too
    if(!p||!running()){holdFire=false;if(bagOpen)closeBag();if(hudEl)hudEl.style.display='none';throws.length=0;target=null;alive.clear();return;}
    sizeEnemies();sizePlayer(p);
    if(B().game.state==='playing'){updateTrainer(dt,p);updateThrows(dt);drops();potionCd=Math.max(0,potionCd-dt);for(const h of heals)h.t+=dt;while(heals.length&&heals[0].t>.9)heals.shift();}
