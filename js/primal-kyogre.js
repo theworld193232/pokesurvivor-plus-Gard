@@ -175,6 +175,7 @@
  function field(){
    const v=frameView,k=v.k,rect=v.rect;
    ctx.fillStyle='rgba(1,8,22,.76)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
+   ctx.fillStyle='rgba(2,22,61,.36)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
    // Long low waves make the rough-water current visible at fixed world positions.
    ctx.save();ctx.strokeStyle='rgba(57,164,205,.28)';ctx.lineWidth=2.5*k;
    for(let yy=Math.floor(v.top/80)*80;yy<v.top+rect.height/k+80;yy+=80){ctx.beginPath();
@@ -200,9 +201,9 @@
    ctx.strokeStyle='rgba(178,222,239,.56)';ctx.lineWidth=1.35;ctx.beginPath();
    for(let i=0;i<count;i++){const q=rain[i],x=rect.left+((q.x-clock*.11)%1+1)%1*rect.width,y=rect.top+((q.y+clock*q.speed*2)%1)*rect.height;ctx.moveTo(x,y);ctx.lineTo(x-10,y+q.len);}ctx.stroke();
    // Restrict the living form's aura to the three gold markings: side crests and belly.
-   if(owner&&owner.megaForm===FORM&&scene?.revealed){const pos=screen(owner.x,owner.y-(Number(owner.bodyH)||40)*.45),r=(Number(owner.r)||16)*frameView.k,body=(Number(owner.bodyH)||48)*frameView.k,halo=Math.max(r*.95,body*.25),pulse=.76+.2*Math.sin(clock*5);
+   if(owner&&owner.megaForm===FORM){const body=(Number(owner.bodyH)||48)*frameView.k,pos=screen(owner.x,owner.y+(Number(owner.bodyH)||48)*.08),r=(Number(owner.r)||16)*frameView.k,halo=Math.max(r*.95,body*.25),pulse=.76+.2*Math.sin(clock*5);
      ctx.save();ctx.globalCompositeOperation='lighter';
-     for(const [dx,dy,scale] of [[-r*.82,-r*.18,.92],[r*.82,-r*.18,.92],[0,r*.32,1.05]]){
+     for(const [dx,dy,scale] of [[-body*.38,-body*.05,.92],[body*.38,-body*.05,.92],[0,body*.22,1.05]]){
        const x=pos.x+dx,y=pos.y+dy;glow(x,y,halo*scale,'rgba(255,202,28,'+pulse+')');
        const core=ctx.createRadialGradient(x,y,0,x,y,halo*.23);core.addColorStop(0,'rgba(255,255,196,.95)');core.addColorStop(.45,'rgba(255,227,83,.78)');core.addColorStop(1,'rgba(255,183,22,0)');
        ctx.fillStyle=core;ctx.beginPath();ctx.arc(x,y,halo*.23,0,TAU);ctx.fill();
