@@ -1,16 +1,20 @@
 /* =====================================================================================================
    SMARTER WILD POKEMON: each wild Pokemon gets a personality when it appears (both modes).
    Most still chase you like before, so the game keeps its pace (and js/pressure.js keeps the field full).
-     aggressive  chases you and attacks (the game's normal behaviour)                         ~44%
-     hit & run   VERY aggressive (rushes you faster) but the moment it actually hurts you it
-                 runs away for a few seconds, then comes back for another hit                 ~12%
-     flanker     circles around you at a distance, then dashes straight in                     ~9%
-     ambusher    sits still (hiding in place) until you get close, then lunges at you          ~7%
-     berserker   chases like normal, but gets faster and angrier as its HP drops (red mark)   ~12%
-     skittish    runs away whenever you come near, then creeps back                             ~8%
-     passive     wanders around and leaves you alone until you hit it (then it turns aggressive) ~8%
+   Your friend's personalities (same rates as his):
+     aggressive  chases you and attacks (the game's normal behaviour)                          ~32%
+     skittish    runs away whenever you come near, then creeps back                             15%
+     passive     wanders around and leaves you alone until you hit it (then it turns aggressive) 15%
      sniper      ranged attackers keep their distance and never come close (all ranged Pokemon)
-     coward      (extra trait, 20%) at low HP stops attacking and flees (sweat drop)
+     coward      (extra trait, 30%) at low HP stops attacking and flees (sweat drop)
+   Added on top:
+     hit & run   VERY aggressive (rushes you faster) but the moment it actually hurts you it
+                 runs away for a few seconds, then comes back for another hit                  10%
+     flanker     circles around you at a distance, then dashes straight in                       7%
+     ambusher    sits still (hiding in place) until you get close, then lunges at you            5%
+     berserker   chases like normal, but gets faster and angrier as its HP drops (red mark)     10%
+     cry baby    chases you like normal, but the moment you hit it, it bursts into tears: sits
+                 sobbing for a few seconds (no attacks), runs off, then comes back            6%
    Bosses, Legendaries, roaming Legendaries, Raid Den bosses and wave enemies always stay aggressive.
    The game moves every enemy first; for the special ones this file then adjusts or replaces that step, so they
    still collide with walls and keep their own speed. Little marks over their heads show what they're up to.
@@ -20,13 +24,14 @@
  const E=()=>window.PS_HOOPA_ENGINE,B=()=>window.PS_MEGA_BRIDGE_V5;
  // Tuning knobs.
  const AI={
-   mix:[['hitrun',.12],['flanker',.09],['ambusher',.07],['berserker',.12],['skittish',.08],['passive',.08]],   // the rest are aggressive
-   cowardChance:.20,cowardHp:.25,
+   mix:[['skittish',.15],['passive',.15],['hitrun',.10],['flanker',.07],['ambusher',.05],['berserker',.10],['crybaby',.06]],   // the rest are aggressive (skittish/passive/coward rates are your friend's)
+   cowardChance:.30,cowardHp:.25,
    sniperRange:260,skittishRange:170,passiveWander:.55,
    hitrun:{rush:1.35,flee:2.6,fleeSpd:1.25},           // speed while rushing, seconds spent running away, run speed
    flanker:{radius:175,orbit:2.4,dash:1.0,dashSpd:1.7},
    ambusher:{trigger:210,lunge:1.1,lungeSpd:1.9},
-   berserker:{maxBoost:1.6}                             // speed at 0 HP
+   berserker:{maxBoost:1.6},
+   crybaby:{cry:2.6,run:1.8}                            // seconds sobbing, seconds running off afterwards                             // speed at 0 HP
  };
  const RANGED=new Set(['ranged','fan','beamer','zoner']);
  const st=new WeakMap();
@@ -62,6 +67,7 @@
      if(!e||e.dead||e.remote||e.__psCatch)continue;let s=st.get(e)||assign(e);
      const hp=Number(e.hp)||0,wasHit=hp<s.hp-.01;s.hp=hp;s.t+=dt;if(s.markT>0)s.markT-=dt;
      const tc=Number(e.touchCd)||0,attacked=tc>s.tc+.05;s.tc=tc;   // its contact attack just fired
+     if(wasHit&&s.kind==='crybaby'&&s.phase!=='cry'){s.phase='cry';s.ph=AI.crybaby.cry;mark(s,'cry',AI.crybaby.cry);try{if(Math.random()<.5)B().fx.dmgText(e.x,e.y-(Number(e.bodyH)||24)-14,['Waaah!','*sob*','Wahh!','*sniff*'][Math.floor(Math.random()*4)],'#8fd3ff');}catch(_){}}
      if(wasHit&&s.kind==='passive'){s.kind=e.psAi='aggressive';mark(s,'!',.8);}          // provoked
      if(wasHit&&s.kind==='ambusher'&&s.phase==='hide'){s.phase='lunge';s.ph=AI.ambusher.lunge;mark(s,'!',.8);}
      if(s.coward&&!s.flee&&Number(e.maxHp)>0&&hp<Number(e.maxHp)*AI.cowardHp){s.flee=true;mark(s,'',0);}
@@ -88,6 +94,11 @@
          if(d<A.trigger){s.phase='lunge';s.ph=A.lunge;mark(s,'!',.8);}}
        else if(s.phase==='lunge'){s.ph-=dt;moveTo(e,s,-dx,-dy,dt*A.lungeSpd);if(s.ph<=0){s.phase='hunt';}}
        /* hunt: the game's own chase from then on */}
+     else if(s.kind==='crybaby'){
+       if(s.phase==='cry'){s.ph-=dt;moveTo(e,s,Math.sin(ts/45)*.0001,0,dt*0);e.x=s.x+Math.sin(ts/40)*1.2;   // sobbing in place, shaking
+         e.touchCd=Math.max(Number(e.touchCd)||0,.3);e.shotCd=Math.max(Number(e.shotCd)||0,.5);s.tc=e.touchCd;if(s.ph<=0){s.phase='run';s.ph=AI.crybaby.run;mark(s,'drop',AI.crybaby.run);}}
+       else if(s.phase==='run'){s.ph-=dt;e.touchCd=Math.max(Number(e.touchCd)||0,.3);s.tc=e.touchCd;moveTo(e,s,dx/d,dy/d,dt*1.2);if(s.ph<=0)s.phase='';}
+       /* otherwise: the game's own chase */}
      else if(s.kind==='sniper'){   // keep at range: back off when you come closer, never walk in
        const want=AI.sniperRange;if(d<want-20)moveTo(e,s,dx/d,dy/d,dt);else if(d>want+140)moveTo(e,s,-dx/d,-dy/d,dt*.8);else moveTo(e,s,-dy/d,dx/d,dt*.35);   // strafe sideways
        e.touchCd=Math.max(Number(e.touchCd)||0,.2);s.tc=e.touchCd;}
@@ -99,17 +110,19 @@
    }
  }
  requestAnimationFrame(frame);
- // marks over their heads: sweat drop (fleeing coward), ! (spotted you / dashing), 💨 (running off after a hit), 💢 (berserk)
+ // marks over their heads: tears + ';_;' bubble (cry baby), sweat drop (fleeing coward / cry baby running off), ! (spotted you / dashing), 💨 (running off after a hit), 💢 (berserk)
  let hooked=false;
  function drop(g,x,y){g.fillStyle='#8fd3ff';g.strokeStyle='#1d4a7a';g.lineWidth=1;g.beginPath();g.moveTo(x,y-6);g.quadraticCurveTo(x+4,y,x,y+3);g.quadraticCurveTo(x-4,y,x,y-6);g.fill();g.stroke();}
  function bang(g,x,y){g.fillStyle='#ffe066';g.strokeStyle='#5a3a00';g.lineWidth=1.2;g.beginPath();g.moveTo(x-2.5,y-9);g.lineTo(x+2.5,y-9);g.lineTo(x+1.2,y+1);g.lineTo(x-1.2,y+1);g.closePath();g.fill();g.stroke();g.beginPath();g.arc(x,y+4.5,2,0,Math.PI*2);g.fill();g.stroke();}
  function anger(g,x,y){g.strokeStyle='#ff3d3d';g.lineWidth=2;g.lineCap='round';for(const [a,b] of [[[-4,-1],[-1,-1]],[[-1,-4],[-1,-1]],[[4,-1],[1,-1]],[[1,-4],[1,-1]],[[-4,1],[-1,1]],[[-1,4],[-1,1]],[[4,1],[1,1]],[[1,4],[1,1]]]){g.beginPath();g.moveTo(x+a[0],y+a[1]);g.lineTo(x+b[0],y+b[1]);g.stroke();}}
+ function tears(g,e,h,t){const x=e.x,y=e.y-h*.62;g.fillStyle='rgba(120,200,255,.95)';for(const sd of [-1,1]){for(let i=0;i<3;i++){const u=((t*2.2+i/3)%1),tx=x+sd*(5+u*6),ty=y+u*14+u*u*6;g.globalAlpha=1-u;g.beginPath();g.ellipse(tx,ty,1.6,2.4,0,0,Math.PI*2);g.fill();}}g.globalAlpha=1;
+   g.fillStyle='#ffffff';g.strokeStyle='#3b3f5c';g.lineWidth=1;g.beginPath();g.ellipse(x+14,y-h*.55,9,6,0,0,Math.PI*2);g.fill();g.stroke();g.fillStyle='#3b3f5c';g.font='bold 7px monospace';g.textAlign='center';g.fillText(';_;',x+14,y-h*.55+2.5);}
  function puff(g,x,y,t){g.fillStyle='rgba(235,240,255,.85)';for(let i=0;i<3;i++){const r=2.5+i*.8;g.beginPath();g.arc(x+6+i*4+Math.sin(t*10+i)*1,y+1-i,r,0,Math.PI*2);g.fill();}}
  (function hook(){const T=E()?.Training;if(!T||typeof T.drawables!=='function'){setTimeout(hook,300);return;}if(hooked)return;hooked=true;const orig=T.drawables;
    T.drawables=function(){const r=orig.apply(this,arguments),extra=[];const now=performance.now()/1000;for(const e of B()?.enemies?.all?.()||[]){const s=st.get(e);if(!s||e.dead)continue;
      const m=s.flee?'drop':s.markT>0?s.mark:'';if(!m)continue;
      extra.push({y:e.y+.1,draw(g){const h=Number(e.bodyH)||24,x=e.x+10,y=e.y-h-4;g.save();
-       if(m==='drop')drop(g,x,y);else if(m==='!')bang(g,e.x,y-2);else if(m==='💢')anger(g,x,y);else if(m==='💨')puff(g,e.x,e.y-h*.4,now);g.restore();}});}
+       if(m==='drop')drop(g,x,y);else if(m==='cry')tears(g,e,h,now);else if(m==='!')bang(g,e.x,y-2);else if(m==='💢')anger(g,x,y);else if(m==='💨')puff(g,e.x,e.y-h*.4,now);g.restore();}});}
      return extra.length?[...(r||[]),...extra]:r;};})();
  window.PS_ENEMY_AI={AI,stateOf:e=>st.get(e)};
 })();
