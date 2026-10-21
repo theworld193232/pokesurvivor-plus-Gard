@@ -321,7 +321,7 @@
       for(const k of ['invuln','reviveShield','shadeInv','balloonCd'])actor[k]=Math.max(0,(actor[k]||0)-dt);
       actor.berryTick(dt);s.hp=Math.min(s.maxHp,s.hp+((s.owner.regen||0)*BALANCE.inherit+actor.regen+(actor.bellHeal||0))*dt);actor.bellHeal=0;
       if(maxed(s))E.Ult.update(actor,dt);
-      s.hurtCd=Math.max(0,s.hurtCd-dt);s.slowT=Math.max(0,s.slowT-dt);s.stunT=Math.max(0,s.stunT-dt);
+      s.hurtCd=Math.max(0,s.hurtCd-dt);s.slowT=Math.max(0,s.slowT-dt);if(s.slowT<=0)delete s.seaSlowFactor;s.stunT=Math.max(0,s.stunT-dt);
       if (s.age>=lifetime(s)) { s.dead=true; portal(s); continue; }
       let target=null,nearest=Infinity;
       for(const e of enemies){
@@ -369,7 +369,7 @@
       const chestRange=s.chest?Math.max(46,(s.chest.r||16)+s.r+24):0;
       const stop=s.chest&&!escape?chestRange-8:0;
       const dist=distance(s,goal);
-      const step=s.stunT>0?0:Math.min(Math.max(0,dist-stop),s.speed*(s.slowT>0?0.5:1)*dt);
+      const step=s.stunT>0?0:Math.min(Math.max(0,dist-stop),s.speed*(s.slowT>0?(Number(s.seaSlowFactor)||0.5):1)*dt);
       if(step>0)navigate(s,goal,step,dt,enemies);
       // Repulsion prevents allies stacking, including those attacking the same boss.
       for(const other of units){if(s.chest||other===s||other.dead)continue;
@@ -508,3 +508,4 @@
   };
   window.PS_HOOPA={version:11,summonFree,BALANCE,summonHp,summonAtk,get sharedZ(){return sharedZ;},get bombers(){return bombers.slice();},attackRange,nativeMove,navigate,lifetime,immunity,escapeGoal,get summons(){return units.slice();},get portals(){return portals.slice();},signatures,move,stages,stageOf,attacksFor,SHINY_RATE,COLLECTIBLE_RATE};
 })();
+
