@@ -120,6 +120,13 @@
     c.onclick = () => { sel = p.dex; $('.grid').querySelectorAll('.cell').forEach(x => x.classList.remove('on')); c.classList.add('on'); detail(p.dex); };
     return c;
   }
+  // partner button, following js/partner-rules.js (first-stage Pokemon only; evolved ones start as their first stage)
+  function pickBtn(dex, p, viewShiny) {
+    const R = window.PS_PARTNER, r = R ? R.rule(dex) : { ok: true };
+    if (r.ok) return '<button class="btn gold" data-pick="1" style="width:100%">Choose as partner' + (viewShiny ? ' (shiny)' : '') + '</button>';
+    if (r.base) return '<button class="btn gold" data-pick="1" style="width:100%">Play as ' + r.baseName + (viewShiny ? ' (shiny)' : '') + '</button><p class="sub center" style="margin:4px 0 0">Evolve ' + r.baseName + ' in battle to play as ' + p.name + '.</p>';
+    return '<button class="btn" disabled style="width:100%">Can\'t be a partner</button><p class="sub center" style="margin:4px 0 0">Only first-stage Pokémon of Rare rarity and below can be partners.</p>';
+  }
   function detail(dex) {
     const s = S(), N = E(), p = N.DEX_BY[dex]; if (!p) return;
     const own = owns(dex), hasSh = ownsShiny(dex), isP = dex === s.partner;
@@ -138,13 +145,16 @@
       (own ? bar('HP', p.hp, 183, p.hp) + bar('Attack', p.atk, 1.55, '×' + Number(p.atk).toFixed(2)) + bar('Speed', p.spd, 137, p.spd) +
         (p.types.length === 1 ? '<p class="sub center" style="margin:4px 0 0">Single type: +20% damage with its ' + tname(p.types[0]) + ' moves</p>' : '') +
         (start ? '<p class="center" style="margin:6px 0 2px;font-size:14px">Starts with <b class="gold">' + start + '</b></p>' : '') + (moves ? '<div class="moves">' + moves + '</div>' : '') +
-        (using ? '<button class="btn" disabled style="width:100%">Your partner</button>' : '<button class="btn gold" data-pick="1" style="width:100%">Choose as partner' + (viewShiny ? ' (shiny)' : '') + '</button>')
+        (using ? '<button class="btn" disabled style="width:100%">Your partner</button>' : pickBtn(dex, p, viewShiny))
         : '<p class="center mut">You don\'t have it yet.<br>Get it from the <b class="gold">' + (GEN[p.gen - 1] || '') + '</b> banner' + (p.rarity === 5 ? ', a Legendary Den,' : '') + ' or by defeating it when it shows up shiny.</p>');
     const cv = d.querySelector('.stage'); cv.style.setProperty('--stage-c', !own ? '#5b83d6' : viewShiny ? '#9ae6ff' : ((N.U.TYPE_COLOR || {})[p.types[0]] || '#5b83d6')); cv.classList.toggle('shiny', own && viewShiny);
     try { N.UI.sprite(cv, dex, { lively: own, spin: own, silhouette: !own, scale: 3, hero: true, shiny: own && viewShiny }); } catch (_) {}
     d.querySelectorAll('.seg button').forEach(b => { b.onclick = () => { viewShiny = b.dataset.v === '1'; detail(dex); }; });
     const fv = d.querySelector('[data-fav]'); if (fv) fv.onclick = () => { setFav(dex, !isFav(dex)); grid(true); detail(dex); };
-    const pk = d.querySelector('[data-pick]'); if (pk) pk.onclick = () => { s.partner = dex; s.partnerShiny = hasSh && viewShiny; try { N.DB.commit(); N.UI.toast(p.name + (s.partnerShiny ? ' (shiny)' : '') + ' is now your partner'); } catch (_) {} grid(true); detail(dex); };
+    const pk = d.querySelector('[data-pick]'); if (pk) pk.onclick = () => {
+      const R = window.PS_PARTNER; let nd = dex;
+      if (R) nd = R.choose(dex, hasSh && viewShiny) || dex; else { s.partner = dex; s.partnerShiny = hasSh && viewShiny; try { N.DB.commit(); } catch (_) {} }
+      const q = N.DEX_BY[nd] || p; try { N.UI.toast(q.name + (s.partnerShiny ? ' (shiny)' : '') + ' is now your partner' + (nd !== dex ? ': evolve it in battle to become ' + p.name + '!' : '')); } catch (_) {} grid(true); detail(nd !== dex ? dex : dex); };
   }
   scr.addEventListener('click', e => { if (e.target.closest('[data-back]')) close(); });
   addEventListener('keydown', e => { if (scr.style.display === 'flex' && e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); close(); } }, true);

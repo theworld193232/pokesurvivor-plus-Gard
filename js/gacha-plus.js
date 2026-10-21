@@ -19,7 +19,7 @@
     for (const b of G.BANNERS || []) { const s = SCENE[b.gen]; if (s) b.color = [s[1], s[1], s[2]]; }
     // featured: no Legendaries
     G.featured = function (gen) {
-      if (window.PS_STORY && window.PS_STORY.on() && window.PS_SPECIAL_GACHA) return [801, 147, 374];   // Story Mode: the Special Gacha
+      if (window.PS_SPECIAL_GACHA) return window.PS_SPECIAL_GACHA.featured(gen);   // the Special Gacha's own Pokemon (js/special-gacha.js)
       const L = legends(), s = SCENE[gen], star = s && N.DEX_BY[s[0]] ? s[0] : null;
       const pool = N.DEX.filter(p => p.gen === gen && !L.has(p.dex) && p.dex !== star && p.rarity >= 3 && N.SPRITE_META[p.dex]).sort((a, b) => b.rarity - a.rarity || b.bst - a.bst);
       const two = pool.slice(0, 2).map(p => p.dex);
@@ -36,7 +36,8 @@
   #scr-gacha #banner-title{font-size:30px}
   #scr-gacha .feat canvas{filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}`;
   // banner text: Legendaries aren't on the banners any more
-  const fixText = () => { const d = document.getElementById('banner-desc'); if (d && /legendar/i.test(d.textContent)) d.textContent = d.textContent.replace(/The legendaries await!|¡Los legendarios te esperan!/i, 'Rare and Epic Pokémon await! Legendaries are found in Dens and in the wild.'); };
+  const MSG = 'Starters and special Pokémon (Rare and below) await! Allowed Legendaries: Magearna, Meloetta, Manaphy, Phione.';
+  const fixText = () => { const d = document.getElementById('banner-desc'); if (d && d.textContent !== MSG && /legendar|Rare and Epic/i.test(d.textContent)) d.textContent = MSG; };
   function init() {
     document.head.append(css);
     const t = setInterval(() => { patch(); if (done) clearInterval(t); }, 300);

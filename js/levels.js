@@ -59,5 +59,11 @@
   const css = document.createElement('style');
   css.textContent = '.upg-item{min-width:0}.upg-item>*{min-width:0}.pips{flex-wrap:nowrap;max-width:100%;overflow:hidden}.pips i{flex:1 1 0;min-width:3px;width:auto!important;max-width:12px}';
   (document.head || document.documentElement).append(css);
-  setInterval(() => { try { install(); tabs(); banner(); } catch (e) { console.warn('[levels]', e); } }, 150);
+  // the game rebuilds the tabs when you click one; fix them up in the same instant (before the screen is painted),
+  // so the game's own '5' / '6' labels never flash on screen
+  let watched = null, mo = null;
+  function watch() { const box = document.getElementById('menu-maps'); if (!box || box === watched) return; watched = box; if (mo) mo.disconnect();
+    mo = new MutationObserver(() => { try { tabs(); banner(); } catch (_) {} }); mo.observe(box, { childList: true, subtree: true, characterData: true });
+    const nm = document.getElementById('pp-info'); if (nm) mo.observe(nm, { childList: true, subtree: true, characterData: true }); }
+  setInterval(() => { try { install(); watch(); tabs(); banner(); } catch (e) { console.warn('[levels]', e); } }, 150);
 })();

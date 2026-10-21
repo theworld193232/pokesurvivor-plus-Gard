@@ -35,8 +35,14 @@
  };
  const imgs={};for(const [k,v] of Object.entries({...BALLS,...ITEMS})){const i=new Image();i.src=v.img+'?v=1';imgs[k]=i;}
  // Trainer sprites: 4x4 sheets, 64px frames, rows facing down, left, right, up
- const sheets={girl:new Image(),boy:new Image()};sheets.girl.src='assets/trainer/girl.png?v=1';sheets.boy.src='assets/trainer/boy.png?v=1';
- const sheet=()=>sheets[E()?.DB?.save?.psTrainer==='boy'?'boy':'girl'];
+ // [Gard] more Trainers: same 4x4 sheet layout. Girl / Boy are your friend's; the rest are made from the
+ // classic games' trainer sprites (Smogon sprite project), so they face the camera while walking.
+ const TRAINERS=[['girl','Girl'],['boy','Boy'],['hilda','Hilda'],['hilbert','Hilbert'],['rosa','Rosa'],['nate','Nate'],['lyra','Lyra'],['ethan','Ethan'],
+   ['selene','Selene'],['elio','Elio'],['dawn','Dawn'],['lucas','Lucas'],['may','May'],['brendan','Brendan'],['leaf','Leaf'],['red','Red']];
+ const TR_KEYS=new Set(TRAINERS.map(t=>t[0]));
+ const trKey=()=>{const k=E()?.DB?.save?.psTrainer;return TR_KEYS.has(k)?k:'girl';};
+ const sheets={};
+ const sheet=()=>{const k=trKey();if(!sheets[k]){const i=new Image();i.src='assets/trainer/'+k+'.png?v=1';sheets[k]=i;}return sheets[k];};
 
  // ---- the bag (saved with your profile) ----
  function bag(){const S=E()?.DB?.save;if(!S)return null;if(!S.psBag){S.psBag=Object.assign({},TUNE.start);save();}for(const k in TUNE.start)if(!Number.isFinite(S.psBag[k]))S.psBag[k]=0;return S.psBag;}
@@ -250,11 +256,11 @@
  function trainerButton(){
    const list=document.querySelector('.menu-box .menu-list');if(!list||list.querySelector('[data-go="pstrainer"]'))return;
    const btn=document.createElement('button');btn.className='menu-item';btn.dataset.go='pstrainer';
-   btn.innerHTML=`<span class="mi-ico"><span class="ps-tr-ico" style="display:block;width:32px;height:32px;background:url(${trainerSrc()}) 0 0/128px 128px;image-rendering:pixelated"></span></span>Trainer<small>Boy or Girl · your Pokémon's size</small>`;
+   btn.innerHTML=`<span class="mi-ico"><span class="ps-tr-ico" style="display:block;width:32px;height:32px;background:url(${trainerSrc()}) 0 0/128px 128px;image-rendering:pixelated"></span></span>Trainer<small>Pick your Trainer · your Pokémon's size</small>`;
    btn.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();openTrainer();},true);
    const mart=list.querySelector('[data-go="psmart"]');mart?mart.after(btn):list.append(btn);
  }
- const trainerSrc=()=>'assets/trainer/'+(E()?.DB?.save?.psTrainer==='boy'?'boy':'girl')+'.png?v=1';
+ const trainerSrc=()=>'assets/trainer/'+trKey()+'.png?v=1';
  function openTrainer(first){
    let m=document.getElementById('ps-trainer-menu');
    if(!m){m=document.createElement('div');m.id='ps-trainer-menu';m.style.cssText='position:fixed;inset:0;z-index:2147483100;display:flex;align-items:center;justify-content:center;background:rgba(6,8,16,.6)';document.body.append(m);
@@ -268,13 +274,13 @@
  function renderTrainer(){
    const m=document.getElementById('ps-trainer-menu'),S=E()?.DB?.save;if(!m||!S)return;
    const dex=Number(S.partner),mon=(E().DEX||[]).find(d=>d.dex===dex),have=sizesOf(dex),cur=chosenSize(dex);
-   const card=(g,label)=>`<button data-g="${g}" style="flex:1;padding:10px;border-radius:12px;border:3px solid ${S.psTrainer===g?'#ffd23f':'#3b3f5c'};background:#1b2238;color:#fff;cursor:pointer;font:800 14px Pixelify,Fredoka,system-ui,sans-serif">
-     <div style="width:64px;height:64px;margin:0 auto 6px;background:url(assets/trainer/${g}.png?v=1) 0 0/256px 256px;image-rendering:pixelated;transform:scale(1.3)"></div>${label}</button>`;
+   const card=(g,label)=>`<button data-g="${g}" style="padding:4px 2px 6px;border-radius:12px;border:3px solid ${S.psTrainer===g?'#ffd23f':'#3b3f5c'};background:#1b2238;color:#fff;cursor:pointer;font:800 12px Pixelify,Fredoka,system-ui,sans-serif">
+     <div style="width:64px;height:64px;margin:0 auto 2px;background:url(assets/trainer/${g}.png?v=1) 0 0/256px 256px;image-rendering:pixelated"></div>${label}</button>`;
    const sz=k=>{const ok=!!have[k];return `<button data-s="${k}" ${ok?'':'disabled'} style="flex:1;padding:8px;border-radius:10px;border:3px solid ${cur===k?'#ffd23f':'#3b3f5c'};background:${ok?'#1b2238':'#151a28'};color:${ok?'#fff':'#666'};cursor:${ok?'pointer':'not-allowed'};font:800 13px Pixelify,Fredoka,system-ui,sans-serif">${SIZES[k].name}${ok?'':' 🔒'}<br><small style="opacity:.75;font-weight:600">${k==='small'?'faster · less damage':k==='big'?'more damage & defense · slower':'balanced'}</small></button>`;};
    const btn='padding:6px 10px;border-radius:8px;border:2px solid #3b3f5c;background:#3b3f5c;color:#fff;font:800 12px Pixelify,Fredoka,system-ui,sans-serif;cursor:pointer';
-   m.innerHTML=`<div style="width:min(460px,calc(100vw - 32px));padding:16px;border-radius:14px;background:#101824;border:3px solid #b89a60;color:#f7e4bc;font:600 13px Pixelify,Fredoka,system-ui,sans-serif">
-     <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">${S.psTrainer?'Trainer':'Are you a boy or a girl?'}</b>${S.psTrainer?`<button data-close style="${btn}">✕</button>`:''}</div>
-     <div style="display:flex;gap:10px;margin:12px 0">${card('girl','Girl')}${card('boy','Boy')}</div>
+   m.innerHTML=`<div style="width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;padding:16px;border-radius:14px;background:#101824;border:3px solid #b89a60;color:#f7e4bc;font:600 13px Pixelify,Fredoka,system-ui,sans-serif">
+     <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">${S.psTrainer?'Trainer':'Choose your Trainer'}</b>${S.psTrainer?`<button data-close style="${btn}">✕</button>`:''}</div>
+     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin:12px 0;max-height:min(330px,46vh);overflow-y:auto;padding-right:4px">${TRAINERS.map(t=>card(t[0],t[1])).join('')}</div>
      ${S.psTrainer?`<div style="margin-top:6px"><b>${mon?mon.name:'Your Pokémon'}'s size</b><div style="display:flex;gap:8px;margin-top:6px">${SIZE_ORDER.map(sz).join('')}</div>
      <small style="opacity:.7;display:block;margin-top:8px">Catch a Small or Big ${mon?mon.name:'one'} in a run to unlock that size.</small></div>`:''}</div>`;
  }
@@ -301,7 +307,7 @@
  function closeBag(){bagOpen=false;const m=document.getElementById('ps-bag');if(m)m.style.display='none';try{E().Game.soloHold(false);}catch(e){}}
  function renderBag(){
    const m=document.getElementById('ps-bag'),b=bag(),p=B()?.game?.player,S=E()?.DB?.save;if(!m||!b)return;
-   const boy=S?.psTrainer==='boy',btn='padding:5px 10px;border-radius:8px;border:2px solid #3b3f5c;font:800 12px Pixelify,Fredoka,system-ui,sans-serif;cursor:pointer';
+   const trk=trKey(),btn='padding:5px 10px;border-radius:8px;border:2px solid #3b3f5c;font:800 12px Pixelify,Fredoka,system-ui,sans-serif;cursor:pointer';
    const ballRow=k=>`<div style="display:flex;align-items:center;gap:10px;padding:7px;border-radius:10px;background:${sel===k?'#2a3354':'#1b2238'};margin:5px 0;border:2px solid ${sel===k?'#ffd23f':'transparent'}">
      <img src="${BALLS[k].img}?v=1" width="28" height="28" style="image-rendering:pixelated"><div style="flex:1"><b>${BALLS[k].name}</b> ×${b[k]||0}<br><small style="opacity:.7">${k==='master'?'Always catches':'Catch bonus ×'+BALLS[k].bonus}</small></div>
      ${b[k]>0?`<button data-ball="${k}" style="${btn};background:${sel===k?'#3b3f5c':'#ffd23f'};color:${sel===k?'#fff':'#2a1d00'}">${sel===k?'Selected':'Use this ball'}</button>`:''}</div>`;
@@ -309,7 +315,7 @@
      <img src="${ITEMS[k].img}?v=1" width="28" height="28" style="image-rendering:pixelated"><div style="flex:1"><b>${ITEMS[k].name}</b> ×${b[k]||0}<br><small style="opacity:.7">Restores ${Math.round(ITEMS[k].heal*100)}% HP</small></div>
      ${b[k]>0&&p&&p.hp<p.maxHp?`<button data-use="${k}" style="${btn};background:#7dff9a;color:#0b2a14">Use</button>`:''}</div>`;
    m.innerHTML=`<div style="width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;padding:16px;border-radius:14px;background:#101824;border:3px solid #b89a60;color:#f7e4bc;font:600 13px Pixelify,Fredoka,system-ui,sans-serif">
-     <div style="display:flex;align-items:center;gap:10px"><div style="width:48px;height:48px;background:url(assets/trainer/${boy?'boy':'girl'}.png?v=1) 0 0/192px 192px;image-rendering:pixelated"></div>
+     <div style="display:flex;align-items:center;gap:10px"><div style="width:48px;height:48px;background:url(assets/trainer/${trk}.png?v=1) 0 0/192px 192px;image-rendering:pixelated"></div>
        <div style="flex:1"><b style="font-size:20px">Trainer's Bag</b><br><small style="opacity:.75">Game paused · ${p?Math.round(p.hp)+' / '+Math.round(p.maxHp)+' HP':''}</small></div><button data-close style="${btn};background:#3b3f5c;color:#fff">✕</button></div>
      <div style="margin-top:10px;font-size:11px;letter-spacing:2px;opacity:.7">POKÉ BALLS</div>${BALL_ORDER.map(ballRow).join('')}
      <div style="margin-top:8px;font-size:11px;letter-spacing:2px;opacity:.7">MEDICINE</div>${Object.keys(ITEMS).map(itemRow).join('')}

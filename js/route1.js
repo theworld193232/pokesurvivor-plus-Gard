@@ -134,7 +134,7 @@
  // ---- Story Mode menu ----
  function storyButton(){
    const list=document.querySelector('.menu-box .menu-list');
-   if(!(window.PS_STORY&&window.PS_STORY.on())){const o=list&&list.querySelector('[data-go="psstory"]');if(o)o.remove();return;}   // [Gard] Story Mode only
+   {const o=list&&list.querySelector('[data-go="psstory"]');if(o)o.remove();return;}   // [Gard] the chapters now sit where the Acts are (js/story-mode.js), no menu button
    if(!list||list.querySelector('[data-go="psstory"]'))return;
    const btn=document.createElement('button');btn.className='menu-item';btn.dataset.go='psstory';
    btn.innerHTML='<span class="mi-ico"><img src="assets/fx/blue.png?v=1" width="32" height="32" alt="" style="image-rendering:pixelated;display:block;object-fit:contain"></span>Story Mode<small>Chapter 1 · Kanto Route 1</small>';
@@ -262,6 +262,6 @@
  let drawHooked=false;
  function hookDraws(){const T=E()?.Training;if(drawHooked||!T||typeof T.drawables!=='function')return;drawHooked=true;
    const orig=T.drawables;T.drawables=function(){const r=orig.apply(this,arguments);if(!active())return r;const extra=worldDraws();return extra.length?[...(r||[]),...extra]:r;};}
- window.PS_ROUTE1={active};
+ window.PS_ROUTE1={active,start:startStory,cleared:()=>Number(E()?.DB?.save?.psStory?.route1)||0,reward:STORY_REWARD};
  requestAnimationFrame(frame);
 })();
