@@ -45,12 +45,20 @@
      const refund=G.REFUND||{1:15,2:30,3:60,4:120,5:300},bannerGen=Number(gen)||0;
      for(const r of res){
        if(LEGENDS[r.dex])continue;   // an allowed Legendary: same chance as before, keep it
+       const single=!!window.PS_GACHA_SINGLE,legendRoll=single&&Number(r.rarity)===5;
        // undo what the original pick gave...
        if(r.shiny){if(r.isNew&&save.shiny)delete save.shiny[r.dex];}
        if(r.isNew&&save.owned&&!['catch','starter','evolve','evo-line'].includes(save.owned[r.dex]?.from))delete save.owned[r.dex];
        save.coins=(Number(save.coins)||0)-(Number(r.refund)||0);
        // ...and give one from the special pool instead (same shiny luck)
-       const g=bannerGen||genOf(r.dex)||1;const [dex,rarity]=pick(poolFor(g,Number(r.rarity)||1));let isNew=false,coins=0;
+       let dex,rarity;
+       if(single){   // one Special Summon banner: Legendary roll -> an allowed Legendary; Rare/Epic roll -> a Rare one; otherwise any of the pool
+         if(legendRoll){const L=[];for(const [d,w] of Object.entries(LEGENDS))for(let i=0;i<w;i++)L.push(Number(d));dex=L[Math.floor(Math.random()*L.length)];rarity=5;}
+         else{const rr=Number(r.rarity)||1,L=rr>=3?POOL.filter(x=>x[1]===3):POOL;[dex,rarity]=pick(L.filter(x=>E().SPRITE_META[x[0]]).length?L.filter(x=>E().SPRITE_META[x[0]]):L);}
+       }else{const g=bannerGen||genOf(r.dex)||1;[dex,rarity]=pick(poolFor(g,Number(r.rarity)||1));}
+       // shiny chance 1.5% (the game rolls 1%; top it up)
+       if(!r.shiny&&Math.random()<0.0072&&E().Sprites?.hasShiny?.(dex))r.shiny=true;
+       let isNew=false,coins=0;
        if(r.shiny){save.shiny=save.shiny||{};isNew=!save.shiny[dex];if(isNew)save.shiny[dex]={at:Date.now(),from:'gacha'};else coins=3*(refund[rarity]||30);if(!save.owned[dex])save.owned[dex]={at:Date.now(),from:'gacha'};}
        else{isNew=!save.owned[dex];if(isNew)save.owned[dex]={at:Date.now(),from:'gacha'};else coins=refund[rarity]||30;}
        save.coins+=coins;r.dex=dex;r.rarity=rarity;r.isNew=isNew;r.refund=coins;

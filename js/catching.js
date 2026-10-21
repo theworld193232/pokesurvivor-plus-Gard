@@ -35,10 +35,11 @@
  };
  const imgs={};for(const [k,v] of Object.entries({...BALLS,...ITEMS})){const i=new Image();i.src=v.img+'?v=1';imgs[k]=i;}
  // Trainer sprites: 4x4 sheets, 64px frames, rows facing down, left, right, up
- // [Gard] more Trainers: same 4x4 sheet layout. Girl / Boy are your friend's; the rest are made from the
- // classic games' trainer sprites (Smogon sprite project), so they face the camera while walking.
- const TRAINERS=[['girl','Girl'],['boy','Boy'],['hilda','Hilda'],['hilbert','Hilbert'],['rosa','Rosa'],['nate','Nate'],['lyra','Lyra'],['ethan','Ethan'],
-   ['selene','Selene'],['elio','Elio'],['dawn','Dawn'],['lucas','Lucas'],['may','May'],['brendan','Brendan'],['leaf','Leaf'],['red','Red']];
+ // [Gard] more Trainers (same 4x4 sheet layout: rows down, left, right, up; 4 walk frames each).
+ // Girl / Boy are your friend's. tr* and Iono are walking sheets you sent (Iono by Mid117); chibi* are front-only.
+ // To rename one, just change its label here.
+ const TRAINERS=[['girl','Girl'],['boy','Boy'],['tr1','Midnight'],['tr2a','Gold Band'],['tr2b','Blue Hair'],['iono','Iono'],['tr5','Green Streak'],['tr6','Black Hat'],['tr7','White Hat'],
+   ...Array.from({length:13},(_,i)=>['chibi'+(i+1),'Chibi '+(i+1)])];
  const TR_KEYS=new Set(TRAINERS.map(t=>t[0]));
  const trKey=()=>{const k=E()?.DB?.save?.psTrainer;return TR_KEYS.has(k)?k:'girl';};
  const sheets={};
@@ -89,12 +90,13 @@
      tr.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?1:2):(dy<0?3:0);}
    else tr.moving=false;
    if(tr.act){tr.act.t+=dt;if(tr.act.t>tr.act.dur)tr.act=null;else{const tx=tr.act.x-tr.x,ty=tr.act.y-tr.y;tr.dir=Math.abs(tx)>Math.abs(ty)?(tx<0?1:2):(ty<0?3:0);}}
-   tr.ft+=dt;if(tr.ft>.14){tr.ft=0;tr.frame=(tr.frame+1)%4;}
+   tr.ft+=dt;if(tr.ft>(tr.moving?.12:.14)){tr.ft=0;tr.frame=(tr.frame+1)%4;}
  }
  function drawTrainer(g){
    const girl=sheet();if(!girl.complete||!girl.naturalWidth)return;const s=.85,W=64*s,H=64*s,f=tr.moving||tr.act?tr.frame:0;
    g.save();g.imageSmoothingEnabled=false;g.fillStyle='rgba(0,0,0,.22)';g.beginPath();g.ellipse(tr.x,tr.y,13,5,0,0,Math.PI*2);g.fill();
-   g.drawImage(girl,f*64,tr.dir*64,64,64,tr.x-W/2,tr.y-H*.93,W,H);g.restore();
+   const bob=(tr.moving||tr.act)?((f%2)?-1.2:0):(Math.sin(performance.now()/380)>0.6?-0.6:0);   // [Gard] step bounce / idle breathing
+   g.drawImage(girl,f*64,tr.dir*64,64,64,tr.x-W/2,tr.y-H*.93+bob,W,H);g.restore();
  }
 
  // ---- throwing ----
@@ -230,7 +232,8 @@
    normal:{name:'Normal',scale:1,hp:1,dmg:1,spd:1,def:0,chance:.64},
    big:{name:'Big',scale:1.3,hp:1.35,dmg:1.2,spd:.88,def:.12,chance:.18}};
  const SIZE_ORDER=['small','normal','big'];
- function sizesOf(dex){const S=E()?.DB?.save;if(!S)return {};S.psSizes=S.psSizes||{};const r=S.psSizes[dex];
+ function sizesOf(dex){const S=E()?.DB?.save;if(!S)return {};if(String(B()?.user||'').trim().toLowerCase()==='lovergare')return {small:true,normal:true,big:true};   // [Gard] the owner has every size
+ S.psSizes=S.psSizes||{};const r=S.psSizes[dex];
    if(r)return r;return S.owned&&S.owned[dex]?{normal:true}:{};}      // owned before sizes existed / from the Gacha: Normal
  function grantSize(dex,size,wasOwned){const S=E().DB.save;S.psSizes=S.psSizes||{};const cur=S.psSizes[dex]||(wasOwned?{normal:true}:{});cur[size]=true;S.psSizes[dex]=cur;}
  function chosenSize(dex){const S=E()?.DB?.save,have=sizesOf(dex);let s=S?.psSizeSel?.[dex];if(!s||!have[s])s=have.normal?'normal':SIZE_ORDER.find(k=>have[k])||'normal';return s;}
@@ -281,8 +284,37 @@
    m.innerHTML=`<div style="width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;padding:16px;border-radius:14px;background:#101824;border:3px solid #b89a60;color:#f7e4bc;font:600 13px Pixelify,Fredoka,system-ui,sans-serif">
      <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">${S.psTrainer?'Trainer':'Choose your Trainer'}</b>${S.psTrainer?`<button data-close style="${btn}">✕</button>`:''}</div>
      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;margin:12px 0;max-height:min(330px,46vh);overflow-y:auto;padding-right:4px">${TRAINERS.map(t=>card(t[0],t[1])).join('')}</div>
-     ${S.psTrainer?`<div style="margin-top:6px"><b>${mon?mon.name:'Your Pokémon'}'s size</b><div style="display:flex;gap:8px;margin-top:6px">${SIZE_ORDER.map(sz).join('')}</div>
-     <small style="opacity:.7;display:block;margin-top:8px">Catch a Small or Big ${mon?mon.name:'one'} in a run to unlock that size.</small></div>`:''}</div>`;
+     <small style="opacity:.7;display:block">Your Pokémon's size is under its Upgrades button on the main menu.</small></div>`;
+ }
+ // ---- [Gard] Pokemon size: its own button right under the partner's Upgrades button (Story mode) ----
+ function sizeMenu(){
+   let m=document.getElementById('ps-size-menu');
+   if(!m){m=document.createElement('div');m.id='ps-size-menu';m.style.cssText='position:fixed;inset:0;z-index:2147483100;display:flex;align-items:center;justify-content:center;background:rgba(6,8,16,.6)';document.body.append(m);
+     m.addEventListener('click',ev=>{const t=ev.target.closest('[data-s],[data-close]');if(ev.target===m||t?.dataset.close!==undefined){m.style.display='none';return;}if(!t||t.disabled)return;
+       const S=E().DB.save;S.psSizeSel=S.psSizeSel||{};S.psSizeSel[S.partner]=t.dataset.s;save();renderSize();sizeButton(true);});}
+   m.style.display='flex';renderSize();
+ }
+ function renderSize(){
+   const m=document.getElementById('ps-size-menu'),S=E()?.DB?.save;if(!m||!S)return;
+   const dex=Number(S.partner),mon=(E().DEX||[]).find(d=>d.dex===dex),have=sizesOf(dex),cur=chosenSize(dex);
+   const sz=k=>{const ok=!!have[k],z=SIZES[k];return `<button data-s="${k}" ${ok?'':'disabled'} style="flex:1;padding:8px;border-radius:10px;border:3px solid ${cur===k?'#ffd23f':'#3b3f5c'};background:${ok?'#1b2238':'#151a28'};color:${ok?'#fff':'#666'};cursor:${ok?'pointer':'not-allowed'};font:800 14px Pixelify,Fredoka,system-ui,sans-serif">${z.name}${ok?'':' 🔒'}<br><small style="opacity:.75;font-weight:600">${k==='small'?'Faster, weaker hits':k==='big'?'Stronger, bulkier, slower':'Balanced'}</small></button>`;};
+   const btn='padding:6px 10px;border-radius:8px;border:2px solid #3b3f5c;background:#3b3f5c;color:#fff;font:800 12px Pixelify,Fredoka,system-ui,sans-serif;cursor:pointer';
+   m.innerHTML=`<div style="width:min(420px,calc(100vw - 32px));padding:16px;border-radius:14px;background:#101824;border:3px solid #b89a60;color:#f7e4bc;font:600 13px Pixelify,Fredoka,system-ui,sans-serif">
+     <div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:20px">${mon?mon.name:'Your Pokémon'}'s size</b><button data-close style="${btn}">✕</button></div>
+     <div style="display:flex;gap:8px;margin-top:12px">${SIZE_ORDER.map(sz).join('')}</div>
+     <small style="opacity:.7;display:block;margin-top:10px">Catch a Small or Big ${mon?mon.name:'one'} in a Story run to unlock that size.</small></div>`;
+ }
+ function sizeButton(force){
+   const up=document.getElementById('menu-partner-upg');let row=document.getElementById('ps-size-row');
+   if(!up||!STORY()){if(row)row.style.display='none';return;}
+   const S=E()?.DB?.save;if(!S)return;
+   if(!row){row=document.createElement('div');row.id='ps-size-row';row.style.cssText='display:flex;justify-content:center;width:100%';
+     const b=document.createElement('button');b.type='button';b.className='pp-upg';b.id='ps-size-btn';row.append(b);
+     b.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();sizeMenu();});}
+   const last=document.getElementById('ps-skin-toggle')?.offsetParent?document.getElementById('ps-skin-toggle'):up;
+   if(row.previousElementSibling!==last)last.insertAdjacentElement('afterend',row);
+   row.style.display='flex';const z=SIZES[chosenSize(Number(S.partner))]||SIZES.normal,t='📏 Size: '+z.name;
+   const b=row.firstChild;if(force||b.textContent!==t)b.textContent=t;
  }
  // New save: ask Boy or Girl once the main menu is really on screen (not behind the intro / personality quiz)
  function firstTime(){const S=E()?.DB?.save,g=B()?.game;if(!S||S.psTrainer||!g||g.state!=='ui'||document.getElementById('ps-trainer-menu')?.offsetParent)return;
@@ -369,7 +401,7 @@
  // ---- main loop ----
  let last=0,hudT=0;
  function frame(ts){
-   requestAnimationFrame(frame);const dt=Math.min(.05,last?(ts-last)/1000:0);last=ts;hookDraws();hookCombat();if(STORY()){martButton();trainerButton();firstTime();}else{for(const k of ['psmart','pstrainer']){const b=document.querySelector('[data-go="'+k+'"]');if(b)b.remove();}}
+   requestAnimationFrame(frame);const dt=Math.min(.05,last?(ts-last)/1000:0);last=ts;hookDraws();hookCombat();sizeButton();if(STORY()){martButton();trainerButton();firstTime();}else{for(const k of ['psmart','pstrainer']){const b=document.querySelector('[data-go="'+k+'"]');if(b)b.remove();}}
    if(toastT>0){toastT-=dt;if(toastT<=0&&toastEl)toastEl.style.display='none';}
    const p=B()?.game?.player;
    if(running()){const tm=document.getElementById('ps-trainer-menu');if(tm&&tm.style.display!=='none')tm.style.display='none';}   // menus never stay over a run

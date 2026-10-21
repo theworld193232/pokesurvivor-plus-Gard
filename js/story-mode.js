@@ -60,7 +60,7 @@
   #ps-chapters .ch small{display:block;font-size:11px;font-weight:600;opacity:.75}
   #ps-chapters .ch.soon{opacity:.45;cursor:default}
   #ps-chapters .ok{color:#7dff9a}
-  #ps-ch-blue{position:absolute;right:18px;bottom:8px;height:58%;image-rendering:pixelated;filter:drop-shadow(0 4px 0 rgba(0,0,0,.3));pointer-events:none;z-index:1}`;
+  #ps-ch-blue{position:absolute;left:22px;top:16px;height:44%;image-rendering:pixelated;filter:drop-shadow(0 4px 0 rgba(0,0,0,.3));pointer-events:none;z-index:1}`;
   let saved = null;
   function storyPanel() {
     const on = get() === 'story', maps = document.getElementById('menu-maps');
