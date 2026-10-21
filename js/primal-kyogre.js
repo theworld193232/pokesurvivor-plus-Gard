@@ -2,7 +2,17 @@
 (()=>{'use strict';
  const FORM='382-primal',TAU=Math.PI*2;
  let canvas,ctx,lastForm='',reversionAt=0,last=0,tornadoes=[],bolts=[],rain=[],fieldOn=false,nextBolt=0;
- const tornadoSheet=new Image();fetch('assets/fx/primal-water-tornado.base64?v=1').then(r=>r.ok?r.text():'').then(data=>{if(data.trim())tornadoSheet.src='data:image/png;base64,'+data.trim();}).catch(()=>{});
+ const tornadoSheet=new Image(),boltSprite=new Image();
+ fetch('assets/fx/primal-water-tornado.base64?v=1').then(r=>r.ok?r.text():'').then(data=>{if(data.trim())tornadoSheet.src='data:image/png;base64,'+data.trim();}).catch(()=>{});
+ fetch('assets/fx/primal-lightning.base64?v=1').then(r=>r.ok?r.text():'').then(data=>{
+   if(!data.trim())return;const src=new Image();src.onload=()=>{
+     const c=document.createElement('canvas');c.width=64;c.height=144;const g=c.getContext('2d',{willReadFrequently:true});
+     g.drawImage(src,372,0,64,144,0,0,64,144);const im=g.getImageData(0,0,64,144);
+     for(let i=0;i<im.data.length;i+=4){const r=im.data[i],gg=im.data[i+1],b=im.data[i+2],lo=Math.min(r,gg,b),hi=Math.max(r,gg,b);
+       im.data[i+3]=Math.max(0,Math.min(255,Math.round((255-lo)*1.45+(hi-lo)*.45)));im.data[i]=255;im.data[i+1]=231;im.data[i+2]=48;}
+     g.putImageData(im,0,0);boltSprite.src=c.toDataURL('image/png');
+   };src.src='data:image/jpeg;base64,'+data.trim();
+ }).catch(()=>{});
  const $=id=>document.getElementById(id);
  function bridge(){return window.PS_MEGA_BRIDGE_V5;}
  function player(){return bridge()?.game?.player||null;}
@@ -120,15 +130,11 @@
  }
  function drawBolt(q,t,k){
    const s=worldToScreen(q.x,q.y),age=t-q.born,fade=Math.max(0,1-age/q.life),height=(150+Math.random()*90)*k;
-   ctx.save();ctx.globalAlpha=fade;ctx.shadowColor='#fff29a';ctx.shadowBlur=18;ctx.lineCap='round';
-   // Inspired by the supplied branching strike sprite: a bright, jagged gold bolt and ground flare.
-   ctx.strokeStyle='#fffbe0';ctx.lineWidth=5*k;ctx.beginPath();ctx.moveTo(s.x,s.y-height);
-   let x=s.x,y=s.y-height;
-   for(let i=0;i<8;i++){x+=(Math.random()-.5)*34*k;y+=height/8;ctx.lineTo(x,y);}ctx.stroke();
-   ctx.strokeStyle='#ffd928';ctx.lineWidth=2.4*k;ctx.beginPath();ctx.moveTo(s.x,s.y-height);
-   x=s.x;y=s.y-height;for(let i=0;i<8;i++){x+=(Math.random()-.5)*34*k;y+=height/8;ctx.lineTo(x,y);
-     if(i===3||i===5){ctx.moveTo(x,y);ctx.lineTo(x+(Math.random()-.5)*48*k,y+35*k);ctx.moveTo(x,y);}}
-   ctx.stroke();ctx.shadowBlur=0;
+   ctx.save();ctx.globalAlpha=fade;ctx.shadowColor='#fff29a';ctx.shadowBlur=18;
+   if(boltSprite.complete&&boltSprite.naturalWidth){ctx.drawImage(boltSprite,s.x-36*k,s.y-height,72*k,height+6*k);}
+   else{ctx.strokeStyle='#fffbe0';ctx.lineWidth=5*k;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s.x,s.y-height);let x=s.x,y=s.y-height;
+     for(let i=0;i<8;i++){x+=(Math.random()-.5)*34*k;y+=height/8;ctx.lineTo(x,y);}ctx.stroke();}
+   ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,246,170,.8)';ctx.lineWidth=2*k;ctx.beginPath();ctx.moveTo(s.x,s.y-height*.46);ctx.lineTo(s.x-34*k,s.y-height*.27);ctx.moveTo(s.x,s.y-height*.3);ctx.lineTo(s.x+39*k,s.y-height*.12);ctx.stroke();
    const g=ctx.createRadialGradient(s.x,s.y,1,s.x,s.y,55*k);g.addColorStop(0,'rgba(255,255,220,.85)');g.addColorStop(.2,'rgba(255,226,61,.4)');g.addColorStop(1,'rgba(255,211,37,0)');
    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(s.x,s.y,55*k,16*k,0,0,TAU);ctx.fill();ctx.restore();
  }
