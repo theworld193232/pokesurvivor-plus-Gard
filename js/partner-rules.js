@@ -1,8 +1,8 @@
 /* PARTNER RULES: you play as a first-stage Pokemon and evolve it through gameplay.
-   - Only first-stage Pokemon of Rare rarity and below can be your partner (Ralts, Dratini, Bulbasaur...).
+   - Any Pokemon you own that has no previous evolution can be your partner: first stages (Ralts, Dratini,
+     Bulbasaur...), Legendaries, Mythicals, Ultra Beasts and every other Pokemon that doesn't evolve from another.
    - Choosing an evolved Pokemon you own (Kirlia, Gardevoir) gives you its first stage instead (Ralts): you reach
      Gardevoir by evolving in a run, and she gets her own upgrades when you get there (js/evo-upgrades.js).
-   - Legendaries and other single-stage Epic / Legendary Pokemon stay in your collection but can't be partners.
    - The Pokedex still shows every Pokemon.
    - Defeating a shiny evolved Pokemon in the wild (or catching an evolved one) also gives you its first stage
      (shiny Gardevoir -> shiny Ralts), since that's the one you can play as.
@@ -20,7 +20,7 @@
     return prevo;
   }
   function base(dex) { const P = prev(); let d = Number(dex), n = 0; while (P && P[d] != null && n++ < 5) d = P[d]; return d; }
-  function allowed(dex) { const N = E(), p = N && N.DEX_BY[dex]; if (!p) return false; const P = prev(); return !(P && P[dex] != null) && (Number(p.rarity) || 1) <= MAX_RARITY; }
+  function allowed(dex) { const N = E(), p = N && N.DEX_BY[dex]; if (!p) return false; const P = prev(); return !(P && P[dex] != null); }   // any Pokemon without a previous evolution (Legendaries and Ultra Beasts too)
   // what picking this Pokemon does: {ok} / {ok:false, base} / {ok:false, none}
   function rule(dex) {
     if (owner() || allowed(dex)) return { ok: true };

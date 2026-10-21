@@ -125,7 +125,7 @@
     const R = window.PS_PARTNER, r = R ? R.rule(dex) : { ok: true };
     if (r.ok) return '<button class="btn gold" data-pick="1" style="width:100%">Choose as partner' + (viewShiny ? ' (shiny)' : '') + '</button>';
     if (r.base) return '<button class="btn gold" data-pick="1" style="width:100%">Play as ' + r.baseName + (viewShiny ? ' (shiny)' : '') + '</button><p class="sub center" style="margin:4px 0 0">Evolve ' + r.baseName + ' in battle to play as ' + p.name + '.</p>';
-    return '<button class="btn" disabled style="width:100%">Can\'t be a partner</button><p class="sub center" style="margin:4px 0 0">Only first-stage Pokémon of Rare rarity and below can be partners.</p>';
+    return '<button class="btn" disabled style="width:100%">Can\'t be a partner</button><p class="sub center" style="margin:4px 0 0">Only Pokémon without a previous evolution can be partners.</p>';
   }
   function detail(dex) {
     const s = S(), N = E(), p = N.DEX_BY[dex]; if (!p) return;
