@@ -123,12 +123,12 @@
    const now=ts/1000,dt=Math.min(.05,last?(ts-last)/1000:.016);last=ts;
    if(p&&p.megaForm===FORM&&lastForm!==FORM){reversionAt=now;shakeUntil=now+5.5;fieldOn=false;}
    lastForm=p?.megaForm||'';
-   const anim=active&&drawReversion(p,now);
    if(!active){fieldOn=false;const game=$('game');if(game)game.style.transform='';}
-   if(!active&&!anim){canvas.style.display='none';ctx.clearRect(0,0,innerWidth,innerHeight);return;}
+   const showing=active||(p&&p.megaForm===FORM&&now-reversionAt<5.5);
+   if(!showing){canvas.style.display='none';return;}
    canvas.style.display='block';resize();ctx.clearRect(0,0,innerWidth,innerHeight);
+   const anim=!!p&&drawReversion(p,now);
    if(active)drawField(p,dt,now);
-   if(anim&&now>reversionAt+2.43){/* explosion and reveal are handled by the scene above */}
  }
  setup();requestAnimationFrame(frame);
 })();
