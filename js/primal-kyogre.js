@@ -114,7 +114,7 @@
        if(d>rad)continue;
        const nx=dx/d,ny=dy/d;
        // The violent eye tugs units inward; the outer wall of water throws them back.
-       const radial=d<105?-78:((d<250)?34:0);
+       const radial=d<105?78:((d<250)?-34:0);
        const tangent=52;
        const falloff=(1-d/rad)*boss*dt;
        e.x+=(-nx*radial-ny*tangent)*falloff;
