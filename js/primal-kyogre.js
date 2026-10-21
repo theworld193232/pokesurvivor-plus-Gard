@@ -132,7 +132,11 @@
        if(d<35&&e!==owner)e.applySlow?.(.75,.15);
      }
      const speed=Math.hypot(vx,vy),cap=Math.min(1,130/(speed||1));moveUnit(e,vx*cap*dt*punishment,vy*cap*dt*punishment);
-     if(spouts.some(q=>Math.hypot(q.x-e.x,q.y-e.y)<35)&&typeof e.applySlow==='function')e.applySlow(.75*punishment,.15*punishment);
+     if(spouts.some(q=>Math.hypot(q.x-e.x,q.y-e.y)<35)){
+       if(enemies.has(e)&&typeof e.applySlow==='function')e.applySlow(.75,.15);
+       else if(punishment===.5&&typeof e.slowT==='number')e.slowT=Math.max(e.slowT,.5);
+       else if(typeof e.applySlow==='function')e.applySlow(.375,.075);
+     }
    }
  }
  function strikeDamage(q){
