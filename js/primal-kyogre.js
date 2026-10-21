@@ -56,36 +56,84 @@
    ctx.restore();
  }
  function drawReversion(p,t){
-   const c=center(p),u=t-reversionAt,duration=3.5;
-   if(u<2.43){
-     const r=(34+Math.min(1,u/.7)*48)*c.k,x=c.x,y=c.y;
-     if(u<2.0){
-       const grow=Math.min(1,u/.55),shake=u>1.35?Math.sin(u*55)*3*c.k:0,rr=r*grow;
-       const g=ctx.createRadialGradient(x,y,rr*.18,x,y,rr);
-       g.addColorStop(0,'rgba(17,151,255,.96)');g.addColorStop(.66,'rgba(6,86,218,.92)');g.addColorStop(1,'rgba(4,29,112,.98)');
-       ctx.fillStyle=g;ctx.beginPath();ctx.arc(x+shake,y,rr,0,TAU);ctx.fill();
-       ctx.strokeStyle='rgba(156,235,255,.98)';ctx.lineWidth=3*c.k;ctx.beginPath();ctx.arc(x+shake,y,rr,0,TAU);ctx.stroke();
-       orbSymbol(x+shake,y,rr*.66,u,Math.min(1,Math.max(0,(u-.2)/.5)));
-       if(u>1.35){
-         ctx.strokeStyle='#efffff';ctx.lineWidth=2.5*c.k;ctx.beginPath();
-         ctx.moveTo(x-rr*.74,y-rr*.15);ctx.lineTo(x-rr*.22,y+rr*.04);ctx.lineTo(x-rr*.05,y-rr*.32);ctx.lineTo(x+rr*.22,y-rr*.04);ctx.lineTo(x+rr*.64,y-rr*.28);
-         ctx.moveTo(x+rr*.05,y-rr*.03);ctx.lineTo(x-rr*.16,y+rr*.52);ctx.moveTo(x+rr*.22,y-rr*.04);ctx.lineTo(x+rr*.4,y+rr*.45);ctx.stroke();
+   const c=center(p),u=t-reversionAt,total=6.0,x=c.x,y=c.y,k=c.k;
+   const gather=Math.max(0,Math.min(1,u/.72)),charge=Math.max(0,Math.min(1,(u-.65)/2.45));
+   const orbR=(36+112*Math.min(1,u/.9))*k;
+   const shake=u>2.45&&u<3.25?Math.sin(u*74)*5*k:0;
+   const cx=x+shake,cy=y;
+   if(u<3.55){
+     // Focus the scene, then wrap Kyogre in a bright, layered ocean-energy shell.
+     const dim=Math.min(.48,.12+u*.13);ctx.fillStyle='rgba(0,5,28,'+dim+')';ctx.fillRect(0,0,innerWidth,innerHeight);
+     ctx.save();ctx.globalCompositeOperation='lighter';
+     const aura=ctx.createRadialGradient(cx,cy,orbR*.08,cx,cy,orbR*1.9);
+     aura.addColorStop(0,'rgba(85,239,255,.46)');aura.addColorStop(.42,'rgba(14,139,255,.26)');aura.addColorStop(1,'rgba(0,77,255,0)');
+     ctx.fillStyle=aura;ctx.beginPath();ctx.arc(cx,cy,orbR*1.9,0,TAU);ctx.fill();
+     // Fast ribbons orbit like the cyan energy loops in the reference.
+     for(let i=0;i<3;i++){
+       const a=u*(1.3+i*.23)+(i*TAU/3),rx=orbR*(1.08+i*.12),ry=orbR*(.34+i*.06);
+       ctx.save();ctx.translate(cx,cy);ctx.rotate(a*.18);
+       ctx.strokeStyle=i===1?'rgba(235,255,255,.95)':'rgba(45,221,255,.9)';ctx.lineWidth=(3+i)*k;
+       ctx.shadowColor='#4de9ff';ctx.shadowBlur=16*k;ctx.beginPath();ctx.ellipse(0,0,rx,ry,a,0,TAU);ctx.stroke();ctx.restore();
+     }
+     // Moving sparks race around the shell and stream into it.
+     for(let i=0;i<28;i++){
+       const a=i*TAU/28-u*(1.5+(i%4)*.17),r=orbR*(1.22+.18*Math.sin(i*5+u*4));
+       const px=cx+Math.cos(a)*r,py=cy+Math.sin(a)*r*.8,sz=(1.4+(i%3))*k;
+       ctx.strokeStyle=i%3?'rgba(89,227,255,.82)':'rgba(245,255,255,.96)';ctx.lineWidth=sz;
+       ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-Math.cos(a)*sz*5,py-Math.sin(a)*sz*5);ctx.stroke();
+     }
+     ctx.restore();
+     if(u>.52){
+       // Faceted blue shell: translucent enough to show Kyogre's silhouette inside.
+       const shell=Math.min(1,(u-.52)/.38),fade=u>3.05?Math.max(0,1-(u-3.05)/.5):1,rr=orbR*shell;
+       ctx.save();ctx.globalAlpha=fade;ctx.beginPath();ctx.arc(cx,cy,rr,0,TAU);ctx.clip();
+       const g=ctx.createRadialGradient(cx-rr*.24,cy-rr*.3,rr*.05,cx,cy,rr*1.2);
+       g.addColorStop(0,'rgba(107,246,255,.68)');g.addColorStop(.38,'rgba(18,159,255,.74)');g.addColorStop(.78,'rgba(5,77,205,.86)');g.addColorStop(1,'rgba(1,25,105,.94)');
+       ctx.fillStyle=g;ctx.fillRect(cx-rr,cy-rr,rr*2,rr*2);
+       for(let i=0;i<9;i++){
+         const a=i*TAU/9-u*.12,ax=cx+Math.cos(a)*rr,ay=cy+Math.sin(a)*rr;
+         const b=a+TAU/9,bx=cx+Math.cos(b)*rr,by=cy+Math.sin(b)*rr;
+         ctx.fillStyle=i%2?'rgba(137,248,255,.12)':'rgba(0,53,168,.17)';
+         ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ax,ay);ctx.lineTo(bx,by);ctx.closePath();ctx.fill();
        }
-     }else{
-       const e=Math.min(1,(u-2)/.43),fade=Math.max(0,1-e);ctx.globalCompositeOperation='lighter';
-       for(let i=0;i<22;i++){const a=TAU*i/22+u*.2,inn=r*(.35+e*.55),out=r*(1.1+e*1.8);
-         ctx.strokeStyle=i%2?'rgba(69,190,255,.88)':'rgba(225,252,255,.98)';ctx.lineWidth=3*c.k;ctx.globalAlpha=fade;
-         ctx.beginPath();ctx.moveTo(x+Math.cos(a)*inn,y+Math.sin(a)*inn);ctx.lineTo(x+Math.cos(a)*out,y+Math.sin(a)*out);ctx.stroke();}
-       ctx.globalAlpha=fade;ctx.fillStyle='rgba(195,245,255,.88)';ctx.beginPath();ctx.arc(x,y,r*(.2+e),0,TAU);ctx.fill();ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+       ctx.restore();ctx.globalAlpha=1;
+       ctx.strokeStyle='rgba(171,251,255,.95)';ctx.lineWidth=4*k;ctx.shadowColor='#38dfff';ctx.shadowBlur=22*k;
+       ctx.beginPath();ctx.arc(cx,cy,rr,0,TAU);ctx.stroke();ctx.shadowBlur=0;
+       // The Blue Orb mark becomes a luminous crystalline crest over the shell.
+       if(u>.86){const emblem=rr*.54;
+         ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(205,255,255,.96)';ctx.lineWidth=Math.max(5*k,emblem*.13);ctx.shadowColor='#7ff4ff';ctx.shadowBlur=18*k;
+         ctx.beginPath();ctx.arc(cx,cy,emblem*.46,0,TAU);ctx.stroke();
+         ctx.beginPath();ctx.moveTo(cx+emblem*.26,cy-emblem*.35);ctx.lineTo(cx+emblem*.40,cy-emblem*.73);ctx.lineTo(cx+emblem*1.04,cy-emblem*.98);ctx.lineTo(cx+emblem*1.11,cy-emblem*.74);ctx.lineTo(cx+emblem*.56,cy-emblem*.56);ctx.lineTo(cx+emblem*.5,cy-emblem*.36);
+         ctx.moveTo(cx+emblem*.26,cy+emblem*.35);ctx.lineTo(cx+emblem*.40,cy+emblem*.73);ctx.lineTo(cx+emblem*1.04,cy+emblem*.98);ctx.lineTo(cx+emblem*1.11,cy+emblem*.74);ctx.lineTo(cx+emblem*.56,cy+emblem*.56);ctx.lineTo(cx+emblem*.5,cy+emblem*.36);ctx.stroke();ctx.restore();
+       }
+       // Cracks branch through the crystal before the shell breaks.
+       if(u>2.42){const ca=Math.min(1,(u-2.42)/.2);ctx.save();ctx.globalAlpha=ca;ctx.strokeStyle='#f3ffff';ctx.lineWidth=3*k;ctx.shadowColor='#b9faff';ctx.shadowBlur=12*k;
+         for(let i=0;i<5;i++){const a=i*TAU/5+.3,caX=cx+Math.cos(a)*rr*.12,caY=cy+Math.sin(a)*rr*.12;
+           ctx.beginPath();ctx.moveTo(caX,caY);ctx.lineTo(cx+Math.cos(a+.1)*rr*.4,cy+Math.sin(a+.1)*rr*.4);ctx.lineTo(cx+Math.cos(a-.08)*rr*.62,cy+Math.sin(a-.08)*rr*.62);ctx.lineTo(cx+Math.cos(a)*rr*.96,cy+Math.sin(a)*rr*.96);ctx.stroke();}
+         ctx.restore();}
      }
    }
-   // Lasts through the reveal and continues for roughly two seconds.
-   if(u>=2.43&&u<5.5){
-     const amount=Math.min(1,(u-2.43)/.2)*Math.max(0,1-(u-3.5)/2.0);
-     const dx=(Math.random()-.5)*22*amount,dy=(Math.random()-.5)*18*amount;
+   if(u>=3.12&&u<3.85){
+     // The crystal bursts outward in bright facets and a water-blue shockwave.
+     const e=Math.min(1,(u-3.12)/.65),fade=Math.max(0,1-e),rr=orbR;
+     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=fade;
+     ctx.strokeStyle='rgba(196,251,255,.95)';ctx.lineWidth=8*k;ctx.beginPath();ctx.arc(x,y,rr*(.55+e*1.5),0,TAU);ctx.stroke();
+     for(let i=0;i<18;i++){
+       const a=i*TAU/18+.14*Math.sin(i*7),dist=rr*(.8+e*(1.3+(i%4)*.18));
+       const px=x+Math.cos(a)*dist,py=y+Math.sin(a)*dist*.84,size=(12+(i%5)*4)*k;
+       ctx.fillStyle=i%3?'rgba(53,203,255,.92)':'rgba(231,255,255,.98)';
+       ctx.beginPath();ctx.moveTo(x+Math.cos(a)*rr*.48,y+Math.sin(a)*rr*.4);ctx.lineTo(px,py);ctx.lineTo(px-Math.sin(a)*size,py+Math.cos(a)*size);ctx.closePath();ctx.fill();
+     }
+     ctx.restore();
+     if(u>3.45){const flash=Math.max(0,1-(u-3.45)/.22);ctx.fillStyle='rgba(224,251,255,'+(.76*flash)+')';ctx.fillRect(0,0,innerWidth,innerHeight);}
+   }
+   // Shaking starts on the reveal and eases out over about two seconds.
+   if(u>=3.72&&u<5.8){
+     const amount=Math.min(1,(u-3.72)/.1)*Math.max(0,1-(u-3.72)/2.08);
+     const dx=(Math.random()-.5)*24*amount,dy=(Math.random()-.5)*20*amount;
      const game=$('game');if(game){game.style.transform='translate('+dx+'px,'+dy+'px)';canvas.style.transform='translate('+dx+'px,'+dy+'px)';}
-   }else if(u>=5.5){const game=$('game');if(game)game.style.transform='';canvas.style.transform='';}
-   return u<5.5;
+   }else if(u>=5.8){const game=$('game');if(game)game.style.transform='';canvas.style.transform='';}
+   return u<total;
  }
  function randomInView(){
    const r=screenRectWorld(75),x=r.left+Math.random()*Math.max(1,r.width),y=r.top+Math.random()*Math.max(1,r.height);
@@ -173,8 +221,8 @@
    const now=ts/1000,dt=Math.min(.05,last?(ts-last)/1000:.016);last=ts;
    if(p&&p.megaForm===FORM&&lastForm!==FORM){reversionAt=now;fieldOn=false;}
    lastForm=p?.megaForm||'';
-   if(!active){fieldOn=false;const game=$('game');if(game)game.style.transform='';}
-   const inReveal=!!p&&p.megaForm===FORM&&now-reversionAt<5.5;
+   if(!active){fieldOn=false;if(p?.megaForm!==FORM){const game=$('game');if(game)game.style.transform='';}}
+   const inReveal=!!p&&p.megaForm===FORM&&now-reversionAt<6.0;
    const showing=active||inReveal;
    if(!showing){canvas.style.display='none';return;}
    canvas.style.display='block';resize();ctx.clearRect(0,0,innerWidth,innerHeight);
