@@ -111,11 +111,15 @@
    }
    ctx.restore();
  }
- function randomPoint(){const v=frameView;return {x:v.left+(Math.random()*.9+.05)*v.rect.width/v.k,y:v.top+(Math.random()*.7+.25)*v.rect.height/v.k};}
+ function randomPoint(){
+   const v=frameView,w=v.rect.width/v.k,h=v.rect.height/v.k,near=Math.random()<.5;
+   const radius=near?120+Math.random()*160:Math.min(w,h)*(.42+Math.random()*.32),angle=Math.random()*TAU;
+   return {x:clamp(owner.x+Math.cos(angle)*radius,v.left+w*.05,v.left+w*.95),y:clamp(owner.y+Math.sin(angle)*radius,v.top+h*.08,v.top+h*.92)};
+ }
  function spawnSpout(){
    let q=randomPoint();for(let i=0;i<12&&spouts.some(s=>Math.hypot(s.x-q.x,s.y-q.y)<260);i++)q=randomPoint();
    if(spouts.some(s=>Math.hypot(s.x-q.x,s.y-q.y)<200))return;
-   spouts.push({...q,age:0,life:12+Math.random()*4,phase:Math.random()*9,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*8,size:235+Math.random()*35});
+   spouts.push({...q,age:0,life:12+Math.random()*4,phase:Math.random()*9,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*8,size:235+Math.random()*35,damageAt:new WeakMap()});
  }
  function moveUnit(e,dx,dy){
    const w=bridge()?.world,r=Math.min(e.r||10,18);
@@ -129,7 +133,10 @@
      for(const q of spouts){const dx=q.x-e.x,dy=q.y-e.y,d=Math.hypot(dx,dy),reach=q.size*.75;if(d>=reach||d<1)continue;
        const f=(1-d/reach)*ease(q.age/.7)*ease((q.life-q.age)/.8),pull=100*f;
        vx+=dx/d*pull-dy/d*35*f;vy+=dy/d*pull+dx/d*35*f;
-       if(d<35&&e!==owner)e.applySlow?.(.75,.15);
+       if(enemies.has(e)&&d<q.size*.32&&typeof e.hurt==='function'){
+         const lastHit=q.damageAt.get(e)??-Infinity;
+         if(clock-lastHit>=.35){e.hurt(Math.max(1,(Number(e.maxHp)||Number(e.hp)||40)*.006),'#39caff',0,0,0);q.damageAt.set(e,clock);}
+       }
      }
      const speed=Math.hypot(vx,vy),cap=Math.min(1,130/(speed||1));moveUnit(e,vx*cap*dt*punishment,vy*cap*dt*punishment);
      if(spouts.some(q=>Math.hypot(q.x-e.x,q.y-e.y)<35)){
@@ -155,7 +162,7 @@
      if(scene.t>=END)scene=null;
    }
    if(scene&&!scene.revealed)return;
-   spawnIn-=dt;if(spawnIn<=0){if(spouts.length<3)spawnSpout();spawnIn=4;}
+   spawnIn-=dt;if(spawnIn<=0){if(spouts.length<8)spawnSpout();spawnIn=1.5;}
    for(let i=spouts.length-1;i>=0;i--){const q=spouts[i];q.age+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;if(q.age>=q.life)spouts.splice(i,1);}
    thunderIn-=dt;if(thunderIn<=0){
      const count=1+Math.floor(Math.random()*3);
@@ -167,9 +174,9 @@
  }
  function field(){
    const v=frameView,k=v.k,rect=v.rect;
-   ctx.fillStyle='rgba(1,12,30,.52)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
+   ctx.fillStyle='rgba(1,8,22,.76)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
    // Long low waves make the rough-water current visible at fixed world positions.
-   ctx.save();ctx.strokeStyle='rgba(54,145,181,.15)';ctx.lineWidth=2*k;
+   ctx.save();ctx.strokeStyle='rgba(57,164,205,.28)';ctx.lineWidth=2.5*k;
    for(let yy=Math.floor(v.top/80)*80;yy<v.top+rect.height/k+80;yy+=80){ctx.beginPath();
      for(let xx=Math.floor(v.left/30)*30;xx<v.left+rect.width/k+30;xx+=30){const p=screen(xx,yy+Math.sin(xx*.015-clock*1.8)*12);xx===Math.floor(v.left/30)*30?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);}ctx.stroke();}ctx.restore();
    for(const q of [...spouts].sort((a,b)=>a.y-b.y)){
@@ -193,9 +200,13 @@
    ctx.strokeStyle='rgba(178,222,239,.56)';ctx.lineWidth=1.35;ctx.beginPath();
    for(let i=0;i<count;i++){const q=rain[i],x=rect.left+((q.x-clock*.11)%1+1)%1*rect.width,y=rect.top+((q.y+clock*q.speed*2)%1)*rect.height;ctx.moveTo(x,y);ctx.lineTo(x-10,y+q.len);}ctx.stroke();
    // Restrict the living form's aura to the three gold markings: side crests and belly.
-   if(owner&&owner.megaForm===FORM&&scene?.revealed){const pos=screen(owner.x,owner.y-(Number(owner.bodyH)||40)*.45),r=(Number(owner.r)||16)*frameView.k;
+   if(owner&&owner.megaForm===FORM&&scene?.revealed){const pos=screen(owner.x,owner.y-(Number(owner.bodyH)||40)*.45),r=(Number(owner.r)||16)*frameView.k,body=(Number(owner.bodyH)||48)*frameView.k,halo=Math.max(r*.95,body*.25),pulse=.76+.2*Math.sin(clock*5);
      ctx.save();ctx.globalCompositeOperation='lighter';
-     for(const [dx,dy,scale] of [[-r*.82,-r*.18,.52],[r*.82,-r*.18,.52],[0,r*.32,.62]])glow(pos.x+dx,pos.y+dy,r*scale,'rgba(255,210,54,.3)');
+     for(const [dx,dy,scale] of [[-r*.82,-r*.18,.92],[r*.82,-r*.18,.92],[0,r*.32,1.05]]){
+       const x=pos.x+dx,y=pos.y+dy;glow(x,y,halo*scale,'rgba(255,202,28,'+pulse+')');
+       const core=ctx.createRadialGradient(x,y,0,x,y,halo*.23);core.addColorStop(0,'rgba(255,255,196,.95)');core.addColorStop(.45,'rgba(255,227,83,.78)');core.addColorStop(1,'rgba(255,183,22,0)');
+       ctx.fillStyle=core;ctx.beginPath();ctx.arc(x,y,halo*.23,0,TAU);ctx.fill();
+     }
      ctx.restore();
    }
  }
