@@ -2,7 +2,7 @@
 (()=>{'use strict';
  const FORM='382-primal',TAU=Math.PI*2;
  let canvas,ctx,lastForm='',reversionAt=0,last=0,tornadoes=[],bolts=[],rain=[],fieldOn=false,nextBolt=0;
- const tornadoSheet=new Image();tornadoSheet.src='assets/fx/primal-water-tornado.png?v=1';
+ const tornadoSheet=new Image();fetch('assets/fx/primal-water-tornado.base64?v=1').then(r=>r.ok?r.text():'').then(data=>{if(data.trim())tornadoSheet.src='data:image/png;base64,'+data.trim();}).catch(()=>{});
  const $=id=>document.getElementById(id);
  function bridge(){return window.PS_MEGA_BRIDGE_V5;}
  function player(){return bridge()?.game?.player||null;}
