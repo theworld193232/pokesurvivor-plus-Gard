@@ -175,8 +175,9 @@
  }
  function field(){
    const v=frameView,k=v.k,rect=v.rect;
-   ctx.fillStyle='rgba(1,8,22,.76)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
-   ctx.fillStyle='rgba(2,22,61,.36)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
+   // Keep the sea dark but translucent enough that the player and enemies stay readable.
+   ctx.fillStyle='rgba(1,8,22,.4)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
+   ctx.fillStyle='rgba(2,22,61,.24)';ctx.fillRect(rect.left,rect.top,rect.width,rect.height);
    // Long low waves make the rough-water current visible at fixed world positions.
    ctx.save();ctx.strokeStyle='rgba(57,164,205,.28)';ctx.lineWidth=2.5*k;
    for(let yy=Math.floor(v.top/80)*80;yy<v.top+rect.height/k+80;yy+=80){ctx.beginPath();
@@ -201,16 +202,6 @@
    while(rain.length<count)rain.push({x:Math.random(),y:Math.random(),speed:.7+Math.random(),len:18+Math.random()*25});
    ctx.strokeStyle='rgba(178,222,239,.56)';ctx.lineWidth=1.35;ctx.beginPath();
    for(let i=0;i<count;i++){const q=rain[i],x=rect.left+((q.x-clock*.11)%1+1)%1*rect.width,y=rect.top+((q.y+clock*q.speed*2)%1)*rect.height;ctx.moveTo(x,y);ctx.lineTo(x-10,y+q.len);}ctx.stroke();
-   // Track the sprite's visual center (the actor's world y is its foot anchor) and glow only the yellow markings.
-   if(owner&&owner.megaForm===FORM){const body=(Number(owner.bodyH)||48)*frameView.k,pos=screen(owner.x,owner.y-(Number(owner.bodyH)||48)*.45),r=(Number(owner.r)||16)*frameView.k,halo=Math.max(r*.62,body*.16),pulse=.44+.48*(.5+.5*Math.sin(clock*4.6));
-     ctx.save();ctx.globalCompositeOperation='lighter';
-     for(const [dx,dy,scale] of [[-body*.34,-body*.025,.8],[body*.34,-body*.025,.8],[0,body*.24,.88]]){
-       const x=pos.x+dx,y=pos.y+dy;glow(x,y,halo*scale,'rgba(255,202,28,'+pulse+')');
-       const core=ctx.createRadialGradient(x,y,0,x,y,halo*.32);core.addColorStop(0,'rgba(255,255,218,'+(.98*pulse)+')');core.addColorStop(.45,'rgba(255,231,95,'+(.9*pulse)+')');core.addColorStop(1,'rgba(255,183,22,0)');
-       ctx.fillStyle=core;ctx.beginPath();ctx.arc(x,y,halo*.32,0,TAU);ctx.fill();
-     }
-     ctx.restore();
-   }
  }
  function frame(ts){
    requestAnimationFrame(frame);const b=bridge(),p=b?.game?.player,dt=Math.min(.04,last?(ts-last)/1000:0);last=ts;
