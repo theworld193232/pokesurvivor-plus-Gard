@@ -428,7 +428,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    requestAnimationFrame(drawPrimalDomain);
    const p=getPlayer();
    const playing=getBridge()?.game?.state==='playing';
-   const on=activePrimal&&p===activePrimal.player&&playing;
+   const on=activePrimal&&p===activePrimal.player&&playing&&!(p.megaForm==='382-primal'&&window.PS_PRIMAL_KYOGRE);
    // Custom move effects (Precipice Blades, Blackhole...) draw on this overlay too, Primal or not.
    const fxActive=playing&&(eruptions.length||spikes.length||debris.length||holes.length||(window.PS_FX&&window.PS_FX.active()));
    if(!on){fx.drops.length=fx.ripples.length=fx.motes.length=0;}
@@ -1004,7 +1004,10 @@ function start(){
    // never exceed the game's max HP cap (1000 outside Area Zero)
    {const cap=Number(p.constructor&&p.constructor.HP_CAP);if(cap>0&&p.maxHp>cap){p.maxHp=cap;p.hp=Math.min(p.hp,cap);}}
    p.megaForm=f.key;used=true;rewardPending=false;stoneOwned=false;
-   if(WEATHER[f.key])startPrimalWeather(p,WEATHER[f.key]);
+   if(WEATHER[f.key]){
+     startPrimalWeather(p,WEATHER[f.key]);
+     if(f.key==='382-primal'&&window.PS_PRIMAL_KYOGRE)window.PS_PRIMAL_KYOGRE.begin(p,baseline.anim,p.anim);
+   }
    else if(window.PS_FX&&window.PS_FX.has('megaevo')){ // Mega Evolution cutscene: orb -> shatter -> Mega symbol (the new sprite appears when the orb breaks)
      try{const newAnim=p.anim;if(newAnim!==baseline.anim){p.anim=baseline.anim;}p.invuln=Math.max(Number(p.invuln)||0,1.4);
        const cry=MEGA_CRIES[String(Number(p.dex))]||null;
