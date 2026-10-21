@@ -168,11 +168,12 @@
    if(p&&p.megaForm===FORM&&lastForm!==FORM){reversionAt=now;fieldOn=false;}
    lastForm=p?.megaForm||'';
    if(!active){fieldOn=false;const game=$('game');if(game)game.style.transform='';}
-   const anim=!!p&&p.megaForm===FORM&&drawReversion(p,now);
-   const showing=active||anim;
+   const inReveal=!!p&&p.megaForm===FORM&&now-reversionAt<5.5;
+   const showing=active||inReveal;
    if(!showing){canvas.style.display='none';return;}
    canvas.style.display='block';resize();ctx.clearRect(0,0,innerWidth,innerHeight);
    if(active)drawField(p,dt,now);
+   if(p&&p.megaForm===FORM)drawReversion(p,now);
  }
  setup();requestAnimationFrame(frame);
 })();
