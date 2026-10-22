@@ -17,7 +17,22 @@
   const playing = () => B()?.game?.state === 'playing';
   const coop = () => !!(E()?.Coop?.active);
   const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
-  const say = (t, d) => { try { E().Spawner.say(t, d || 3); } catch (_) {} };
+  const netHost = () => { try { const n = E().Net; return !!(typeof n.isHost === 'function' ? n.isHost() : n.isHost); } catch (_) { return false; } };
+  const tell = msg => { try { if (coop() && netHost()) E().Net.broadcast(msg); } catch (_) {} };   // co-op: the host shares den news with the group
+  const say = (t, d) => { try { E().Spawner.say(t, d || 3); } catch (_) {} tell({ k: 'psden', ev: 'say', t, d: d || 3 }); };
+  // co-op guests: hear the host's den messages and get the Legendary too
+  let denNet = false;
+  function hookDenNet() {
+    const n = E()?.Net; if (denNet || !n || typeof n.on !== 'function') return; denNet = true;
+    n.on((uid, msg) => { try {
+      if (!msg || msg.k !== 'psden' || netHost()) return; const N = E();
+      if (msg.ev === 'say') { try { N.Spawner.say(String(msg.t || ''), Number(msg.d) || 3); } catch (_) {} return; }
+      if (msg.ev === 'clear') { const dex = Number(msg.dex), sh = !!msg.shiny; if (!N.DEX_BY[dex]) return;
+        try { N.DB.grant(dex, 'den'); if (sh) N.DB.grantShiny(dex, 'den'); N.DB.commit(); } catch (_) {}
+        const p = B()?.game?.player; if (p) p.coins = (Number(p.coins) || 0) + 600;
+        try { banner.show((sh ? 'Shiny ' : '') + (N.DEX_BY[dex].name) + ' joined you!', 'Legendary Den cleared with your group · +600 PokéCoins', true, { dex, shiny: sh, ms: 7000 }); B().audio?.sfx?.('legend'); } catch (_) {} }
+    } catch (_) {} });
+  }
 
   // a den needs open, dry, flat ground: no walls, water, trees, rocks, chests, crystals or altars under or right next to it
   function clearSpot(x, y) {
@@ -161,6 +176,7 @@
       if (sh) { try { if (typeof N.DB.grantShiny === 'function') N.DB.grantShiny(dex); else N.DB.save.shiny[dex] = { at: Date.now(), from: 'den' }; } catch (_) {} }
       try { N.DB.commit(); } catch (_) {}
       banner.show((sh ? 'Shiny ' : '') + e.name + ' joined you!', 'Legendary Den cleared · +600 PokéCoins', true, { dex, shiny: sh, ms: 7000 });
+      tell({ k: 'psden', ev: 'clear', dex, shiny: sh });
       try { B().audio?.sfx?.('legend'); } catch (_) {}
       const kind = lden.kind; lden = null;
       if (kind === 'mode') setTimeout(() => { try { if (B()?.game?.player === p && B()?.game?.state !== 'over') E().Game.winRun(0); } catch (_) {} }, 3500);
@@ -177,7 +193,7 @@
     // A reward card or pause screen must not delete an in-progress raid.
     if (g.state === 'ui' || g.state === 'levelup' || g.state === 'choice') return;
     if (p !== runP) { runP = p; nextAt = CFG.first; dens.length = 0; ldens.length = 0; raid = null; lden = null; }
-    wrapDyn(); if (g.state === 'playing') legendTick(dt);
+    wrapDyn(); hookDenNet(); if (g.state === 'playing' && (!coop() || netHost())) legendTick(dt);   // co-op: only the host runs the den
     for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < 34) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
     if (!playing() || coop() || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;
     if (!raid && clock() >= nextAt) { nextAt += CFG.every; if (!dens.length && !ldens.length && !lden) { if (Math.random() < LCFG.chance) spawnLegendDen(); else if (Math.random() < CFG.chance) spawnDen(false); } }   // a quarter as often as the game's rifts (they come every 3 min)

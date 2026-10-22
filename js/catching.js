@@ -305,16 +305,20 @@
      <small style="opacity:.7;display:block;margin-top:10px">Catch a Small or Big ${mon?mon.name:'one'} in a Story run to unlock that size.</small></div>`;
  }
  function sizeButton(force){
-   const up=document.getElementById('menu-partner-upg');let row=document.getElementById('ps-size-row');
-   if(!up){if(row)row.style.display='none';return;}
+   const up=document.getElementById('menu-partner-upg');let b=document.getElementById('ps-size-btn');
+   if(!up){if(b)b.style.display='none';return;}
    const S=E()?.DB?.save;if(!S)return;
-   if(!row){row=document.createElement('div');row.id='ps-size-row';row.style.cssText='display:flex;justify-content:center;width:100%';
-     const b=document.createElement('button');b.type='button';b.className='pp-upg';b.id='ps-size-btn';row.append(b);
-     b.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();sizeMenu();});}
-   const last=document.getElementById('ps-skin-toggle')?.offsetParent?document.getElementById('ps-skin-toggle'):up;
-   if(row.previousElementSibling!==last)last.insertAdjacentElement('afterend',row);
-   row.style.display='flex';const z=SIZES[chosenSize(Number(S.partner))]||SIZES.normal,t='📏 Size: '+z.name;
-   const b=row.firstChild;if(force||b.textContent!==t)b.textContent=t;
+   if(!document.getElementById('ps-pc-css')){const st=document.createElement('style');st.id='ps-pc-css';st.textContent='#ps-pc-tools .pp-upg{margin:0 !important;font-size:12px;padding:2px 9px}';document.head.append(st);}
+   // Upgrades, the skin toggle and Size share one row under the partner (they used to stack and get cut off)
+   let row=document.getElementById('ps-pc-tools');
+   if(!row||!row.isConnected){row=document.createElement('div');row.id='ps-pc-tools';row.style.cssText='display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 6px;margin-top:4px;max-width:100%';}
+   if(up.parentElement!==row){up.insertAdjacentElement('beforebegin',row);row.appendChild(up);}
+   const sk=document.getElementById('ps-skin-toggle');if(sk&&sk.parentElement!==row)up.insertAdjacentElement('afterend',sk);
+   if(!b){b=document.createElement('button');b.type='button';b.className='pp-upg';b.id='ps-size-btn';b.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();sizeMenu();});}
+   if(b.parentElement!==row||b!==row.lastElementChild)row.appendChild(b);
+   b.style.display='';const z=SIZES[chosenSize(Number(S.partner))]||SIZES.normal,t='📏 '+z.name;b.title='Your Pokémon\'s size';
+   if(force||b.textContent!==t)b.textContent=t;
+   const old=document.getElementById('ps-size-row');if(old)old.remove();
  }
  // New save: ask Boy or Girl once the main menu is really on screen (not behind the intro / personality quiz)
  function firstTime(){const S=E()?.DB?.save,g=B()?.game;if(!S||S.psTrainer||!g||g.state!=='ui'||document.getElementById('ps-trainer-menu')?.offsetParent)return;

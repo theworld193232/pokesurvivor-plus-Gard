@@ -1,5 +1,5 @@
 /* ROAMING LEGENDARIES + BOSS RUSH LEGENDARIES
-   - Every 5 minutes of a run there's a 2% chance a wild Mew appears somewhere near you, and another 2% chance
+   - Every 2-3 minutes of a run there's an 8% chance a wild Mew appears somewhere near you, and another 8% chance
      for one of the roaming Legendaries (Raikou, Entei, Suicune, Latias, Latios, the legendary birds, Cresselia,
      the Forces of Nature...). "A wild Mew has appeared!" — defeat it before it flees (90 s) and it joins your
      collection (shiny if it was). Normal shiny odds apply (Shiny Charm triples them).
@@ -10,7 +10,7 @@
   if (window.PS_ROAMERS_INSTALLED) return; window.PS_ROAMERS_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const TAU = Math.PI * 2;
-  const CFG = { every: 300, mewChance: 0.02, roamChance: 0.02, flee: 90, rushEvery: 75 };
+  const CFG = { every: [120, 180], mewChance: 0.08, roamChance: 0.08, flee: 90, rushEvery: 75 };   // a roll every 2-3 minutes
   const MEW = 151, ROAMERS = [243, 244, 245, 380, 381, 144, 145, 146, 488, 641, 642, 645, 905];
   const GACHA_ONLY = new Set([801, 648, 490, 489]);
   const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
@@ -18,7 +18,8 @@
   const say = (t, d) => { try { E().Spawner.say(t, d || 3); } catch (_) {} };
   const toast = (t, s, o) => { try { window.PS_TOAST && window.PS_TOAST(t, s, o); } catch (_) {} };
   const live = [];   // {e, kind:'roam'|'rush', t, dex}
-  let runP = null, nextRoll = CFG.every, nextRush = CFG.rushEvery;
+  const gap = () => CFG.every[0] + Math.random() * (CFG.every[1] - CFG.every[0]);
+  let runP = null, nextRoll = gap(), nextRush = CFG.rushEvery;
 
   // roamer cries (assets/cries/<dex>.mp3), played at the game's sound-effects volume
   const CRY_VOL = 0.35;   // cries are mastered loud: this scales them down (raise toward 1 for louder)
@@ -62,10 +63,10 @@
   function tick(dt) {
     const g = B()?.game, p = g?.player;
     if (!p || g.state === 'ui' || g.state === 'over') { live.length = 0; runP = null; return; }
-    if (p !== runP) { runP = p; live.length = 0; nextRoll = CFG.every; nextRush = CFG.rushEvery; }
+    if (p !== runP) { runP = p; live.length = 0; nextRoll = gap(); nextRush = CFG.rushEvery; }
     if (g.state !== 'playing' || coop() || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;
     const t = clock(), mode = window.PS_MODES?.run?.mode;
-    if (mode !== 'legend' && t >= nextRoll) { nextRoll += CFG.every;
+    if (mode !== 'legend' && t >= nextRoll) { nextRoll = t + gap();
       if (Math.random() < CFG.mewChance) spawnLegend(MEW, 'roam'); else if (Math.random() < CFG.roamChance) spawnLegend(ROAMERS[Math.floor(Math.random() * ROAMERS.length)], 'roam'); }
     if (mode === 'bossrush' && t >= nextRush) { nextRush = t + CFG.rushEvery; const L = rushPool(); if (L.length) spawnLegend(L[Math.floor(Math.random() * L.length)], 'rush'); }
     for (let i = live.length - 1; i >= 0; i--) { const r = live[i]; r.t += dt;

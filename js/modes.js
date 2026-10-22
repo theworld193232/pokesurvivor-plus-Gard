@@ -4,7 +4,9 @@
                      Make it to 0:00 and you win the run with bonus PokéCoins.
    - Boss Rush       bosses arrive 4x sooner and there are fewer small enemies. Every boss KO pays bonus PokéCoins.
    - Hardcore        no extra hearts and enemies hit 50% harder, but PokéCoins and EXP are doubled.
-   The choice is remembered. Solo runs only (co-op always plays Classic). */
+   The choice is remembered.
+   Co-op: the HOST's mode is the one everybody plays (whatever mode the others picked). The host sends its mode to
+   the group when the run starts; the Legendary Den itself is run by the host and the Legendary joins everyone. */
 (() => {
   'use strict';
   if (window.PS_MODES_INSTALLED) return; window.PS_MODES_INSTALLED = true;
@@ -26,6 +28,25 @@
   let len = Number(store.get('timed_len', 600)); if (!LENGTHS.includes(len)) len = 600;
   const run = { mode: 'classic', player: null, len: 600, done: false, bosses: 0, endT: 0 };   // the run in progress
   const coop = () => !!(E()?.Coop?.active);
+  const isHost = () => { try { const C = E().Coop; return !!(typeof C.isHost === 'function' ? C.isHost() : C.isHost); } catch (_) { return false; } };
+  const inRoom = () => { try { const S = E().Social; return !!(S && S.room && (typeof S.room === 'function' ? S.room() : S.room)); } catch (_) { return false; } };
+  const netHost = () => { try { const n = E().Net; return !!(typeof n.isHost === 'function' ? n.isHost() : n.isHost); } catch (_) { return false; } };
+  // ---- co-op: the host's mode is everyone's mode ----
+  let hostMode = null;   // {m, len, at} last mode the host sent us
+  function sendMode() { try { const n = E().Net; if (n && netHost()) n.broadcast({ k: 'psmode', m: sel, len }); } catch (_) {} }
+  let netHooked = false;
+  function hookNet() {
+    const n = E()?.Net; if (netHooked || !n || typeof n.on !== 'function') return; netHooked = true;
+    n.on((uid, msg) => recv(msg));
+  }
+  function recv(msg) { try {
+      if (!msg) return;
+      if (msg.k === 'psmodeq' && netHost()) { sendMode(); return; }   // a guest asks which mode we're on
+      if (msg.k !== 'psmode' || !MODES[msg.m]) return;
+      hostMode = { m: msg.m, len: Number(msg.len) || 600, at: performance.now() };
+      // our run already started on another mode: switch to the host's while it's still fresh
+      if (run.player && coop() && !isHost() && run.mode !== msg.m && performance.now() - (run.startedAt || 0) < 20000) applyMode(run.player, msg.m, hostMode.len);
+    } catch (_) {} }
   const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
 
   // ---------------- engine hooks ----------------
@@ -40,7 +61,7 @@
     const Sp = E()?.Spawner; if (!Sp || spWrapped || typeof Sp.update !== 'function') return; spWrapped = true;
     const up = Sp.update;
     Sp.update = function (dt, players, time) {
-      if (run.player && !coop()) {
+      if (run.player && (!coop() || isHost())) {
         if (run.mode === 'timed') return up.call(this, dt * TIMED.spawn, players, time * TIMED.clock);
         if (run.mode === 'bossrush') return up.call(this, dt * RUSH.spawn, players, time * RUSH.clock);
         if (run.mode === 'legend') return;   // only the den's own Pokémon in Legendary Den mode
@@ -51,9 +72,19 @@
 
   // ---------------- run start / tick ----------------
   function startRunMode(p) {
-    run.player = p; run.mode = coop() ? 'classic' : sel; run.len = len; run.done = false; run.endT = 0; run.bosses = Number(p.bosses) || 0;
+    let m = sel, L = len;
+    if (coop()) {
+      if (isHost()) { let n = 0; const tm = setInterval(() => { sendMode(); if (++n >= 6) clearInterval(tm); }, 800); sendMode(); }
+      else { if (hostMode && performance.now() - hostMode.at < 120000) { m = hostMode.m; L = hostMode.len; } else m = 'classic'; try { E().Net.toHost({ k: 'psmodeq' }); } catch (_) {} }
+    }
+    run.startedAt = performance.now(); applyMode(p, m, L);
+  }
+  function applyMode(p, m, L) {
+    const prev = run.mode;
+    if (prev === 'hardcore' && run.player === p && m !== 'hardcore') { p.coinMul = (Number(p.coinMul) || 1) / HARD.gain; p.xpMul = (Number(p.xpMul) || 1) / HARD.gain; }
+    run.player = p; run.mode = m; run.len = L; run.done = false; run.endT = 0; run.bosses = Number(p.bosses) || 0;
     if (run.mode === 'hardcore') { p.lives = 0; p.coinMul = (Number(p.coinMul) || 1) * HARD.gain; p.xpMul = (Number(p.xpMul) || 1) * HARD.gain; }
-    if (run.mode === 'legend') { let n = 0; const go = () => { if (B()?.game?.player !== p) return; if (!(window.PS_DENS && window.PS_DENS.startLegend && window.PS_DENS.startLegend('mode')) && n++ < 40) setTimeout(go, 250); }; setTimeout(go, 600); }
+    if (run.mode === 'legend' && (!coop() || isHost())) { let n = 0; const go = () => { if (B()?.game?.player !== p) return; if (!(window.PS_DENS && window.PS_DENS.startLegend && window.PS_DENS.startLegend('mode')) && n++ < 40) setTimeout(go, 250); }; setTimeout(go, 600); }
     if (run.mode !== 'classic' && run.mode !== 'legend') { try { E().Spawner.say(MODES[run.mode].icon + ' ' + MODES[run.mode].name + (run.mode === 'timed' ? ' · ' + fmt(run.len) : ''), 3); } catch (_) {} }
     renderHud();
   }
@@ -137,12 +168,13 @@
     let b = document.getElementById('ps-mode-btn');
     if (!b) { b = document.createElement('button'); b.id = 'ps-mode-btn'; b.type = 'button'; b.className = 'btn small'; b.addEventListener('click', e => { e.stopPropagation(); openPick(); }); }
     if (b.parentElement !== banner) { if (getComputedStyle(banner).position === 'static') banner.style.position = 'relative'; banner.appendChild(b); }
-    const html = ico(MODES[sel].ico, 20) + '<span>Mode: ' + modeLabel() + '</span>'; if (b.__h !== html) { b.innerHTML = html; b.__h = html; }
+    const guest = inRoom() && !netHost(); const html = ico(MODES[sel].ico, 20) + '<span>Mode: ' + modeLabel() + (guest ? ' · host decides' : '') + '</span>'; if (b.__h !== html) { b.innerHTML = html; b.__h = html; }
+    if (netHost() && sel !== injectBtn.__last) { injectBtn.__last = sel; sendMode(); }
   }
   function openPick() { renderPick(); pick.style.display = 'flex'; }
   function closePick() { pick.style.display = 'none'; injectBtn(); }
   function renderPick() {
-    let h = '<div class="box"><h2>Game Mode</h2><p class="sub">Choose how your next run plays. Your choice is remembered; co-op always plays Classic.</p><div class="menu-list">';
+    let h = '<div class="box"><h2>Game Mode</h2><p class="sub">Choose how your next run plays. Your choice is remembered. In co-op, everyone plays the host\'s mode.</p><div class="menu-list">';
     for (const [id, M] of Object.entries(MODES)) {
       h += '<button class="menu-item' + (id === sel ? ' on' : '') + '" data-m="' + id + '"><span class="mi-ico">' + ico(M.ico, 30) + '</span><span>' + M.name + (id === sel ? '<span class="tg">· selected</span>' : '') + '</span><small>' + M.desc + '</small>';
       if (id === 'timed') { h += '<span class="lens">'; for (const L of LENGTHS) h += '<span class="btn small' + (L === len && sel === 'timed' ? ' gold' : '') + '" data-len="' + L + '">' + (L / 60) + ' min · +' + TIMED_BONUS[L] + '</span>'; h += '</span>'; }
@@ -163,9 +195,9 @@
   let last = performance.now(), menuT = 0;
   function loop(now) {
     requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now;
-    try { wrapHooks(); wrapSpawner(); tick(dt); menuT += dt; if (menuT > 0.5) { menuT = 0; if (B()?.game?.state === 'ui' || !B()?.game?.player) injectBtn(); } } catch (e) { console.warn('[modes]', e); }
+    try { wrapHooks(); wrapSpawner(); hookNet(); tick(dt); menuT += dt; if (menuT > 0.5) { menuT = 0; if (B()?.game?.state === 'ui' || !B()?.game?.player) injectBtn(); } } catch (e) { console.warn('[modes]', e); }
   }
   function init() { document.head.append(css); document.body.append(hud, winEl, pick, toastBox); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_MODES = { modes: MODES, get selected() { return sel; }, set selected(v) { if (MODES[v]) { sel = v; store.set('mode', v); injectBtn(); } }, get length() { return len; }, set length(v) { if (LENGTHS.includes(v)) { len = v; store.set('timed_len', v); } }, get run() { return Object.assign({}, run, { player: !!run.player }); }, open: openPick, _debugLen(s) { run.len = s; } };
+  window.PS_MODES = { _recv: recv, get hostMode() { return hostMode; }, modes: MODES, get selected() { return sel; }, set selected(v) { if (MODES[v]) { sel = v; store.set('mode', v); injectBtn(); } }, get length() { return len; }, set length(v) { if (LENGTHS.includes(v)) { len = v; store.set('timed_len', v); } }, get run() { return Object.assign({}, run, { player: !!run.player }); }, open: openPick, _debugLen(s) { run.len = s; } };
 })();
