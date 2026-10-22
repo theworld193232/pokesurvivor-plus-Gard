@@ -3,7 +3,8 @@
      medium (purple) +1 minute     1%
      large  (gold)   +5 minutes    0.1%
    At most 30 orbs drop per run. Walk over one to take it; they vanish after 30 s.
-   The time is added gradually over a few seconds (bosses and events keep up normally).
+   The time is added gradually over a few seconds (bosses and events keep up normally); the run timer shows it too.
+   Once Arceus's Judgment begins, any fast-forward left over is dropped so the final fight plays normally.
    Solo runs only; not in the Legendary Den mode. */
 (() => {
   'use strict';
@@ -19,7 +20,8 @@
   const orbs = []; let pending = 0, dropped = 0, runP = null;
   const ok = () => { const N = E(); return !!N && !(N.Coop && N.Coop.active) && !(window.PS_MODES && window.PS_MODES.run && window.PS_MODES.run.mode === 'legend'); };
   // the game adds this to its run clock each frame
-  window.PS_TIME_ADD = function (dt) { if (pending <= 0) return 0; const a = Math.min(pending, CFG.skipRate * (Number(dt) || 0)); pending -= a; return a; };
+  window.PS_TIME_ADD = function (dt) { if (pending <= 0) return 0;
+    try { const N = E(); if (N.Judgment && N.Judgment.active) { pending = 0; return 0; } } catch (_) {} /* Arceus is here: the fast-forward stops */ const a = Math.min(pending, CFG.skipRate * (Number(dt) || 0)); pending -= a; return a; };
   function onKill(e) {
     try {
       if (!e || e.remote || e.__timeOrb || !ok() || dropped >= CFG.maxPerRun) return; e.__timeOrb = true;

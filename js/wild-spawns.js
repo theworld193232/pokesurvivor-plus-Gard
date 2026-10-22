@@ -10,6 +10,9 @@
    3) Original mode rewards (Story has catching instead): defeating a wild Pokemon whose first form you don't own gives
       a 40% chance to get that first form (beat a Kirlia -> Ralts, a Dragonair -> Dratini; a Lapras -> Lapras).
       Starters only come from the Gacha. Legendaries, Mythicals and Ultra Beasts never drop.
+      Story-exclusive Pokemon (Route 1's: Pidgey, Rattata, Sentret, Hoothoot, Spinarak, Wurmple, Pichu, Oddish,
+      Bellsprout, Pineco and their evolutions) still appear in Original, but give nothing there and are skipped by
+      the missing-Pokemon spawns: catch them on Route 1 in Story.
    Not on Story Route 1 (its own hand-made list), in Rift arenas, Safe Zones, co-op or the Legendary Den mode.
    Every number is in CFG below. */
 (() => {
@@ -43,6 +46,16 @@
     return prev;
   }
   const STARTER_LINE = new Set([1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912]);
+  // Story-exclusive Pokemon: every Story chapter's wild Pokemon (Route 1 now; future chapters add theirs to
+  // window.PS_STORY_CHAPTER_WILD, or list extra dex numbers in STORY_ONLY). They still spawn in Original, but the
+  // missing-Pokemon spawns skip them and defeating them in Original gives nothing: get them in their Story chapter.
+  const STORY_ONLY = [];
+  function storyExclusive() {
+    const set = new Set(); const add = d => { const b = baseOf(d); if (b) set.add(b); };
+    try { (window.PS_ROUTE1?.wild?.() || []).forEach(add); } catch (_) {}
+    try { (window.PS_STORY_CHAPTER_WILD || []).forEach(add); } catch (_) {}
+    STORY_ONLY.forEach(add); return set;
+  }
   const baseOf = d => { const P = evoData(); let x = Number(d), n = 0; while (P && P[x] != null && n++ < 5) x = P[x]; return x; };
   const isLegend = d => { const p = E().DEX_BY[d]; return !!(p && p.leg) || EXTRA_LEG.has(Number(d)) || !!(legends && legends.has(Number(d))); };
   const noEvo = d => { const P = evoData(); return P && P[d] == null && !((E().EVOS[d] || []).length); };
@@ -66,8 +79,8 @@
   // missing Pokemon, cycled one at a time
   let queue = [], nextMiss = 0, nextPseudo = 0, runP = null;
   function missingList() {
-    const N = E(), S = N.DB.save; evoData();
-    const L = N.DEX.filter(d => !(S.owned && S.owned[d.dex]) && !isLegend(d.dex) && !UB.has(d.dex) && !PSEUDO_BASE[d.dex] && !STARTER_LINE.has(baseOf(d.dex)) && N.SPRITE_META[d.dex]).map(d => d.dex);   // Pseudo-Legendaries have their own rare spawn
+    const N = E(), S = N.DB.save; evoData(); const SX = storyExclusive();
+    const L = N.DEX.filter(d => !(S.owned && S.owned[d.dex]) && !isLegend(d.dex) && !UB.has(d.dex) && !PSEUDO_BASE[d.dex] && !STARTER_LINE.has(baseOf(d.dex)) && !SX.has(baseOf(d.dex)) && N.SPRITE_META[d.dex]).map(d => d.dex);   // Pseudo-Legendaries have their own rare spawn
     for (let i = L.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [L[i], L[j]] = [L[j], L[i]]; }
     return L;
   }
@@ -92,6 +105,7 @@
       if (!e || e.remote || e.boss || e.legend || e.__psCaughtGone || story() || !ok()) return;
       const N = E(), S = N.DB.save, d = Number(e.dex); if (!N.DEX_BY[d] || isLegend(d) || UB.has(d)) return;
       const base = baseOf(d); if (STARTER_LINE.has(base)) return;   // starters only come from the Gacha
+      if (storyExclusive().has(base)) return;   // Story-exclusive (Route 1...): only from its chapter
       const get = PSEUDO_BASE[d] || base;   // its first form (itself when it doesn't evolve)
       if (!get || (S.owned && S.owned[get]) || Math.random() >= CFG.dropChance) return;
       N.DB.grant(get, 'wild'); try { N.DB.commit(); } catch (_) {}

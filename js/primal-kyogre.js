@@ -7,6 +7,9 @@
  canvas.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:3;display:none';document.body.append(canvas);
  const ctx=canvas.getContext('2d');
  let owner=null,scene=null,clock=0,last=0,spawnIn=0,thunderIn=0,frameView=null;
+ // [Gard co-op] a teammate's Primordial Sea is seen (visual only) while you stand inside its domain
+ let viewOnly=false;const DOMAIN_R=430;
+ function remoteOwner(){const b=bridge(),p=b?.game?.player;if(!p)return null;let best=null,bd=DOMAIN_R;for(const q of b?.game?.everyone?.()||[]){if(!q||q===p||q.dead||q.megaForm!==FORM||!Number.isFinite(q.x))continue;const d=Math.hypot(q.x-p.x,q.y-p.y);if(d<bd){bd=d;best=q;}}return best;}
  const spouts=[],strikes=[],rain=[],assets={tornado:null,lightning:[]};
  const image=url=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=url;});
  async function sheet(path,mime){const r=await fetch(path);if(!r.ok)throw new Error('Missing effect asset: '+path);return image('data:'+mime+';base64,'+(await r.text()).trim());}
@@ -42,7 +45,7 @@
  const screen=(x,y)=>({x:frameView.rect.left+(x-frameView.left)*frameView.k,y:frameView.rect.top+(y-frameView.top)*frameView.k});
  function kick(amount){const b=bridge();window.__psModKick=true;try{b?.camera?.kick?.(amount);}finally{window.__psModKick=false;}}
  function clear(){
-   if(scene&&!scene.revealed&&scene.player===bridge()?.game?.player&&scene.player.megaForm===FORM)scene.player.anim=scene.next;
+   if(scene&&!scene.revealed&&scene.player.megaForm===FORM)scene.player.anim=scene.next;
    scene=null;owner=null;spouts.length=strikes.length=rain.length=0;spawnIn=thunderIn=0;clock=0;canvas.style.display='none';
  }
  // Called at the real evolution event: the original animator stays visible until the shell breaks.
@@ -56,7 +59,9 @@
    clear();owner=p;scene={player:p,previous,next,t:0,revealed:false,kickIn:0};sound('reversion');
    p.anim=previous;p.invuln=Math.max(p.invuln||0,REVEAL+.2);
  }
- window.PS_PRIMAL_KYOGRE={begin};
+ // a teammate turning Primal near you: the same Reversion scene, visual only
+ function beginRemote(p,previous,next){const me=bridge()?.game?.player;if(me&&me.megaForm===FORM){p.anim=next;return;}begin(p,previous,next);}
+ window.PS_PRIMAL_KYOGRE={begin,beginRemote,radius:DOMAIN_R};
  function polygon(points,fill,stroke){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.7;ctx.stroke();}}
  function glow(x,y,r,color){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'rgba(20,130,255,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}
  // Filled silhouette traced from the supplied Blue Orb insignia (no doubled outline).
@@ -133,6 +138,7 @@
    if(clear(e.x+dx,e.y))e.x+=dx;if(clear(e.x,e.y+dy))e.y+=dy;
  }
  function currents(dt){
+   if(viewOnly)return;   // a teammate's sea: you only see it
    const b=bridge(),enemies=new Set(b?.enemies?.all?.()||[]),actors=new Set([...enemies,...(b?.game?.everyone?.()||[])]);
    for(const e of actors){if(!e||e===owner||e.dead||!Number.isFinite(e.x)||!Number.isFinite(e.y))continue;
      const hostile=enemies.has(e),punishment=hostile?1:.5;
@@ -154,6 +160,7 @@
    }
  }
  function strikeDamage(q){
+   if(viewOnly)return;
    const b=bridge(),enemies=new Set(b?.enemies?.all?.()||[]),actors=new Set([...enemies,...(b?.game?.everyone?.()||[])]),radius=58;
    for(const e of actors){if(!e||e===owner||e.dead||q.hit.has(e)||!Number.isFinite(e.x)||!Number.isFinite(e.y))continue;
      const d=Math.hypot(e.x-q.x,e.y-q.y);if(d>radius+(e.r||0))continue;
@@ -253,9 +260,11 @@
  }
  function frame(ts){
    requestAnimationFrame(frame);const b=bridge(),p=b?.game?.player,dt=Math.min(.04,last?(ts-last)/1000:0);last=ts;
-   if(!p||p.dead||p.megaForm!==FORM){if(owner)clear();return;}
+   const mine=!!(p&&!p.dead&&p.megaForm===FORM),o=mine?p:remoteOwner();
+   if(!o){if(owner)clear();return;}
    // Loading an already transformed run should resume the field, not replay the evolution.
-   if(owner!==p){clear();owner=p;}
+   if(owner!==o){if(!(scene&&scene.player===o))clear();owner=o;}
+   viewOnly=!mine;
    if(b.game.state!=='playing'){canvas.style.display='none';return;}
    frameView=view();if(!frameView)return;
    const dpr=Math.min(2,devicePixelRatio||1),w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);

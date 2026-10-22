@@ -134,7 +134,7 @@
  function caught(e,ball){
    const X=E(),dex=Number(e.dex),name=e.name||'Pokémon',shiny=!!(e.shiny===true||e.anim?.shiny);
    let isNew=false;const size=e.psSize||'normal',hadSize=!!sizesOf(dex)[size];
-   try{isNew=!X.DB.owns(dex);grantSize(dex,size,!isNew);X.DB.grant(dex,'catch');if(shiny)X.DB.grantShiny(dex,'catch');}catch(_){}
+   try{isNew=!X.DB.owns(dex);grantSize(dex,size,!isNew);try{const bs=window.PS_PARTNER?window.PS_PARTNER.base(dex):dex;if(bs!==dex&&size!=='normal')grantSize(bs,size,true);}catch(_){}X.DB.grant(dex,'catch');if(shiny)X.DB.grantShiny(dex,'catch');}catch(_){}
    if(!isNew&&hadSize){try{X.DB.save.coins=(Number(X.DB.save.coins)||0)+50;}catch(_){}}
    save();
    // gone from the field (it counts as defeated, so you still get its experience)
@@ -239,11 +239,28 @@
  function chosenSize(dex){const S=E()?.DB?.save,have=sizesOf(dex);let s=S?.psSizeSel?.[dex];if(!s||!have[s])s=have.normal?'normal':SIZE_ORDER.find(k=>have[k])||'normal';return s;}
  function scaleBody(o,f){if(o.anim&&Number.isFinite(o.anim.scale))o.anim.scale*=f;if(Number.isFinite(o.r))o.r*=f;if(Number.isFinite(o.bodyH))o.bodyH*=f;}
  // wild Pokemon: a size is rolled as each one appears (bosses stay Normal)
+ // [Gard] Scarlet/Violet-style sizes (both modes): every wild Pokemon gets its own size (a little smaller or bigger,
+ // looks only). Very rarely one is TINY (1 in 256) or JUMBO (1 in 256) - those are the marked ones: catching one
+ // (Story) or defeating one (Original) unlocks Small / Big for its first form. Bosses stay normal.
+ const MARK={tiny:{chance:1/256,size:'small',scale:.6,label:'TINY',col:'#9ae6ff'},jumbo:{chance:1/256,size:'big',scale:1.5,label:'JUMBO',col:'#ffd23f'}};
  const sized=new WeakSet();
- function sizeEnemies(){for(const e of B()?.enemies?.all?.()||[]){if(!e||sized.has(e))continue;sized.add(e);if(e.dead||e.remote)continue;
-   let size='normal';if(!e.boss){const r=Math.random();size=r<SIZES.small.chance?'small':r<SIZES.small.chance+SIZES.big.chance?'big':'normal';}
-   e.psSize=size;if(size==='normal')continue;const z=SIZES[size];scaleBody(e,z.scale);
+ function sizeEnemies(){for(const e of B()?.enemies?.all?.()||[]){if(!e||sized.has(e))continue;sized.add(e);if(e.dead||e.remote||e.boss||e.legend||e.__roamer||e.__maxRaid)continue;
+   const r=Math.random();let mark=null;if(r<MARK.tiny.chance)mark='tiny';else if(r<MARK.tiny.chance+MARK.jumbo.chance)mark='jumbo';
+   if(!mark){const v=(Math.random()+Math.random())/2;e.psSize='normal';scaleBody(e,.88+.24*v);continue;}   // XS..XL, looks only
+   const m=MARK[mark],z=SIZES[m.size];e.psMark=mark;e.psSize=m.size;scaleBody(e,m.scale);
    if(Number.isFinite(e.maxHp)){e.maxHp*=z.hp;e.hp*=z.hp;}if(Number.isFinite(e.spd))e.spd*=z.spd;if(Number.isFinite(e._dmg))e._dmg*=z.dmg;if(Number.isFinite(e.shotDmg))e.shotDmg*=z.dmg;}}
+ // Original mode: defeating a Tiny / Jumbo unlocks that size for its first form
+ let killWrapped=false;
+ function wrapKill(){const P=E()?.Progress;if(killWrapped||!P||typeof P.kill!=='function')return;killWrapped=true;const k=P.kill;
+   P.kill=function(e,...a){try{if(e&&e.psMark&&!e.remote&&!e.__psCaughtGone&&!STORY()){const base=window.PS_PARTNER?window.PS_PARTNER.base(e.dex):Number(e.dex),sz=MARK[e.psMark].size,had=!!sizesOf(base)[sz];
+       if(!had){grantSize(base,sz,!!E().DB.owns(base));save();const nm=(E().DEX_BY[base]||{}).name||'it';toast((e.psMark==='jumbo'?'JUMBO ':'TINY ')+(e.name||'Pokémon')+' defeated! '+SIZES[sz].name+' size unlocked for '+nm+'!',3.2);}}}catch(_){}
+     return k.call(this,e,...a);};}
+ // the TINY / JUMBO tag over marked Pokemon
+ let markHooked=false;
+ function hookMarks(){const T=E()?.Training;if(markHooked||!T||typeof T.drawables!=='function')return;markHooked=true;const orig=T.drawables;
+   T.drawables=function(){const r=orig.apply(this,arguments),extra=[];for(const e of B()?.enemies?.all?.()||[]){if(!e||e.dead||!e.psMark)continue;const m=MARK[e.psMark];
+     extra.push({y:e.y+.2,draw(g){const h=Number(e.bodyH)||24;g.save();g.font='bold 9px monospace';g.textAlign='center';g.lineWidth=3;g.strokeStyle='#1a1a2e';g.strokeText(m.label,e.x,e.y-h-14);g.fillStyle=m.col;g.fillText(m.label,e.x,e.y-h-14);g.restore();}});}
+     return extra.length?[...(r||[]),...extra]:r;};}
  // your Pokemon: the size chosen in the Trainer menu, applied when the run starts (and kept through Mega Evolution)
  let sizedPlayer=null;
  function sizePlayer(p){
@@ -409,13 +426,14 @@
    if(toastT>0){toastT-=dt;if(toastT<=0&&toastEl)toastEl.style.display='none';}
    const p=B()?.game?.player;
    if(running()){const tm=document.getElementById('ps-trainer-menu');if(tm&&tm.style.display!=='none')tm.style.display='none';}   // menus never stay over a run
-   if(p&&!STORY()){const st=B()?.game?.state;if(st&&st!=='ui'&&st!=='over')sizePlayer(p);}   // [Gard] your Pokemon's size works in Original too
+   wrapKill();hookMarks();
+   if(p){const st=B()?.game?.state;if(st&&st!=='ui'&&st!=='over'){sizeEnemies();if(!STORY())sizePlayer(p);}}   // [Gard] sizes work in Original too
    if(!p||!running()){holdFire=false;if(bagOpen)closeBag();if(hudEl)hudEl.style.display='none';throws.length=0;target=null;alive.clear();return;}
-   sizeEnemies();sizePlayer(p);
+   sizePlayer(p);
    if(B().game.state==='playing'){updateTrainer(dt,p);updateThrows(dt);drops();potionCd=Math.max(0,potionCd-dt);for(const h of heals)h.t+=dt;while(heals.length&&heals[0].t>.9)heals.shift();}
    if(target&&!catchable(target)&&!throws.some(t=>t.e===target))target=null;
    hudT-=dt;if(hudT<=0){hudT=.25;hud();}
  }
  requestAnimationFrame(frame);
- window.PS_CATCH={bag,throwBall,usePotion,chance:(e,b)=>chance(e,b||sel),RATES,SIZES,sizesOf,chosenSize,trainer:()=>({x:tr.x,y:tr.y}),bagOpen:()=>bagOpen,holdFire:()=>holdFire};
+ window.PS_CATCH={bag,throwBall,usePotion,chance:(e,b)=>chance(e,b||sel),RATES,SIZES,MARK,sizesOf,chosenSize,trainer:()=>({x:tr.x,y:tr.y}),bagOpen:()=>bagOpen,holdFire:()=>holdFire};
 })();

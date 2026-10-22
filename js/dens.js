@@ -28,9 +28,9 @@
       if (!msg || msg.k !== 'psden' || netHost()) return; const N = E();
       if (msg.ev === 'say') { try { N.Spawner.say(String(msg.t || ''), Number(msg.d) || 3); } catch (_) {} return; }
       if (msg.ev === 'clear') { const dex = Number(msg.dex), sh = !!msg.shiny; if (!N.DEX_BY[dex]) return;
-        try { N.DB.grant(dex, 'den'); if (sh) N.DB.grantShiny(dex, 'den'); N.DB.commit(); } catch (_) {}
         const p = B()?.game?.player; if (p) p.coins = (Number(p.coins) || 0) + 600;
-        try { banner.show((sh ? 'Shiny ' : '') + (N.DEX_BY[dex].name) + ' joined you!', 'Legendary Den cleared with your group · +600 PokéCoins', true, { dex, shiny: sh, ms: 7000 }); B().audio?.sfx?.('legend'); } catch (_) {} }
+        if (!denReward(dex, sh, 'Legendary Den cleared with your group · +600 PokéCoins')) { try { banner.show('Legendary Den cleared! +600 PokéCoins', N.DEX_BY[dex].name + ' got away this time (40% to catch)', true, { dex, shiny: sh, ms: 6000 }); } catch (_) {} }
+        try { B().audio?.sfx?.('legend'); } catch (_) {} }
     } catch (_) {} });
   }
 
@@ -60,8 +60,21 @@
     const t = clock(); let c = L.filter(b => b.at >= t - 60 && b.at <= t + 420); if (!c.length) c = L.slice(0, 6);
     return c[Math.floor(Math.random() * c.length)];
   }
+  // [Gard] den rewards: a defeated den Pokemon has a 40% chance to join you (its first form if it evolves; Legendaries
+  // stay themselves). The Legendary Den game mode unlocks once you've entered a den in a normal Original run.
+  const DEN_GET = 0.40;
+  function denReward(dex, shiny, title) {
+    const N = E(); if (!N || !N.DEX_BY[dex] || Math.random() >= DEN_GET) return false;
+    const get = window.PS_PARTNER ? window.PS_PARTNER.base(dex) : dex; if (!N.DEX_BY[get]) return false;
+    try { N.DB.grant(get, 'den'); if (shiny) N.DB.grantShiny(get, 'den'); N.DB.commit(); } catch (_) {}
+    try { banner.show((shiny ? 'Shiny ' : '') + N.DEX_BY[get].name + ' joined you!', title || 'From the den', true, { dex: get, shiny: !!shiny, ms: 6000 }); } catch (_) {}
+    return true;
+  }
+  function metDen() { try { const S = E().DB.save; if (S && !S.psDenMet) { S.psDenMet = true; E().DB.commit(); try { window.PS_TOAST && window.PS_TOAST('Legendary Den mode unlocked!', 'Pick it from the Mode button on the Play panel', { gold: true, ms: 5000 }); } catch (_) {} } } catch (_) {} }
+  window.PS_DEN_MET = () => { try { return !!E().DB.save.psDenMet; } catch (_) { return false; } };
   function startRaid(den) {
     const p = B()?.game?.player, N = E(); if (!p || !N || raid) return;
+    if (!(window.PS_STORY && window.PS_STORY.on())) metDen();
     const def0 = raidPool(); if (!def0) return;
     const def = Object.assign({}, def0, { name: (def0.name || '') });
     const sc = (N.Enemies.scale ? N.Enemies.scale(clock()) : { hp: 1, dmg: 1, spd: 1 });
@@ -85,6 +98,7 @@
       dropXp(r.e.x, r.e.y);
       if (had) { try { window.PS_QUALITY && window.PS_QUALITY.dynRecharge && window.PS_QUALITY.dynRecharge(); } catch (_) {} }
       const sh = r.e.shiny ? ' (shiny!)' : '';
+      setTimeout(() => denReward(r.e.dex, !!r.e.shiny, 'Caught after the Max Raid (40%)'), 1500);
       say(had ? 'Raid cleared' + sh + '! Dynamax recharged · +' + coins + ' PokéCoins' : got ? 'Raid cleared' + sh + '! The Dynamax Band dropped — press G!' : 'Raid cleared' + sh + '! +' + coins + ' PokéCoins · no Dynamax Band this time', 4);
       banner.show(had ? 'Dynamax recharged!' : got ? 'Dynamax Band obtained!' : 'Max Raid cleared!', had ? '+' + coins + ' PokéCoins · bonus EXP' : got ? 'Press G (or the red button) to Dynamax · +' + coins + ' PokéCoins' : '+' + coins + ' PokéCoins · bonus EXP · the Band drops 30% of the time', got || had);
       try { B().fx.ring(p.x, p.y, 10, 260, '#ff2a55', 0.8, 8); B().fx.burst(p.x, p.y - 20, '#ffd0dc', 40, 300); B().audio?.sfx?.('levelup'); } catch (_) {}
@@ -146,6 +160,7 @@
     const bp = bossPool(), lp = legendPool(); if (!bp.length || !lp.length) { console.warn('[dens] Legendary den has no boss candidates:',{bosses:bp.length,legendaries:lp.length}); say('Legendary Den unavailable: roster not loaded. Try again.',3); return false; }
     const list = []; for (let i = 0; i < 4; i++) list.push(bp[Math.floor(Math.random() * bp.length)].dex); list.push(lp[Math.floor(Math.random() * lp.length)].dex);
     lden = { kind, stage: 0, list, e: null, wait: 1.5 };
+    if (kind === 'battle' && !(window.PS_STORY && window.PS_STORY.on())) metDen();
     say('LEGENDARY DEN! Defeat 4 Dynamax Pokémon to reach the Legendary!', 3.5);
     try { window.PS_MUSIC && window.PS_MUSIC.event && window.PS_MUSIC.event('trainer'); } catch (_) {}
     return true;
@@ -170,12 +185,10 @@
     if (lden.kind === 'mode' && st < 4) { grantLevels(p, LCFG.levels[st], e.x, e.y); lden.needLv = LCFG.levels[st]; }
     else if (st < 4) dropXp(e.x, e.y);
     p.coins = (Number(p.coins) || 0) + (st === 4 ? 600 : 120);
+    if (st < 4) setTimeout(() => denReward(e.dex, !!e.shiny, 'Caught after the Dynamax battle (40%)'), 1200);
     if (st === 4) {   // the Legendary joins you
-      const dex = e.dex, sh = !!e.shiny, N = E();
-      try { if (typeof N.DB.grant === 'function') N.DB.grant(dex); else { N.DB.save.owned[dex] = { at: Date.now(), from: 'den' }; } } catch (_) { try { N.DB.save.owned[dex] = { at: Date.now(), from: 'den' }; } catch (__) {} }
-      if (sh) { try { if (typeof N.DB.grantShiny === 'function') N.DB.grantShiny(dex); else N.DB.save.shiny[dex] = { at: Date.now(), from: 'den' }; } catch (_) {} }
-      try { N.DB.commit(); } catch (_) {}
-      banner.show((sh ? 'Shiny ' : '') + e.name + ' joined you!', 'Legendary Den cleared · +600 PokéCoins', true, { dex, shiny: sh, ms: 7000 });
+      const dex = e.dex, sh = !!e.shiny;
+      if (!denReward(dex, sh, 'Legendary Den cleared · +600 PokéCoins')) banner.show('Legendary Den cleared! +600 PokéCoins', e.name + ' got away this time (40% to catch)', true, { dex, shiny: sh, ms: 6000 });
       tell({ k: 'psden', ev: 'clear', dex, shiny: sh });
       try { B().audio?.sfx?.('legend'); } catch (_) {}
       const kind = lden.kind; lden = null;
@@ -195,7 +208,7 @@
     if (p !== runP) { runP = p; nextAt = CFG.first; dens.length = 0; ldens.length = 0; raid = null; lden = null; }
     wrapDyn(); hookDenNet(); if (g.state === 'playing' && (!coop() || netHost())) legendTick(dt);   // co-op: only the host runs the den
     for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < 34) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
-    if (!playing() || coop() || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;
+    if (!playing() || coop() || (window.PS_STORY&&window.PS_STORY.on()) || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;   // no dens in Story
     if (!raid && clock() >= nextAt) { nextAt += CFG.every; if (!dens.length && !ldens.length && !lden) { if (Math.random() < LCFG.chance) spawnLegendDen(); else if (Math.random() < CFG.chance) spawnDen(false); } }   // a quarter as often as the game's rifts (they come every 3 min)
     for (let i = dens.length - 1; i >= 0; i--) { const d = dens[i]; d.t += dt; if (d.t >= d.life) { dens.splice(i, 1); continue; }
       if (!raid && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < 34) { dens.splice(i, 1); startRaid(d); } }

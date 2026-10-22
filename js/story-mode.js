@@ -54,6 +54,7 @@
   css.textContent += `
   html.ps-story #menu-maps{display:none !important}
   html.ps-story #ps-dyn{display:none !important}
+  html.ps-story #ps-mode-btn{display:none !important}
   #ps-chapters{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
   #ps-chapters .ch{display:flex;align-items:center;gap:8px;flex:1 1 180px;padding:6px 10px;border-radius:10px;border:2px solid #2a3a6a;background:rgba(10,20,48,.75);color:#dfe8ff;font:800 14px Pixelify,Fredoka,system-ui,sans-serif;cursor:pointer;text-align:left}
   #ps-chapters .ch.on{border-color:#8fd0ff;background:linear-gradient(rgba(74,140,255,.35),rgba(10,20,48,.8))}
@@ -97,6 +98,16 @@
   let mo = null, watched = null;
   function watch() { const pp = document.querySelector('.play-panel'); if (!pp || pp === watched) return; watched = pp; if (mo) mo.disconnect();
     mo = new MutationObserver(() => { if (get() === 'story') try { storyPanel(); } catch (_) {} }); mo.observe(pp, { childList: true, subtree: true, characterData: true }); }
-  function init() { document.head.append(css); setInterval(() => { try { render(); watch(); storyPanel(); } catch (_) {} }, 300); }
+  // Story: no rifts (the game's own) and the menu background is Route 1
+  let riftWrapped = false, menuWorld = null;
+  function storyWorld() {
+    const N = E(); if (!N) return;
+    if (!riftWrapped && N.Rift && typeof N.Rift.update === 'function') { riftWrapped = true; const up = N.Rift.update;
+      N.Rift.update = function () { if (get() === 'story' && !N.Rift.inArena) return; return up.apply(this, arguments); }; }
+    const g = B()?.game; if (!g || g.player) { menuWorld = null; return; }
+    const want = get();   // rebuild the menu background when the mode changes
+    if (menuWorld !== want) { menuWorld = want; try { if (want === 'story') N.Game.menuMap(1); N.World.reset(0x1092); if (want === 'story') N.World.setBiome(0, true); } catch (_) {} }
+  }
+  function init() { document.head.append(css); setInterval(() => { try { render(); watch(); storyPanel(); storyWorld(); } catch (_) {} }, 300); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
 })();

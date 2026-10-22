@@ -44,7 +44,9 @@
    clear();scene={player:p,previous,next,t:0,revealed:false,kickIn:0};
    p.anim=previous;p.invuln=Math.max(p.invuln||0,REVEAL+.2);sound('reversion');
  }
- window.PS_PRIMAL_GROUDON={begin};
+ // a teammate turning Primal near you: the same Reversion scene, visual only
+ function beginRemote(p,previous,next){const me=bridge()?.game?.player;if(me&&me.megaForm===FORM){p.anim=next;return;}begin(p,previous,next);}
+ window.PS_PRIMAL_GROUDON={begin,beginRemote,get radius(){return LAND.radius;}};
 
  function polygon(points,fill,stroke,w){ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=w||.7;ctx.stroke();}}
  function glow(x,y,r,color){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'rgba(255,120,20,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}
@@ -151,7 +153,11 @@
  const quakes=[];                // cracked-ground marks for Bulldoze / Earthquake (overlay)
  const motes=[];
  const deltaStream=()=>!!window.PS_DELTA_STREAM?.active?.();   // Mega Rayquaza's Delta Stream negates Desolate Land
- function landOn(){const b=bridge(),p=b?.game?.player;return !!(p&&!p.dead&&p.megaForm===FORM&&b.game.state==='playing'&&(!scene||scene.revealed));}
+ // [Gard co-op] a teammate's Desolate Land is seen (visual only) while you stand inside its domain
+ let viewOnly=false;
+ function domOwner(){const b=bridge(),p=b?.game?.player;if(!p)return null;if(!p.dead&&p.megaForm===FORM)return p;let best=null,bd=LAND.radius;
+   for(const q of b?.game?.everyone?.()||[]){if(!q||q===p||q.dead||q.megaForm!==FORM||!Number.isFinite(q.x))continue;const d=Math.hypot(q.x-p.x,q.y-p.y);if(d<bd){bd=d;best=q;}}return best;}
+ function landOn(){const b=bridge(),o=domOwner();return !!(o&&!o.dead&&b.game.state==='playing'&&(!scene||scene.revealed||scene.player!==o));}
  function tileSize(){return Number(E()?.World?.TS)||32;}
  const key=(tx,ty)=>tx+','+ty;
  function isScorched(x,y){const T=tileSize();return scorched.has(key(Math.floor(x/T),Math.floor(y/T)));}
@@ -231,7 +237,7 @@
    W.isLiquid=function(x,y){return isScorched(x,y)?false:isLiquid.apply(this,arguments);};
    if(typeof block==='function')W.projectileBlock=function(x,y){const r=block.apply(this,arguments);return r==='wall'&&isScorched(x,y)?null:r;};
    W.collide=function(ent){
-     if(ent&&landOn()&&!deltaStream()&&ent===bridge()?.game?.player)burnThrough(ent);
+     if(ent&&landOn()&&!viewOnly&&!deltaStream()&&ent===bridge()?.game?.player)burnThrough(ent);
      if(!scorched.size||!ent||!nearScorchedWall(ent))return collide.apply(this,arguments);
      return collideSkippingScorched(ent,isWall);
    };
@@ -521,7 +527,7 @@
 
  // ---- overlay: harsh sunlight from the sky + heat shimmer + lens glare, confusion stars, quake cracks ----
  function drawSky(){
-   const v=frameView,R=v.rect,k=v.k,p=bridge().game.player,t=landClock;
+   const v=frameView,R=v.rect,k=v.k,p=domOwner()||bridge().game.player,t=landClock;
    ctx.save();
    // warm heat tint and a hot vignette
    ctx.fillStyle='rgba(255,150,60,.07)';ctx.fillRect(R.left,R.top,R.width,R.height);
@@ -572,14 +578,15 @@
  function frame(ts){
    requestAnimationFrame(frame);const b=bridge(),p=b?.game?.player,dt=Math.min(.04,last?(ts-last)/1000:0);last=ts;
    if(!p||p.megaForm!==FORM){enraged=false;rage=null;}
-   if(!p||p.dead||p.megaForm!==FORM){if(scene)clear();if(scorched.size&&(!p||p.megaForm!==FORM)){scorched.clear();heat.clear();inside.clear();quakes.length=0;pendingQuakes.length=0;fires.length=0;roar=null;roarIn=LAND.roarEvery;rage=null;enraged=false;}canvas.style.display='none';return;}
-   if(scene&&p!==scene.player)clear();
+   const own=domOwner();viewOnly=!!own&&own!==p;
+   if(!own){if(scene)clear();if(scorched.size&&(!p||p.megaForm!==FORM)){scorched.clear();heat.clear();inside.clear();quakes.length=0;pendingQuakes.length=0;fires.length=0;roar=null;roarIn=LAND.roarEvery;rage=null;enraged=false;}canvas.style.display='none';return;}
+   if(scene&&own!==scene.player)clear();
    if(b.game.state!=='playing'){canvas.style.display='none';return;}
    frameView=view();if(!frameView)return;
    const dpr=Math.min(2,devicePixelRatio||1),w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);
    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';}
    canvas.style.display='block';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,innerWidth,innerHeight);
-   update(dt);if(landOn())updateLand(dt);
+   update(dt);if(landOn()&&!viewOnly)updateLand(dt);else if(landOn())landClock+=dt;
    ctx.save();ctx.beginPath();ctx.rect(frameView.rect.left,frameView.rect.top,frameView.rect.width,frameView.rect.height);ctx.clip();
    if(landOn()){if(!deltaStream()){const ob=window.PS_PRIMAL_OUTBREAK,split=!!ob?.active?.();   // Primal Outbreak: Desolate Land only fills Groudon's half
      if(split){ctx.save();ob.clip(ctx,'groudon');}drawSky();if(split)ctx.restore();drawRoar();}drawRage();}transformation();ctx.restore();

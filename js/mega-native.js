@@ -227,7 +227,8 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  function deltaHolder(){
    const list=[];try{list.push(...(getBridge()?.game?.everyone?.()||[]));}catch(e){}
    const p=getPlayer();if(p&&!list.includes(p))list.push(p);
-   return list.find(q=>q&&!q.dead&&(q.megaForm===DELTA.form||q.mon?.mega===DELTA.form))||null;
+   // co-op: a teammate's Delta Stream only reaches you inside its domain (430 units around that Mega Rayquaza)
+   return list.find(q=>q&&!q.dead&&(q.megaForm===DELTA.form||q.mon?.mega===DELTA.form)&&(q===p||!p||Math.hypot((q.x||0)-(p.x||0),(q.y||0)-(p.y||0))<430))||null;
  }
  window.PS_DELTA_STREAM={active:()=>!!deltaHolder(),holder:deltaHolder,cfg:DELTA};
  let weatherHooked=false;

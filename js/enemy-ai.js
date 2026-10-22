@@ -7,6 +7,8 @@
      passive     wanders around and leaves you alone until you hit it (then it turns aggressive) 15%
      sniper      ranged attackers keep their distance and never come close (all ranged Pokemon)
      coward      (extra trait, 30%) at low HP stops attacking and flees (sweat drop)
+   Provocation (v73): keep pushing a shy one around and it fights back - a skittish one chased for 5 s, a fleeing
+   coward or a skittish one hit 3 times, or a cry baby made to cry twice turns berserk ("Provoked!", red mark).
    Added on top:
      hit & run   VERY aggressive (rushes you faster) but the moment it actually hurts you it
                  runs away for a few seconds, then comes back for another hit                  10%
@@ -26,6 +28,7 @@
  const AI={
    mix:[['skittish',.15],['passive',.15],['hitrun',.10],['flanker',.07],['ambusher',.05],['berserker',.10],['crybaby',.06]],   // the rest are aggressive (skittish/passive/coward rates are your friend's)
    cowardChance:.30,cowardHp:.25,
+   provoke:{chased:5,hits:3,cries:2},   // shy Pokemon fight back after 5 s of being chased / 3 hits; a cry baby after crying twice
    sniperRange:260,skittishRange:170,passiveWander:.55,
    hitrun:{rush:1.35,flee:2.6,fleeSpd:1.25},           // speed while rushing, seconds spent running away, run speed
    flanker:{radius:175,orbit:2.4,dash:1.0,dashSpd:1.7},
@@ -57,6 +60,10 @@
    const l=Math.hypot(vx,vy);if(l<.01||extra<=0)return;const sp=spdOf(e)*extra*dt;e.x+=vx/l*sp;e.y+=vy/l*sp;try{E()?.World?.collide?.(e);}catch(_){}
  }
  const mark=(s,m,t)=>{s.mark=m;s.markT=t;};
+ function provoke(e,s){   // cornered: stops running and turns aggressive (faster, like a berserker)
+   if(s.provoked)return;s.provoked=true;s.flee=false;s.coward=false;s.kind=e.psAi='berserker';mark(s,'💢',1e9);
+   try{B().fx.dmgText(e.x,e.y-(Number(e.bodyH)||24)-14,'Provoked!','#ff5f5f');}catch(_){}
+ }
  let last=0,php=null,pRef=null;
  function frame(ts){
    requestAnimationFrame(frame);const dt=Math.min(.05,last?(ts-last)/1000:0);last=ts;
@@ -67,6 +74,10 @@
      if(!e||e.dead||e.remote||e.__psCatch)continue;let s=st.get(e)||assign(e);
      const hp=Number(e.hp)||0,wasHit=hp<s.hp-.01;s.hp=hp;s.t+=dt;if(s.markT>0)s.markT-=dt;
      const tc=Number(e.touchCd)||0,attacked=tc>s.tc+.05;s.tc=tc;   // its contact attack just fired
+     // [Gard] provocation: keep pushing a shy / scared Pokemon around and it eventually fights back
+     const P=AI.provoke,shy=s.flee||s.kind==='skittish';
+     if(wasHit&&shy){s.hits=(s.hits||0)+1;if(s.hits>=P.hits)provoke(e,s);}
+     if(wasHit&&s.kind==='crybaby'&&s.phase!=='cry'&&(s.cries=(s.cries||0)+1)>P.cries){s.kind=e.psAi='berserker';s.phase='';mark(s,'💢',1e9);try{B().fx.dmgText(e.x,e.y-(Number(e.bodyH)||24)-14,'Enough!','#ff5f5f');}catch(_){}}
      if(wasHit&&s.kind==='crybaby'&&s.phase!=='cry'){s.phase='cry';s.ph=AI.crybaby.cry;mark(s,'cry',AI.crybaby.cry);try{if(Math.random()<.5)B().fx.dmgText(e.x,e.y-(Number(e.bodyH)||24)-14,['Waaah!','*sob*','Wahh!','*sniff*'][Math.floor(Math.random()*4)],'#8fd3ff');}catch(_){}}
      if(wasHit&&s.kind==='passive'){s.kind=e.psAi='aggressive';mark(s,'!',.8);}          // provoked
      if(wasHit&&s.kind==='ambusher'&&s.phase==='hide'){s.phase='lunge';s.ph=AI.ambusher.lunge;mark(s,'!',.8);}
@@ -102,7 +113,7 @@
      else if(s.kind==='sniper'){   // keep at range: back off when you come closer, never walk in
        const want=AI.sniperRange;if(d<want-20)moveTo(e,s,dx/d,dy/d,dt);else if(d>want+140)moveTo(e,s,-dx/d,-dy/d,dt*.8);else moveTo(e,s,-dy/d,dx/d,dt*.35);   // strafe sideways
        e.touchCd=Math.max(Number(e.touchCd)||0,.2);s.tc=e.touchCd;}
-     else if(s.kind==='skittish'){if(d<AI.skittishRange)moveTo(e,s,dx/d,dy/d,dt*1.1);else if(d>AI.skittishRange+180)moveTo(e,s,-dx/d,-dy/d,dt*.6);else moveTo(e,s,0,0,dt);}
+     else if(s.kind==='skittish'){if(d<AI.skittishRange){s.chased=(s.chased||0)+dt;if(s.chased>=AI.provoke.chased){provoke(e,s);s.x=e.x;s.y=e.y;continue;}}if(d<AI.skittishRange)moveTo(e,s,dx/d,dy/d,dt*1.1);else if(d>AI.skittishRange+180)moveTo(e,s,-dx/d,-dy/d,dt*.6);else moveTo(e,s,0,0,dt);}
      else if(s.kind==='passive'){s.wt-=dt;if(s.wt<=0){s.wt=1.2+Math.random()*2;s.wa+=(Math.random()-.5)*2.4;}
        if(d>700)moveTo(e,s,-dx/d,-dy/d,dt*.6);else moveTo(e,s,Math.cos(s.wa),Math.sin(s.wa),dt*AI.passiveWander);
        e.shotCd=Math.max(Number(e.shotCd)||0,.5);e.touchCd=Math.max(Number(e.touchCd)||0,.3);s.tc=e.touchCd;}

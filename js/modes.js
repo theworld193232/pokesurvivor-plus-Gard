@@ -28,6 +28,8 @@
   let len = Number(store.get('timed_len', 600)); if (!LENGTHS.includes(len)) len = 600;
   const run = { mode: 'classic', player: null, len: 600, done: false, bosses: 0, endT: 0 };   // the run in progress
   const coop = () => !!(E()?.Coop?.active);
+  // Legendary Den mode unlocks once you've entered a den in a normal Original run (js/dens.js); LoverGare always has it
+  const ldLocked = () => { try { if (String(B()?.user || '').trim().toLowerCase() === 'lovergare') return false; return !(window.PS_DEN_MET && window.PS_DEN_MET()); } catch (_) { return false; } };
   const isHost = () => { try { const C = E().Coop; return !!(typeof C.isHost === 'function' ? C.isHost() : C.isHost); } catch (_) { return false; } };
   const inRoom = () => { try { const S = E().Social; return !!(S && S.room && (typeof S.room === 'function' ? S.room() : S.room)); } catch (_) { return false; } };
   const netHost = () => { try { const n = E().Net; return !!(typeof n.isHost === 'function' ? n.isHost() : n.isHost); } catch (_) { return false; } };
@@ -73,6 +75,8 @@
   // ---------------- run start / tick ----------------
   function startRunMode(p) {
     let m = sel, L = len;
+    if (m === 'legend' && ldLocked() && !(coop() && !isHost())) m = 'classic';
+    if ((window.PS_STORY&&window.PS_STORY.on())) m = 'classic';   // Story: no game modes
     if (coop()) {
       if (isHost()) { let n = 0; const tm = setInterval(() => { sendMode(); if (++n >= 6) clearInterval(tm); }, 800); sendMode(); }
       else { if (hostMode && performance.now() - hostMode.at < 120000) { m = hostMode.m; L = hostMode.len; } else m = 'classic'; try { E().Net.toHost({ k: 'psmodeq' }); } catch (_) {} }
@@ -176,6 +180,7 @@
   function renderPick() {
     let h = '<div class="box"><h2>Game Mode</h2><p class="sub">Choose how your next run plays. Your choice is remembered. In co-op, everyone plays the host\'s mode.</p><div class="menu-list">';
     for (const [id, M] of Object.entries(MODES)) {
+      if (id === 'legend' && ldLocked()) { h += '<button class="menu-item locked" data-locked="1" style="opacity:.55"><span class="mi-ico">' + ico(M.ico, 30) + '</span><span>🔒 ' + M.name + '</span><small>Enter a Max Raid Den or a Legendary Den during a normal (Original) run to unlock this mode.</small></button>'; continue; }
       h += '<button class="menu-item' + (id === sel ? ' on' : '') + '" data-m="' + id + '"><span class="mi-ico">' + ico(M.ico, 30) + '</span><span>' + M.name + (id === sel ? '<span class="tg">· selected</span>' : '') + '</span><small>' + M.desc + '</small>';
       if (id === 'timed') { h += '<span class="lens">'; for (const L of LENGTHS) h += '<span class="btn small' + (L === len && sel === 'timed' ? ' gold' : '') + '" data-len="' + L + '">' + (L / 60) + ' min · +' + TIMED_BONUS[L] + '</span>'; h += '</span>'; }
       h += '</button>';
@@ -186,6 +191,7 @@
   pick.addEventListener('click', e => {
     e.stopPropagation(); if (e.target === pick || e.target.closest('[data-close]')) return closePick();
     const L = e.target.closest('[data-len]'); if (L) { len = Number(L.dataset.len); store.set('timed_len', len); sel = 'timed'; store.set('mode', sel); return renderPick(); }
+    if (e.target.closest('[data-locked]')) return;
     const c = e.target.closest('[data-m]'); if (c) { sel = c.dataset.m; store.set('mode', sel); renderPick(); }
   });
   ['pointerdown', 'mousedown', 'touchstart', 'keydown'].forEach(ev => pick.addEventListener(ev, e => e.stopPropagation()));

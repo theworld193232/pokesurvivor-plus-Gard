@@ -85,7 +85,8 @@
  const E=()=>window.PS_HOOPA_ENGINE,B=()=>window.PS_MEGA_BRIDGE_V5;
  // Route 1 is only used for a Story Mode run (the normal Level 1 stays the Forest).
  let story=false;
- function active(){const M=E()?.Maps;return !!(story&&window.PS_STORY&&window.PS_STORY.on()&&M&&M.cur&&M.cur.n===1&&!M.cur.endless);}
+ function menuRoute(){const g=B()?.game;return !!(window.PS_STORY&&window.PS_STORY.on()&&g&&!g.player&&!E()?.Coop?.active);}   // [Gard] the main-menu background shows Route 1 in Story
+ function active(){if(menuRoute())return true;const M=E()?.Maps;return !!(story&&window.PS_STORY&&window.PS_STORY.on()&&M&&M.cur&&M.cur.n===1&&!M.cur.endless);}
  const STORY_REWARD={coins:3000,poke:5};
  function cell(tx,ty){const gx=Math.floor((tx-X0)/SCALE),gy=Math.floor((ty-Y0)/SCALE);return gy>=0&&gy<GRID.length&&gx>=0&&gx<COLS?GRID[gy][gx]:null;}
 
@@ -238,11 +239,24 @@
    if((run.phase==='talk'||run.phase==='lose')&&run.text){run.lineT+=dt;const n=Math.min(run.text.length,Math.floor(run.lineT*38));if(n!==run.shown){run.shown=n;box.querySelector('.tx').textContent=run.text.slice(0,n);}}
    if(run.phase==='throw'&&run.t>=1.25)releaseSquirtle();
    if(run.flash>0)run.flash-=dt;
+   keepInBounds();
    if(run.phase==='battle'){
      if(!run.boss){const s=(b.enemies?.all?.()||[]).find(e=>e&&e.boss&&Number(e.dex)===7&&!e.dead);if(s){run.boss=s;s.psNoCatch=true;s.x=run.landX;s.y=run.landY;run.flash=.5;try{E().Spawner.say(E().I18n?.lang==='es'?'¡Blue sacó a Squirtle!':'Blue sent out Squirtle!',2.8,true);}catch(e){}}}
      else if(run.boss.dead||run.boss.hp<=0){run.phase='lose';run.t=0;hold(true);say(LOSE_LINE);}
    }
    canvas.style.display='none';
+ }
+ // [Gard] nothing walks through Route 1's trees, ledges and fences or leaves the map (bosses included)
+ const lastOk=new WeakMap();
+ function keepInBounds(){
+   const W=B()?.world,T=Number(E()?.World?.TS)||32;if(!W)return;
+   const minX=X0*T,maxX=(X0+COLS*SCALE)*T,minY=Y0*T,maxY=(Y0+GRID.length*SCALE)*T;
+   for(const e of B()?.enemies?.all?.()||[]){if(!e||e.dead||e.remote||!Number.isFinite(e.x))continue;
+     const r=Math.min(12,Number(e.r)||10);
+     if(e.x<minX+T*2.5||e.x>maxX-T*2.5||e.y<minY+T*2.5||e.y>maxY-T*2.5){e.x=Math.max(minX+T*2.5,Math.min(maxX-T*2.5,e.x));e.y=Math.max(minY+T*2.5,Math.min(maxY-T*2.5,e.y));}
+     let free=true;try{free=W.isFree?W.isFree(e.x,e.y,r):!W.isWall(e.x,e.y);}catch(_){}
+     if(free)lastOk.set(e,{x:e.x,y:e.y});else{const l=lastOk.get(e);if(l){e.x=l.x;e.y=l.y;}else{try{E().World.collide(e);}catch(_){}}}
+   }
  }
  // ---- Blue, his Poke Ball and its flash are drawn INSIDE the game's world pass (sorted with the Pokemon), so the
  // HUD, health bars and boss bar are always drawn on top of them ----
@@ -262,6 +276,6 @@
  let drawHooked=false;
  function hookDraws(){const T=E()?.Training;if(drawHooked||!T||typeof T.drawables!=='function')return;drawHooked=true;
    const orig=T.drawables;T.drawables=function(){const r=orig.apply(this,arguments);if(!active())return r;const extra=worldDraws();return extra.length?[...(r||[]),...extra]:r;};}
- window.PS_ROUTE1={active,start:startStory,cleared:()=>Number(E()?.DB?.save?.psStory?.route1)||0,reward:STORY_REWARD};
+ window.PS_ROUTE1={active,start:startStory,wild:()=>WILD.flatMap(g=>g.list.map(d=>d.dex)),cleared:()=>Number(E()?.DB?.save?.psStory?.route1)||0,reward:STORY_REWARD};
  requestAnimationFrame(frame);
 })();

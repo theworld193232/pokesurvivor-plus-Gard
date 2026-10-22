@@ -94,7 +94,7 @@
     // natural spawn: same rhythm as the game's own rifts (one every 3 minutes), placed halfway between them
     if (p !== runP) { runP = p; nextAt = RIFT_EVERY; rifts.length = 0; }
     const t = (() => { try { const v = E().Game.time; return Number(typeof v === 'function' ? v() : v) || 0; } catch (_) { return 0; } })();
-    if (t >= nextAt) { nextAt += RIFT_EVERY; if (!rifts.length && !(E()?.Rift?.inArena) && !(E()?.Judgment?.active)) spawnRift(); }
+    if (t >= nextAt) { nextAt += RIFT_EVERY; if (!rifts.length && !(E()?.Rift?.inArena) && !(E()?.Judgment?.active) && !(window.PS_STORY&&window.PS_STORY.on())) spawnRift(); /* no rifts in Story */ }
     for (let i = rifts.length - 1; i >= 0; i--) { const r = rifts[i]; r.t += dt; if (r.t >= r.life) { rifts.splice(i, 1); continue; }
       if (r.t > 0.8 && Math.hypot(p.x - r.x, p.y - r.y) < 30) { rifts.splice(i, 1); enter(r.zone, r); return; } }
   }

@@ -4,7 +4,8 @@
      the Forces of Nature...). "A wild Mew has appeared!" — defeat it before it flees (90 s) and it joins your
      collection (shiny if it was). Normal shiny odds apply (Shiny Charm triples them).
    - Boss Rush mode: on top of the faster bosses, a Legendary boss joins the fight every 75 seconds.
-   Solo only. LoverGare's test panel gets a "Roaming Legendary" button. */
+   Co-op too: the host's game spawns them for everyone, and the roaming Legendary joins every player in the group.
+   LoverGare's test panel gets a "Roaming Legendary" button. */
 (() => {
   'use strict';
   if (window.PS_ROAMERS_INSTALLED) return; window.PS_ROAMERS_INSTALLED = true;
@@ -15,6 +16,19 @@
   const GACHA_ONLY = new Set([801, 648, 490, 489]);
   const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
   const coop = () => !!(E()?.Coop?.active);
+  const host = () => { try { const n = E().Net; return !!(typeof n.isHost === 'function' ? n.isHost() : n.isHost); } catch (_) { return false; } };
+  // co-op: the host's game rolls and spawns the roamers (everyone sees them); the news and the reward reach the whole group
+  const tell = msg => { try { if (coop() && host()) E().Net.broadcast(Object.assign({ k: 'psroam' }, msg)); } catch (_) {} };
+  let netHooked = false;
+  function hookNet() {
+    const n = E()?.Net; if (netHooked || !n || typeof n.on !== 'function') return; netHooked = true;
+    n.on((uid, msg) => { try {
+      if (!msg || msg.k !== 'psroam' || host()) return; const N = E(), d = N.DEX_BY[Number(msg.dex)]; if (!d) return; const dex = Number(msg.dex), sh = !!msg.shiny;
+      if (msg.ev === 'appear') { cry(dex); if (sh) { try { B().audio?.sfx?.('shiny'); } catch (_) {} } say('A wild ' + (sh ? 'shiny ' : '') + d.name + ' has appeared!', 4); toast('A wild ' + d.name + ' appeared!', 'Defeat it before it flees to catch it', { dex, shiny: sh, gold: true, ms: 6000 }); }
+      else if (msg.ev === 'fled') { say(d.name + ' fled!', 2.5); cry(dex, 0.5); }
+      else if (msg.ev === 'caught') caught({ dex, e: { shiny: sh } }, true);
+    } catch (_) {} });
+  }
   const say = (t, d) => { try { E().Spawner.say(t, d || 3); } catch (_) {} };
   const toast = (t, s, o) => { try { window.PS_TOAST && window.PS_TOAST(t, s, o); } catch (_) {} };
   const live = [];   // {e, kind:'roam'|'rush', t, dex}
@@ -46,32 +60,33 @@
     N.EnemyMgr.add(e); live.push({ e, kind, t: 0, dex });
     if (e.shiny) { try { B().audio?.sfx?.('shiny'); B().fx.burst(x, y - 30, '#fff6c0', 30, 220); } catch (_) {} }
     try { B().fx.ring(x, y, 10, 160, roam ? '#9ae6ff' : '#ffd23f', 0.7, 6); B().audio?.sfx?.('legend'); } catch (_) {}
-    if (roam) { cry(dex); say('A wild ' + (e.shiny ? 'shiny ' : '') + d.name + ' has appeared!', 4); toast('A wild ' + d.name + ' appeared!', 'Defeat it before it flees to catch it', { dex, shiny: !!e.shiny, gold: true, ms: 6000 }); }
+    if (roam) { tell({ ev: 'appear', dex, shiny: !!e.shiny }); cry(dex); say('A wild ' + (e.shiny ? 'shiny ' : '') + d.name + ' has appeared!', 4); toast('A wild ' + d.name + ' appeared!', 'Defeat it before it flees to catch it', { dex, shiny: !!e.shiny, gold: true, ms: 6000 }); }
     else say('Legendary ' + d.name + ' joins the Boss Rush!', 3);
     return e;
   }
   function rushPool() { const L = Object.keys(window.PS_LEGEND_MOVES || {}).map(Number).filter(d => !GACHA_ONLY.has(d) && d !== 493 && E()?.SPRITE_META?.[d]); return L; }
-  function remove(e) { try { e.dead = true; const L = E().EnemyMgr.all(), i = L.indexOf(e); if (i >= 0) L.splice(i, 1); } catch (_) {} }
-  function caught(r) {
+  function remove(e) { try { e.dead = true; const L = E().EnemyMgr.all(), i = L.indexOf(e); if (i >= 0) L.splice(i, 1); if (coop() && host()) E().Coop.enemyGone(e, false); } catch (_) {} }
+  function caught(r, fromHost) {
+    if (!fromHost) tell({ ev: 'caught', dex: r.dex, shiny: !!r.e.shiny });
     const N = E(), dex = r.dex, sh = !!r.e.shiny, name = (N.DEX_BY[dex] || {}).name || 'Pokémon';
     try { if (typeof N.DB.grant === 'function') N.DB.grant(dex); else N.DB.save.owned[dex] = { at: Date.now(), from: 'roam' }; } catch (_) { try { N.DB.save.owned[dex] = { at: Date.now(), from: 'roam' }; } catch (__) {} }
     if (sh) { try { if (typeof N.DB.grantShiny === 'function') N.DB.grantShiny(dex); else N.DB.save.shiny[dex] = { at: Date.now(), from: 'roam' }; } catch (_) {} }
     try { N.DB.commit(); } catch (_) {}
     cry(dex);
-    toast((sh ? 'Shiny ' : '') + name + ' joined you!', 'You caught the roaming Legendary', { dex, shiny: sh, gold: true, ms: 7000 });
+    toast((sh ? 'Shiny ' : '') + name + ' joined you!', fromHost ? 'Your group caught the roaming Legendary' : 'You caught the roaming Legendary', { dex, shiny: sh, gold: true, ms: 7000 });
   }
   function tick(dt) {
     const g = B()?.game, p = g?.player;
     if (!p || g.state === 'ui' || g.state === 'over') { live.length = 0; runP = null; return; }
     if (p !== runP) { runP = p; live.length = 0; nextRoll = gap(); nextRush = CFG.rushEvery; }
-    if (g.state !== 'playing' || coop() || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;
+    if (g.state !== 'playing' || (coop() && !host()) || (window.PS_STORY&&window.PS_STORY.on()) || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;   // no roamers in Story
     const t = clock(), mode = window.PS_MODES?.run?.mode;
     if (mode !== 'legend' && t >= nextRoll) { nextRoll = t + gap();
       if (Math.random() < CFG.mewChance) spawnLegend(MEW, 'roam'); else if (Math.random() < CFG.roamChance) spawnLegend(ROAMERS[Math.floor(Math.random() * ROAMERS.length)], 'roam'); }
     if (mode === 'bossrush' && t >= nextRush) { nextRush = t + CFG.rushEvery; const L = rushPool(); if (L.length) spawnLegend(L[Math.floor(Math.random() * L.length)], 'rush'); }
     for (let i = live.length - 1; i >= 0; i--) { const r = live[i]; r.t += dt;
       if (r.e.dead || r.e.hp <= 0) { live.splice(i, 1); if (r.kind === 'roam' && !r.e.__fled) caught(r); continue; }
-      if (r.kind === 'roam' && r.t >= CFG.flee) { r.e.__fled = true; say(r.e.name + ' fled!', 2.5); cry(r.dex, 0.5); try { B().fx.ring(r.e.x, r.e.y, 10, 120, '#9ae6ff', 0.6, 5); } catch (_) {} remove(r.e); live.splice(i, 1); }
+      if (r.kind === 'roam' && r.t >= CFG.flee) { r.e.__fled = true; tell({ ev: 'fled', dex: r.dex }); say(r.e.name + ' fled!', 2.5); cry(r.dex, 0.5); try { B().fx.ring(r.e.x, r.e.y, 10, 120, '#9ae6ff', 0.6, 5); } catch (_) {} remove(r.e); live.splice(i, 1); }
     }
   }
   function testBtn() {
@@ -80,7 +95,7 @@
     b.addEventListener('click', e => { e.stopPropagation(); spawnLegend(Math.random() < 0.5 ? MEW : ROAMERS[Math.floor(Math.random() * ROAMERS.length)], 'roam'); }); t.appendChild(b);
   }
   let last = performance.now(), ui = 0;
-  function loop(now) { requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now; try { tick(dt); ui += dt; if (ui > 0.5) { ui = 0; testBtn(); } } catch (e) { console.warn('[roamers]', e); } }
+  function loop(now) { requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now; try { hookNet(); tick(dt); ui += dt; if (ui > 0.5) { ui = 0; testBtn(); } } catch (e) { console.warn('[roamers]', e); } }
   requestAnimationFrame(loop);
   window.PS_ROAMERS = { spawn: spawnLegend, cfg: CFG, get live() { return live.map(r => ({ dex: r.dex, kind: r.kind, t: r.t, shiny: !!r.e.shiny })); } };
 })();
