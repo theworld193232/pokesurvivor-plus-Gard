@@ -919,18 +919,25 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  }
  // J's Will (LoverGare's Gardevoir only): level 50+, not Mega yet, out of hearts -> revive with 2 hearts and instantly Mega Evolve. Once per run.
  const JWILL={level:50,lives:2,line:"We're not done yet, Echo!... Show them our bond!..",after:'Echo refused to give up!'};
+ // Our Bond (LoverGare's Mega Gardevoir only): Mega Gardevoir out of hearts -> Echo's cut-in (js/echo-cutscene.js):
+ // she turns white, back to Gardevoir, faints, gets up, roars and Mega Evolves again -> back at full HP. Once per run.
+ function ourBond(p){
+   if(!p||p!==getPlayer()||!echoOn(p)||p.__echoBondUsed||String(p.megaForm||'')!=='282-mega'||(Number(p.lives)||0)>0)return false;
+   const C=window.PS_ECHO_CUTSCENE;if(!C||C.playing)return false;
+   if(!C.play(p,{mode:'bond'}))return false;
+   p.__echoBondUsed=true;p.lives=1;   // the game's own revive uses it right after this: full HP, still Mega
+   return true;
+ }
  window.PS_LASTSTAND=function(p){
+   try{if(ourBond(p))return true;}catch(e){console.warn('Our Bond',e);}
    try{if(!p||p!==getPlayer()||!echoOn(p)||p.__jWillUsed||p.megaForm||used||(Number(p.level)||1)<JWILL.level||(Number(p.lives)||0)>0)return false;
      p.__jWillUsed=true;p.lives=JWILL.lives+1;   // the game's own revive uses one right after this -> 2 hearts left
      window.__psJWill=true;
      const tryMega=(n)=>{const b=getBridge();if(!b||getPlayer()!==p)return;if(b.game?.state!=='playing'&&n<60){setTimeout(()=>tryMega(n+1),100);return;}
        try{MEGA_CTL.mega('282','282-mega');}catch(e){console.warn("J's Will mega",e);}
-       const cut=!!window.__psJWillCut;   /* with the cut-in, J's line was already shown in it */
-       if(!cut)setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.line,'J');}catch(_){}},1150);
-       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.after,'Echo');b.fx.dmgText(p.x,p.y-(p.bodyH||40)-30,JWILL.after,'#ff9ad8');}catch(_){}window.__psJWill=false;window.__psJWillCut=false;},cut?3300:4600);};
-     /* Echo's cut-in (js/echo-cutscene.js): fainted -> gets up -> roars -> Mega Evolves; the real Mega happens inside it */
-     window.__psJWillCut=!!(window.PS_ECHO_CUTSCENE&&window.PS_ECHO_CUTSCENE.play(p,{mega:()=>tryMega(0),line:JWILL.line,after:JWILL.after}));
-     if(!window.__psJWillCut)setTimeout(()=>tryMega(0),30);
+       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.line,'J');}catch(_){}},1150);
+       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.after,'Echo');b.fx.dmgText(p.x,p.y-(p.bodyH||40)-30,JWILL.after,'#ff9ad8');}catch(_){}window.__psJWill=false;},4600);};
+     setTimeout(()=>tryMega(0),30);
      try{const b=getBridge();b.fx.ring(p.x,p.y,10,200,'#ff9ad8',0.8,8);b.fx.burst(p.x,p.y-20,'#ffd0f0',40,280);modKick(0.5);}catch(_){}
      return true;}catch(e){console.warn("J's Will",e);return false;}};
  function echoText(p){
@@ -941,7 +948,8 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
      "\u{1F496} Echo's Love: +25% crit · -15% dmg taken",
      "\u{1F496} J and Echo's Bond (Mega, <50% HP): regen, ×10 dmg, speed, defense"+(bd&&now<bd.take?' — ACTIVE':''),
      "\u{1F496} Friends For Life: +"+(fflBonus(p,'deal')*100).toFixed(0)+"% dmg/def · +"+(fflBonus(p,'xp')*100).toFixed(0)+"% EXP · +"+(fflBonus(p,'crit')*100).toFixed(0)+"% crit",
-     "\u{1F496} J's Will: Lv 50+, out of hearts → revive & Mega"+(p.__jWillUsed?' (used)':'')];
+     "\u{1F496} J's Will: Lv 50+, out of hearts → revive & Mega"+(p.__jWillUsed?' (used)':''),
+     "\u{1F496} Our Bond (Mega): out of hearts → Echo rises again at full HP"+(p.__echoBondUsed?' (used)':'')];
    return '\n\n'+l.join('\n');}
  function passiveLines(title,abilityId,types,deal,inScope){
    const A=ABIL[abilityId],out=[];

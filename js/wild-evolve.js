@@ -7,12 +7,16 @@
    Defeat an evolved one you don't own yet and you get its FIRST form (an evolved Raticate -> Rattata), every time.
    (Original mode; in Story you catch them instead. Starters, Legendaries, Ultra Beasts and Story-only Pokemon
    never drop, same as js/wild-spawns.js.)
-   Bosses, Legendaries, roamers, raids and den Pokemon never evolve. Off in co-op. Every number is in CFG. */
+   Older runs, stronger Pokemon: the longer the run goes, the more wild Pokemon show up already evolved
+   (a Ralts that spawns can arrive as a Kirlia, later even as a Gardevoir):
+     before 3:00 none - 5:00 25% - 10:00 45% - 15:00 60% - 20:00+ 75% (fully evolved: half of that, from 8:00 on).
+   Bosses, Legendaries, roamers, raids and den Pokemon never evolve. Off in co-op and on Story Route 1. Every number is in CFG. */
 (() => {
   'use strict';
   if (window.PS_WILDEVO_INSTALLED) return; window.PS_WILDEVO_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
-  const CFG = { hitBelow: 0.55, hitChance: 0.12, killChance: 0.08, dur: 1.9, hpMul: 1.5, maxAtOnce: 3 };
+  const CFG = { hitBelow: 0.55, hitChance: 0.12, killChance: 0.08, dur: 1.9, hpMul: 1.5, maxAtOnce: 3,
+    aged: [[180, 0], [300, 0.25], [600, 0.45], [900, 0.6], [1200, 0.75]], agedTwiceFrom: 480, agedHp: [1.3, 1.7] };
   const STARTER_LINE = new Set([1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912]);
   const UB = new Set([793, 794, 795, 796, 797, 798, 799, 803, 804, 805, 806]);
   const story = () => !!(window.PS_STORY && window.PS_STORY.on());
@@ -89,10 +93,29 @@
     g.restore();
   }
 
+  // ---- the longer the run, the more already-evolved spawns ----
+  const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
+  function agedChance(t) { const A = CFG.aged; if (t <= A[0][0]) return 0;
+    for (let i = 1; i < A.length; i++) if (t <= A[i][0]) { const [t0, c0] = A[i - 1], [t1, c1] = A[i]; return c0 + (c1 - c0) * (t - t0) / (t1 - t0); }
+    return A[A.length - 1][1]; }
+  function age(e, t) {
+    e.__psAged = true; if (window.PS_ROUTE1 && window.PS_ROUTE1.active()) return;
+    const c = agedChance(t); if (!c || Math.random() >= c) return;
+    let to = nextForm(Number(e.dex)); if (!to) return; let stage = 1;
+    if (t >= CFG.agedTwiceFrom && Math.random() < 0.5) { const to2 = nextForm(to); if (to2) { to = to2; stage = 2; } }
+    const W = window.PS_WILD; if (!W || typeof W.spawn !== 'function') return;
+    const N = E(), before = new Set(N.EnemyMgr.all());
+    if (!W.spawn(to, 1, e.x, e.y, CFG.agedHp[stage - 1])) return;
+    for (const q of N.EnemyMgr.all()) if (!before.has(q)) { q.__psAged = true; q.__psEvoChecked = true; }
+    e.dead = true; e.fade = 0; e.hp = 0;   // replaced before you ever saw it
+  }
   // ---- triggers ----
   function scan() {
+    const now = clock();
     for (const e of E().EnemyMgr.all()) {
-      if (!e || e.dead || e.__psEvoChecked || e.__psEvolving || special(e)) continue;
+      if (!e || e.dead || e.__psEvolving || special(e)) continue;
+      if (!e.__psAged) { age(e, now); if (e.dead) continue; }
+      if (e.__psEvoChecked) continue;
       const mx = Number(e.maxHp) || 0; if (!mx || !(Number(e.hp) < mx * CFG.hitBelow)) continue;
       e.__psEvoChecked = true;
       if (Math.random() >= CFG.hitChance) continue;
@@ -137,5 +160,5 @@
     } catch (err) { console.warn('[wild-evo]', err); }
   }
   requestAnimationFrame(loop);
-  window.PS_WILD_EVO = { cfg: CFG, live, evolve: (e) => { const to = nextForm(Number(e.dex)); return to ? begin(e, Number(e.dex), to, false) : false; } };
+  window.PS_WILD_EVO = { cfg: CFG, live, agedChance, evolve: (e) => { const to = nextForm(Number(e.dex)); return to ? begin(e, Number(e.dex), to, false) : false; } };
 })();
