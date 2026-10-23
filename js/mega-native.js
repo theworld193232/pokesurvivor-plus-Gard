@@ -925,9 +925,12 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
      window.__psJWill=true;
      const tryMega=(n)=>{const b=getBridge();if(!b||getPlayer()!==p)return;if(b.game?.state!=='playing'&&n<60){setTimeout(()=>tryMega(n+1),100);return;}
        try{MEGA_CTL.mega('282','282-mega');}catch(e){console.warn("J's Will mega",e);}
-       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.line,'J');}catch(_){}},1150);
-       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.after,'Echo');b.fx.dmgText(p.x,p.y-(p.bodyH||40)-30,JWILL.after,'#ff9ad8');}catch(_){}window.__psJWill=false;},4600);};
-     setTimeout(()=>tryMega(0),30);
+       const cut=!!window.__psJWillCut;   /* with the cut-in, J's line was already shown in it */
+       if(!cut)setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.line,'J');}catch(_){}},1150);
+       setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.after,'Echo');b.fx.dmgText(p.x,p.y-(p.bodyH||40)-30,JWILL.after,'#ff9ad8');}catch(_){}window.__psJWill=false;window.__psJWillCut=false;},cut?3300:4600);};
+     /* Echo's cut-in (js/echo-cutscene.js): fainted -> gets up -> roars -> Mega Evolves; the real Mega happens inside it */
+     window.__psJWillCut=!!(window.PS_ECHO_CUTSCENE&&window.PS_ECHO_CUTSCENE.play(p,{mega:()=>tryMega(0),line:JWILL.line,after:JWILL.after}));
+     if(!window.__psJWillCut)setTimeout(()=>tryMega(0),30);
      try{const b=getBridge();b.fx.ring(p.x,p.y,10,200,'#ff9ad8',0.8,8);b.fx.burst(p.x,p.y-20,'#ffd0f0',40,280);modKick(0.5);}catch(_){}
      return true;}catch(e){console.warn("J's Will",e);return false;}};
  function echoText(p){

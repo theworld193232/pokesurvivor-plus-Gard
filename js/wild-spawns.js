@@ -1,5 +1,5 @@
 /* WILD SPAWNS & REWARDS
-   1) Missing Pokemon show up: now and then (every ~45-75 s) the game looks at what you DON'T own yet and sends a
+   1) Missing Pokemon show up: every 2 minutes the game looks at what you DON'T own yet and sends a
       small group of one of them (2-4), cycling through your missing Pokemon one by one. Then normal spawning goes on.
       Never Legendaries, Mythicals or Ultra Beasts (other Epic Pokemon can show up). Pseudo-Legendaries have their
       own rare spawn below. (Both modes.)
@@ -21,7 +21,7 @@
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const TAU = Math.PI * 2;
   const CFG = {
-    missEvery: [45, 75], missGroup: [2, 4],
+    missEvery: [120, 120], missGroup: [2, 4],   // a missing Pokemon every 2 minutes
     pseudoEvery: [120, 180], pseudoChance: 0.045, pseudoGroup: [1, 3], pseudoTwoSites: 0.35,
     dropChance: 0.40,
     ring: [520, 680]
