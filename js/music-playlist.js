@@ -235,19 +235,19 @@
     if (!unlocked) return; // Custom playback waits for user activation; the original game stays muted.
 
     // 1) Mega Evolution has top priority: it cuts off whatever is playing (unless it's already that song), plays once
-    if (megaNow && !locked) {
+    if (megaNow) {   // the Mega Evolution Tera theme is the top priority: it replaces anything, even the low-HP Tera
       const id = pick(RULES.mega && RULES.mega.songs);
       if (id) { if (cur && cur.id === id) { cur.ctx = 'mega'; audio.loop = false; } else cut(() => start(id, 'mega')); render(); return; }
     }
     // 1-) Primal Reversion: its ORAS theme cuts in right away (a legendary / Rift / Judgment theme finishes first)
-    if (primalNow && ctx.startsWith('primal:') && !locked) {
+    if (primalNow && ctx.startsWith('primal:') && !locked && !(cur && cur.ctx === 'mega')) {
       if (cur && cur.id === primalId) { cur.ctx = ctx; audio.loop = loops(ctx); } else cut(() => start(primalId, ctx)); render(); return;
     }
-    // 1a) low HP: the low-HP song cuts in (not over the Mega song or a legendary theme)
+    // 1a) low HP: the low-HP song cuts in (never over the Mega song; the 20% Tera one also cuts over legendary themes)
     { const p = B()?.game?.player, L = lowRules(), hp = p && p.maxHp > 0 ? p.hp / p.maxHp : 1;
       let tier = 99; if (!menuish(ctx) && !STORY() && p && !p.dead) L.forEach((r, i) => { if (hp < (r.below ?? 0.2) && i < tier) tier = i; });
       const worse = tier < wasLow; wasLow = tier;
-      if (worse && !locked && !(cur && cur.ctx === 'mega') && !ctx.startsWith('legend:')) { const id = pick(L[tier].songs);
+      if (worse && !locked && !(cur && cur.ctx === 'mega') && (tier === 0 || !ctx.startsWith('legend:'))) { /* the low-HP Tera beats every song but the Mega one */ const id = pick(L[tier].songs);
         if (id) { if (cur && cur.id === id) { cur.ctx = 'lowhp:' + tier; cur.lock = tier === 0; audio.loop = false; } else cut(() => start(id, 'lowhp:' + tier)); render(); return; } } }
     // 1b) a legendary appeared: its theme cuts in (but never over the Mega Evolution song)
     if (ctx.startsWith('legend:') && !locked && (!cur || (cur.ctx !== ctx && cur.ctx !== 'mega'))) {
@@ -340,5 +340,9 @@
     if (cur && cur.ctx === 'mega') return false;   // the Mega Evolution song always wins over events (e.g. Dynamax)
     unlocked = true; if (cur && cur.id === id) { cur.ctx = 'event:' + name; return true; } cut(() => start(id, 'event:' + name)); return true;
   }
-  window.PS_MUSIC = { skip, event, stop: hush, rules: RULES, tracks: TRACKS, _audio: audio, get playing() { return cur && { ...cur }; }, get gameTrack() { return gameTrack; } };
+  function forceMega() {   // used by Echo's "Our Bond" cut-in, where she Mega Evolves again without the form changing
+    if (!S.on || !unlocked || STORY()) return; const id = pick(RULES.mega && RULES.mega.songs); if (!id) return;
+    if (cur && cur.id === id) { cur.ctx = 'mega'; cur.lock = false; audio.loop = false; } else cut(() => start(id, 'mega')); render();
+  }
+  window.PS_MUSIC = { mega: forceMega, skip, event, stop: hush, rules: RULES, tracks: TRACKS, _audio: audio, get playing() { return cur && { ...cur }; }, get gameTrack() { return gameTrack; } };
 })();

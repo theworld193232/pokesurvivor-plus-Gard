@@ -4,7 +4,9 @@
      - when you defeat one there's an 8% chance it rises again and evolves instead.
    It glows, flickers between its old and new size, flashes, and comes back as its evolution with full HP
    ("What? Rattata is evolving!" -> "...evolved into Raticate!").
-   Defeat an evolved one you don't own yet and you get its FIRST form (an evolved Raticate -> Rattata), every time.
+   An evolved one can keep going: hurt it again and it can evolve into its next form too (20% chance), never into a Mega.
+   Defeat one that evolved all the way to its FINAL form in front of you and you get its FIRST form, 100%
+   (Ralts -> Kirlia -> Gardevoir, beat that Gardevoir -> Ralts). Ones that stopped halfway use the normal 40% drop.
    (Original mode; in Story you catch them instead. Starters, Legendaries, Ultra Beasts and Story-only Pokemon
    never drop, same as js/wild-spawns.js.)
    Older runs, stronger Pokemon: the longer the run goes, the more wild Pokemon show up already evolved
@@ -15,7 +17,7 @@
   'use strict';
   if (window.PS_WILDEVO_INSTALLED) return; window.PS_WILDEVO_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
-  const CFG = { hitBelow: 0.55, hitChance: 0.12, killChance: 0.08, dur: 1.9, hpMul: 1.5, maxAtOnce: 3,
+  const CFG = { hitBelow: 0.55, hitChance: 0.12, chainChance: 0.2, killChance: 0.08, dur: 1.9, hpMul: 1.5, maxAtOnce: 3,
     aged: [[180, 0], [300, 0.25], [600, 0.45], [900, 0.6], [1200, 0.75]], agedTwiceFrom: 480, agedHp: [1.3, 1.7] };
   const STARTER_LINE = new Set([1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912]);
   const UB = new Set([793, 794, 795, 796, 797, 798, 799, 803, 804, 805, 806]);
@@ -42,7 +44,7 @@
   function begin(e, from, to, dead) {
     if (live.length >= CFG.maxAtOnce) return false;
     const r0 = Math.max(18, (Number(e.bodyH) || 28) * 0.8);
-    const ev = { x: e.x, y: e.y, from, to, t: 0, r0, r1: r0 * 1.35, e: dead ? null : e, bodyH: Number(e.bodyH) || 28 };
+    const ev = { first: e.__psEvolvedFrom || 0, x: e.x, y: e.y, from, to, t: 0, r0, r1: r0 * 1.35, e: dead ? null : e, bodyH: Number(e.bodyH) || 28 };
     if (!dead) { e.__psEvolving = true; ev.spd = e.spd; ev.dmg = e._dmg; e.spd = 0; if (Number.isFinite(e._dmg)) e._dmg = 0; e.stunT = CFG.dur + 0.3; }
     live.push(ev);
     say(e.x, e.y - ev.bodyH - 18, 'What? ' + nameOf(from) + ' is evolving!', '#fff3a6');
@@ -58,7 +60,7 @@
     const before = new Set(N.EnemyMgr.all());
     W.spawn(ev.to, 1, x, y, CFG.hpMul);
     const ne = N.EnemyMgr.all().find(q => !before.has(q) && Number(q.dex) === ev.to);
-    if (ne) { ne.__psEvolvedFrom = ev.from; ne.__psEvoChecked = true; ne.flash = 0.4; }
+    if (ne) { ne.__psEvolvedFrom = ev.first || ev.from; ne.__psEvoChecked = !nextForm(ev.to); ne.__psAged = true; ne.flash = 0.4; }   // can evolve again if it has a next form
     try { B().fx.ring(x, y - ev.bodyH * 0.5, 8, 90, '#ffffff', 0.5, 4); B().fx.burst(x, y - ev.bodyH * 0.5, '#fff6c2', 26, 200); } catch (_) {}
     say(x, y - ev.bodyH - 18, nameOf(ev.from) + ' evolved into ' + nameOf(ev.to) + '!', '#9effa8');
     try { E().Spawner.say(nameOf(ev.from) + ' evolved into ' + nameOf(ev.to) + '!', 2.5, true); } catch (_) {}
@@ -118,7 +120,7 @@
       if (e.__psEvoChecked) continue;
       const mx = Number(e.maxHp) || 0; if (!mx || !(Number(e.hp) < mx * CFG.hitBelow)) continue;
       e.__psEvoChecked = true;
-      if (Math.random() >= CFG.hitChance) continue;
+      if (Math.random() >= (e.__psEvolvedFrom ? CFG.chainChance : CFG.hitChance)) continue;
       const to = nextForm(Number(e.dex)); if (to) begin(e, Number(e.dex), to, false);
     }
   }
@@ -128,7 +130,7 @@
       // an evolving one that gets defeated mid-glow: the evolution is cancelled
       const i = live.findIndex(v => v.e === e); if (i >= 0) live.splice(i, 1);
       if (e.__psEvolvedFrom) reward(e);
-      else if (!e.__psEvolving && Math.random() < CFG.killChance) { const to = nextForm(Number(e.dex)); if (to) begin(e, Number(e.dex), to, true); }
+      if (!e.__psEvolving && Math.random() < CFG.killChance) { const to = nextForm(Number(e.dex)); if (to) begin(e, Number(e.dex), to, true); }
     } catch (err) { console.warn('[wild-evo]', err); }
   }
   function reward(e) {
@@ -136,7 +138,8 @@
     if (!N.DEX_BY[base] || UB.has(base) || STARTER_LINE.has(base)) return;
     try { const p = N.DEX_BY[base]; if (p && p.leg) return; if (window.PS_LEGEND_DEX && window.PS_LEGEND_DEX().has(base)) return; } catch (_) {}
     try { const sx = (window.PS_ROUTE1?.wild?.() || []).map(baseOf); if (sx.includes(base)) return; } catch (_) {}
-    if (S.owned && (S.owned[d] || S.owned[base])) return;
+    if (nextForm(d)) return;   // only a FINAL form that evolved in front of you gives its first form for sure
+    if (S.owned && S.owned[base]) return;
     N.DB.grant(base, 'wild'); try { N.DB.commit(); } catch (_) {}
     const nm = nameOf(base);
     try { N.Spawner.say('You got ' + nm + '!', 3, true); B().audio?.sfx?.('shinyGet'); } catch (_) {}

@@ -19,7 +19,7 @@
   // ---- timeline (seconds) ----
   const T = { cut: 0.7, hit: 0.85, white: 1.45, revert: 2.0, unwhite: 2.15, fall: 2.55, land: 3.05,
     line1: 3.2, twitch: 4.1, tryLift: 4.5, tryDrop: 5.15, line2: 5.6, lift: 5.9, kneel: 6.7, rise: 6.7, stand: 7.6, risen: 8.25,
-    push: 8.4, tuck: 8.6, charge: 8.85, roar: 9.4, megaIn: 10.3, irid: 10.75, dark: 11.2, crack: 11.6, shatter: 12.1, mShow: 12.15, mTuck: 13.0, mRoar: 13.4, fade: 15.1, end: 15.7 };
+    push: 8.4, tuck: 8.6, charge: 8.85, roar: 9.4, exitA: 10.25, realMega: 3.0, megaIn: 10.3, irid: 10.75, dark: 11.2, crack: 11.6, shatter: 12.1, mShow: 12.15, mTuck: 13.0, mRoar: 13.4, fade: 15.1, end: 15.7 };
   const LINES = [
     { who: 'J', text: 'Not like this, Echo!...', a: T.line1, b: T.line2 - 0.15, top: true },
     { who: 'J', text: 'I BELIEVE IN YOU... SHOW THEM OUR BOND', a: T.line2, b: T.push, top: true, big: true },
@@ -69,17 +69,22 @@
     for (let yy = R.waveY; yy < H; yy++) { const k = Math.pow((yy - R.waveY) / (H - R.waveY), 1.3), m = (1 - gs) * (1 + fl * k);
       const dx = Math.round(Math.sin(t * 3.1 + yy * 0.13) * amp * k + blow * k * k * 14); g.drawImage(V.base, 0, yy, W, 1, Math.round(dx + fx - fx * m), yy, Math.round(W * m), 1); }
     for (const a of R.arms) { const ang = ((q.arms || 0) * (R === RIGS.m ? 0.45 : 1)) * a.s + (a.s < 0 ? (q.armL || 0) : (q.armR || 0)) * -a.s + (q.armJit || 0) * Math.sin(t * 38 + a.s * 2);
-      g.save(); g.translate(a.p[0], a.p[1]); g.rotate(ang); if (q.armLen) g.scale(q.armLen, q.armLen); g.drawImage(V.img, a.x, a.y, a.w, a.h, a.x - a.p[0], a.y - a.p[1], a.w, a.h); g.restore(); }
-    g.save(); g.translate(R.neck[0], R.neck[1] + Math.round(q.headDy || 0)); g.rotate(q.head || 0); g.scale(1, q.headSy || 1);
-    g.drawImage(V.img, 0, 0, W, R.neckY + 1, -R.neck[0], -R.neck[1], W, R.neckY + 1);
+      g.save(); g.translate(a.p[0], a.p[1]); g.rotate(ang); if (q.armLen) g.scale(q.armLen, q.armLen);
+      const ov = 5, sx0 = a.s < 0 ? a.x : a.x - ov, sw = a.w + ov;   /* a few pixels of her shoulder come along, so the arm never looks cut off */
+      g.drawImage(V.img, sx0, a.y, sw, a.h, sx0 - a.p[0], a.y - a.p[1], sw, a.h); g.restore(); }
+    // head: bent row by row from the neck up (never comes apart from her body):
+    //   q.head > 0 = chin tucked down/forward, < 0 = head thrown back; headSy squashes / stretches it; headDy nods it
+    const nY = R.neckY, sy = q.headSy || 1, lean = (q.head || 0) * 0.9, nod = q.headDy || 0;
+    const rowAt = u => [Math.round(-u * lean), nY - u * sy + nod * (u / nY)];   // u = rows above the neck -> [dx, y]
+    for (let y = 0; y <= nY; y++) { const u = nY - y, [dx, yy] = rowAt(u); g.drawImage(V.img, 0, y, W, 1, dx, Math.round(yy), W, Math.max(1, Math.ceil(sy + 0.6))); }
     if ((q.eye || 0) > 0.01 && (!v || v === 'n')) {
-      const ex = R.eye[0] - R.neck[0], ey = R.eye[1] - R.neck[1], e = q.eye;
-      g.globalCompositeOperation = 'lighter';
+      const e = q.eye, ue = nY - R.eye[1], [edx, ey] = rowAt(ue), ex = R.eye[0] + edx;
+      g.save(); g.globalCompositeOperation = 'lighter';
       const rg = g.createRadialGradient(ex, ey, 0, ex, ey, 7 * e + 2); rg.addColorStop(0, 'rgba(255,255,255,' + e + ')'); rg.addColorStop(0.35, 'rgba(255,120,200,' + (0.8 * e) + ')'); rg.addColorStop(1, 'rgba(255,60,160,0)');
       g.fillStyle = rg; g.beginPath(); g.arc(ex, ey, 7 * e + 2, 0, Math.PI * 2); g.fill();
       g.strokeStyle = 'rgba(255,200,240,' + (0.7 * e) + ')'; g.lineWidth = 0.8; g.beginPath(); g.moveTo(ex - 14 * e, ey); g.lineTo(ex + 14 * e, ey); g.moveTo(ex, ey - 6 * e); g.lineTo(ex, ey + 6 * e); g.stroke();
+      g.restore();
     }
-    g.restore();
   }
 
   function cry(rate, vol) { try { const a = new Audio('assets/cries/282.mp3'); a.volume = vol == null ? 0.8 : vol; a.playbackRate = rate || 1; a.preservesPitch = false; a.play().catch(() => {}); } catch (_) {} }
@@ -114,14 +119,26 @@
   }
   function frame(now) {
     if (!run) return;
-    const dt = Math.min(0.05, (now - run.last) / 1000); run.last = now; run.t += dt; const t = run.t;
+    const dt = Math.min(0.05, (now - run.last) / 1000); run.last = now;
     freeze();
-    run.cv.style.opacity = t < T.cut ? '0' : t >= T.fade ? String(Math.max(0, 1 - (t - T.fade) / (T.end - T.fade))) : '1';
+    // after her roar the cut-in steps aside: the game's own Mega Evolution plays, then the cut-in comes back for Mega Gardevoir
+    if (run.waitUntil) {
+      if (now < run.waitUntil) { requestAnimationFrame(frame); return; }
+      run.waitUntil = 0; run.t = T.mShow - 0.1; run.cv.style.transition = 'opacity .2s'; run.cv.style.opacity = '1';
+    }
+    if (!run.fired.exitA && run.t + dt >= T.exitA) {
+      run.fired.exitA = true; run.t = T.exitA;
+      run.cv.style.transition = 'opacity .3s'; run.cv.style.opacity = '0';
+      const r = run; if (r.gc && r.was) { r.gc.style.transition = 'transform .35s, filter .35s'; r.gc.style.transform = r.was.t; r.gc.style.filter = r.was.f; }
+      setTimeout(() => { try { r.opts.mega && r.opts.mega(); } catch (e) { console.warn('[echo-cut] mega', e); } }, 380);
+      run.waitUntil = now + 380 + T.realMega * 1000; requestAnimationFrame(frame); return;
+    }
+    run.t += dt; const t = run.t;
+    if (!run.fired.exitA || t >= T.mShow - 0.1) run.cv.style.opacity = t < T.cut ? '0' : t >= T.fade ? String(Math.max(0, 1 - (t - T.fade) / (T.end - T.fade))) : '1';
     if (t >= T.hit) once('hurt', () => { sfx('hurt'); cry(1.12, 0.55); });
     if (t >= T.land) once('land', () => sfx('bossDown'));
     if (t >= T.roar) once('cry1', () => cry(1));
     if (t >= T.crack) once('crk', () => sfx('select'));
-    if (t >= T.shatter) once('mega', () => { sfx('levelup'); run.opts.mega && run.opts.mega(); });
     if (t >= T.mRoar) once('cry2', () => cry(0.84));
     if (t >= T.end) { finish(); return; }
     if (t >= T.cut) draw(t, dt);
@@ -133,7 +150,7 @@
     const cv = run.cv, W = cv.width = Math.round(innerWidth), H = cv.height = Math.round(innerHeight), g = cv.getContext('2d');
     g.imageSmoothingEnabled = false;
     const megaEnd = t >= T.mShow, megaStart = t < T.revert, mega = megaEnd || megaStart, R = mega ? RIGS.m : RIGS.g;
-    const ground = H * 0.8, cx = W / 2, sc = (H * (mega ? 0.52 : 0.5)) / R.H;
+    const ground = H * 0.8, cx = W / 2, sc = (H * (mega ? 0.52 : 0.41)) / R.H;   // Gardevoir's picture is drawn bigger than Mega's: scaled so they match
     const q = { t, wave: 1.2, rot: 0, sx: 1, sy: 1, head: 0, headDy: 0, headSy: 1, arms: 0, eye: 0, blow: 0, armJit: 0 };
     let bodyX = cx, bodyY = ground, white = 0, red = 0, idle = 1;
     if (megaStart) {
@@ -180,11 +197,11 @@
       // chin tuck -> roar
       const tuck = seg(t, T.tuck, T.tuck + 0.4) * (1 - seg(t, T.roar - 0.04, T.roar + 0.06));
       const roar = seg(t, T.roar, T.roar + 0.1) * (1 - seg(t, T.megaIn, T.megaIn + 0.4));
-      q.head += tuck * 0.16 - roar * 0.2; q.headDy += tuck * 2.5 - roar * 2; q.headSy *= 1 - tuck * 0.05 + roar * 0.04;
+      q.head += tuck * 0.14 - roar * 0.16; q.headDy += tuck * 2 - roar * 1.5; q.headSy *= 1 - tuck * 0.05 + roar * 0.04;
       q.sy *= 1 - tuck * 0.03 + roar * 0.05; q.sx *= 1 + tuck * 0.03;
       // the charge: arms slowly spread wide to the sides, gown flaring out, swaying with the power (then the roar)
       const charge = seg(t, T.charge, T.roar - 0.05) * (1 - seg(t, T.megaIn + 0.2, T.megaIn + 0.7));
-      q.arms += tuck * 0.15 - charge * 0.6 - roar * 0.3 + roar * Math.sin(t * 30) * 0.03;
+      q.arms += tuck * 0.12 - charge * 0.42 - roar * 0.16 + roar * Math.sin(t * 30) * 0.02;
       q.flare = charge * 0.22 + roar * 0.12; q.rot += Math.sin(t * 2.2) * 0.025 * charge;
       q.blow = roar * 0.6; q.wave += roar * 2.5 + charge * 1.5;
       q.eye = Math.max(seg(t, T.tuck, T.roar) * 0.9, roar, bump(t, T.lift, T.lift + 0.6) * 0.5);
@@ -244,7 +261,7 @@
     if (t > T.revert - 0.25 && t < T.revert + 0.25) {
       const u = seg(t, T.revert - 0.25, T.revert + 0.25), Rm = RIGS.m, Rg = RIGS.g, qq = { t, wave: 0.5 };
       g.globalAlpha = 1 - u; rig(g, Rm, qq, cx, ground, (H * 0.52) / Rm.H * lerp(1, 0.85, u), 'w');
-      g.globalAlpha = u; rig(g, Rg, qq, cx, ground, (H * 0.5) / Rg.H * lerp(1.15, 1, u), 'w'); g.globalAlpha = 1;
+      g.globalAlpha = u; rig(g, Rg, qq, cx, ground, (H * 0.41) / Rg.H * lerp(1.15, 1, u), 'w'); g.globalAlpha = 1;
     } else {
       rig(g, R, q, bodyX, bodyY, sc, 'n');
       if (red > 0.01) { g.globalAlpha = 0.6 * red; rig(g, R, q, bodyX, bodyY, sc, 'r'); g.globalAlpha = 1; }

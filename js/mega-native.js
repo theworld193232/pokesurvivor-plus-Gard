@@ -924,7 +924,13 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  function ourBond(p){
    if(!p||p!==getPlayer()||!echoOn(p)||p.__echoBondUsed||String(p.megaForm||'')!=='282-mega'||(Number(p.lives)||0)>0)return false;
    const C=window.PS_ECHO_CUTSCENE;if(!C||C.playing)return false;
-   if(!C.play(p,{mode:'bond'}))return false;
+   // the game's own Mega Evolution plays again in the middle of the cut-in (she's still Mega underneath: same stats)
+   const replay=()=>{const megaAnim=p.anim,base=p.__psBaseAnim;
+     try{window.PS_MUSIC&&window.PS_MUSIC.mega&&window.PS_MUSIC.mega();}catch(_){}
+     if(!base||!window.PS_FX||!window.PS_FX.has('megaevo'))return;
+     p.anim=base;p.invuln=Math.max(Number(p.invuln)||0,3);
+     window.PS_FX.cast('megaevo',p,{id:'mega-evolution',type:'normal',dmg:0,fx:{newAnim:megaAnim,form:p.megaForm,cry:'assets/cries/282.mp3'}},null,true);};
+   if(!C.play(p,{mode:'bond',mega:replay}))return false;
    p.__echoBondUsed=true;p.lives=1;   // the game's own revive uses it right after this: full HP, still Mega
    return true;
  }
@@ -1108,6 +1114,7 @@ function start(){
        window.PS_FX.cast('megaevo',p,{id:'mega-evolution',type:'normal',dmg:0,fx:{newAnim,form:f.key,cry}},null,true);}catch(e){console.warn('mega fx',e);}
      try{const nm=String(f.en||f.name||'').replace(/^Mega[- ]?/i,'').replace(/\s+[XYZ]$/,'').trim()||'partner';setTimeout(()=>{if(!window.__psJWill)trainerLine(nm);},1150);}catch(e){}
    }
+   p.__psBaseAnim=baseline.anim;   /* Our Bond replays the Mega Evolution from this look */
    restore=()=>{if(undoSignature)undoSignature();delete p.megaKit;clearPrimal();p.mon=baseline.mon;p.anim=baseline.anim;p.baseAtk=baseline.baseAtk;p.baseSpd=baseline.baseSpd;if(Number.isFinite(baseline.baseSpa))p.baseSpa=baseline.baseSpa;p.maxHp=baseline.maxHp;p.hp=Math.min(p.hp,baseline.maxHp);p.r=baseline.r;p.bodyH=baseline.bodyH;delete p.megaForm;};
    hint.textContent=WEATHER[f.key]?'Primal Reversion! '+WEATHER[f.key].name+' is active.'+(undoSignature?' Learned '+SIGNATURE_MOVES[f.key].name+'!':''):'Mega Evolution activated!'+(kit&&ABIL[kit.passive.ability]?' Ability: '+ABIL[kit.passive.ability].name+'.':'')+(undoSignature?' Learned '+SIGNATURE_MOVES[f.key].name+'!':'');
  }catch(err){clearPrimal();console.error('Mega Evolution:',err);p.mon=baseline.mon;p.anim=baseline.anim;p.baseAtk=baseline.baseAtk;p.baseSpd=baseline.baseSpd;p.maxHp=baseline.maxHp;p.hp=baseline.hp;p.r=baseline.r;p.bodyH=baseline.bodyH;hint.textContent='Mega error: '+err.message;}
