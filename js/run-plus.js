@@ -2,9 +2,10 @@
    1) Every run starts with 5 cards to pick (5 ★ points: press Shift / tap ★), in every Act and Level,
       in Original and Story. Not in co-op (the host's points are shared there).
    2) More wild Pokemon, matched to the biome you're standing in (js/terrain.js):
-        every 12-18 s a group of 3-5 shows up on top of the game's normal spawns, picked from the biome's types
+        every 8-12 s a group of 3-5 shows up on top of the game's normal spawns, picked from the biome's types,
+        and 55% of the game's own spawns that don't fit the biome are swapped for ones that do
         (Power Plant -> Electric / Steel, Lava Fields -> Fire / Rock, Sea Grotto -> Water / Rock, ...).
-        About 40% of each group are Pokemon whose type is super effective against YOUR Pokemon
+        About 25% of each group are Pokemon whose type is super effective against YOUR Pokemon
         (from the biome's types when possible, otherwise any type that beats you).
         Early in a run they're mostly first forms; evolved ones join as the clock goes on.
       Not in co-op, Rift arenas, Safe Zones, Story Route 1 or the Legendary Den mode (same rules as js/wild-spawns.js).
@@ -15,7 +16,8 @@
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const CFG = {
     startCards: 5,
-    every: [12, 18], group: [3, 5], counterShare: 0.4, maxEnemies: 150,
+    every: [8, 12], group: [3, 5], counterShare: 0.25, maxEnemies: 150,
+    convert: 0.55,   // share of the game's own spawns that turn into Pokemon of the biome you're in
     rarityByTime: [[0, 2], [240, 3], [600, 4]],   // [from second, highest rarity allowed]
   };
   // biome name (js/terrain.js) -> types that live there
@@ -84,13 +86,32 @@
     }
     return made;
   }
+  // the game's own spawns: 55% of them become a Pokemon of the biome you're standing in (done before you can see them)
+  function convert(p) {
+    const W = window.PS_WILD; if (!W || typeof W.spawn !== 'function') return;
+    const N = E(), t = clock(), name = biomeAt(p), home = BIOME[name]; if (!home) return;
+    const counters = counterTypes(p), homeCounters = home.filter(x => counters.includes(x));
+    for (const e of N.EnemyMgr.all()) {
+      if (!e || e.__psBiomeSeen) continue; e.__psBiomeSeen = true;
+      if (e.dead || e.remote || e.boss || e.legend || e.__roamer || e.__maxRaid || e.__legendDen || e.__wave || e.__psWild || e.shiny || e.__psCatch) continue;
+      if ((N.DEX_BY[e.dex]?.types || []).some(x => home.includes(x))) continue;   // already fits the biome
+      if (Math.random() >= CFG.convert) continue;
+      const vsYou = Math.random() < CFG.counterShare && counters.length;
+      const d = pickFrom(vsYou ? (homeCounters.length ? homeCounters : counters) : home, t); if (!d) continue;
+      const before = new Set(N.EnemyMgr.all());
+      if (!W.spawn(d.dex, 1, e.x, e.y, 1)) continue;
+      for (const q of N.EnemyMgr.all()) if (!before.has(q)) q.__psBiomeSeen = true;
+      e.dead = true; e.fade = 0; e.hp = 0;
+    }
+  }
   let runP = null, next = 0;
   setInterval(() => { try {
     const g = B()?.game, p = g?.player; if (!p || g.state === 'ui' || g.state === 'over') { runP = null; return; }
     cards(p);
     if (p !== runP) { runP = p; next = clock() + rnd(CFG.every[0], CFG.every[1]); }
     if (!ok()) return; const t = clock();
+    convert(p);
     if (t >= next) { next = t + rnd(CFG.every[0], CFG.every[1]); spawnWave(p); }
-  } catch (e) { console.warn('[run+]', e); } }, 500);
+  } catch (e) { console.warn('[run+]', e); } }, 250);
   window.PS_RUNPLUS = { cfg: CFG, biome: BIOME, wave: () => spawnWave(B().game.player), counters: () => counterTypes(B().game.player), biomeAt: () => biomeAt(B().game.player) };
 })();

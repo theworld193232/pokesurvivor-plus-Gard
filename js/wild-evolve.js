@@ -2,8 +2,8 @@
    Wild Pokemon can evolve in front of you:
      - when you've worn one down (below 55% HP) there's a 12% chance it evolves on the spot;
      - when you defeat one there's an 8% chance it rises again and evolves instead.
-   It glows, flickers between its old and new size, flashes, and comes back as its evolution with full HP
-   ("What? Rattata is evolving!" -> "...evolved into Raticate!").
+   It glows, flickers between its old and new size, flashes, and comes back as its evolution with full HP.
+   It can't be hurt while it evolves, nor for 0.8 s after (i-frames).
    An evolved one can keep going: hurt it again and it can evolve into its next form too (20% chance), never into a Mega.
    Defeat one that evolved all the way to its FINAL form in front of you and you get its FIRST form, 100%
    (Ralts -> Kirlia -> Gardevoir, beat that Gardevoir -> Ralts). Ones that stopped halfway use the normal 40% drop.
@@ -17,7 +17,7 @@
   'use strict';
   if (window.PS_WILDEVO_INSTALLED) return; window.PS_WILDEVO_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
-  const CFG = { hitBelow: 0.55, hitChance: 0.12, chainChance: 0.2, killChance: 0.08, dur: 1.9, hpMul: 1.5, maxAtOnce: 3,
+  const CFG = { hitBelow: 0.55, hitChance: 0.12, chainChance: 0.2, iframesAfter: 0.8, killChance: 0.08, dur: 1.9, hpMul: 1.5, maxAtOnce: 3,
     aged: [[180, 0], [300, 0.25], [600, 0.45], [900, 0.6], [1200, 0.75]], agedTwiceFrom: 480, agedHp: [1.3, 1.7] };
   const STARTER_LINE = new Set([1,4,7,152,155,158,252,255,258,387,390,393,495,498,501,650,653,656,722,725,728,810,813,816,906,909,912]);
   const UB = new Set([793, 794, 795, 796, 797, 798, 799, 803, 804, 805, 806]);
@@ -39,16 +39,20 @@
   const say = (x, y, t, c) => { try { B().fx.dmgText(x, y, t, c || '#fff'); } catch (_) {} };
   const nameOf = d => (E().DEX_BY[d] || {}).name || '???';
 
+  // ---- i-frames: can't be hurt while evolving, and for a moment after ----
+  function guard(e, ms) {
+    if (!e.__psHurtWrapped && typeof e.hurt === 'function') { const h = e.hurt; e.__psHurtWrapped = true;
+      e.hurt = function () { if (this.__psEvolving || (this.__psInvT || 0) > performance.now()) return; return h.apply(this, arguments); }; }
+    if (ms) e.__psInvT = performance.now() + ms;
+  }
   // ---- evolutions in progress ----
   const live = [];   // { x, y, from, to, t, r0, r1, e (alive enemy or null), sc }
   function begin(e, from, to, dead) {
     if (live.length >= CFG.maxAtOnce) return false;
     const r0 = Math.max(18, (Number(e.bodyH) || 28) * 0.8);
     const ev = { first: e.__psEvolvedFrom || 0, x: e.x, y: e.y, from, to, t: 0, r0, r1: r0 * 1.35, e: dead ? null : e, bodyH: Number(e.bodyH) || 28 };
-    if (!dead) { e.__psEvolving = true; ev.spd = e.spd; ev.dmg = e._dmg; e.spd = 0; if (Number.isFinite(e._dmg)) e._dmg = 0; e.stunT = CFG.dur + 0.3; }
+    if (!dead) { guard(e); e.__psEvolving = true; ev.spd = e.spd; ev.dmg = e._dmg; e.spd = 0; if (Number.isFinite(e._dmg)) e._dmg = 0; e.stunT = CFG.dur + 0.3; }
     live.push(ev);
-    say(e.x, e.y - ev.bodyH - 18, 'What? ' + nameOf(from) + ' is evolving!', '#fff3a6');
-    try { E().Spawner.say('What? ' + nameOf(from) + ' is evolving!', 2.2, true); } catch (_) {}
     try { B().audio?.sfx?.('levelup'); } catch (_) {}
     return true;
   }
@@ -60,10 +64,9 @@
     const before = new Set(N.EnemyMgr.all());
     W.spawn(ev.to, 1, x, y, CFG.hpMul);
     const ne = N.EnemyMgr.all().find(q => !before.has(q) && Number(q.dex) === ev.to);
-    if (ne) { ne.__psEvolvedFrom = ev.first || ev.from; ne.__psEvoChecked = !nextForm(ev.to); ne.__psAged = true; ne.flash = 0.4; }   // can evolve again if it has a next form
+    if (ne) { guard(ne, CFG.iframesAfter * 1000); ne.__psEvolvedFrom = ev.first || ev.from; ne.__psEvoChecked = !nextForm(ev.to); ne.__psAged = true; ne.flash = 0.4; }   // can evolve again if it has a next form
     try { B().fx.ring(x, y - ev.bodyH * 0.5, 8, 90, '#ffffff', 0.5, 4); B().fx.burst(x, y - ev.bodyH * 0.5, '#fff6c2', 26, 200); } catch (_) {}
     say(x, y - ev.bodyH - 18, nameOf(ev.from) + ' evolved into ' + nameOf(ev.to) + '!', '#9effa8');
-    try { E().Spawner.say(nameOf(ev.from) + ' evolved into ' + nameOf(ev.to) + '!', 2.5, true); } catch (_) {}
     try { B().audio?.sfx?.('shinyGet'); } catch (_) {}
   }
   function hookDraw() {
