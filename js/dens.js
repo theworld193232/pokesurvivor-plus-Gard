@@ -131,7 +131,7 @@
     } catch (_) { return false; } // unavailable world data must never approve an unsafe spot
   }
   function spawnDen(near) {
-    const p = B()?.game?.player; if (!p || coop()) return null; let x = p.x, y = p.y;
+    const p = B()?.game?.player; if (!p || coop() || dens.length || ldens.length || raid || lden || window.PS_SAFEZONE?.occupied) return null; let x = p.x, y = p.y;
     let found = false;
     for (let i = 0; i < 160 && !found; i++) { const a = Math.random() * TAU, d = (near ? 170 : 300 + Math.random() * 160) + Math.floor(i / 40) * 120, nx = p.x + Math.cos(a) * d, ny = p.y + Math.sin(a) * d * 0.8;
       if (clearSpot(Math.round(nx), Math.round(ny))) { x = Math.round(nx); y = Math.round(ny); found = true; } }
@@ -239,7 +239,7 @@
     N.EnemyMgr.add(e); return e;
   }
   function startLegendDen(kind) {
-    const p = B()?.game?.player, N = E(); if (!p || !N || lden) return false;
+    const p = B()?.game?.player, N = E(); if (!p || !N || lden || raid || window.PS_SAFEZONE?.occupied) return false;
     // A den started from a mode button may begin before the first regular update.
     // Mark this player as the current run so the next tick does not erase the challenge.
     if (p !== runP) { runP = p; nextAt = CFG.first; dens.length = 0; ldens.length = 0; raid = null; }
@@ -295,7 +295,7 @@
     wrapDyn(); hookDenNet(); if (g.state === 'playing' && (!coop() || netHost())) legendTick(dt);   // co-op: only the host runs the den
     for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && atEntrance(p,d)) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
     if (!playing() || coop() || (window.PS_STORY&&window.PS_STORY.on()) || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;   // no dens in Story
-    if (!raid && clock() >= nextAt) { nextAt += CFG.every; if (!dens.length && !ldens.length && !lden) { if (Math.random() < LCFG.chance) spawnLegendDen(); else if (Math.random() < CFG.chance) spawnDen(false); } }   // a quarter as often as the game's rifts (they come every 3 min)
+    // Natural encounters are scheduled together by rare-encounters.js.
     for (let i = dens.length - 1; i >= 0; i--) { const d = dens[i]; d.t += dt; if (d.t >= d.life) { dens.splice(i, 1); continue; }
       if (!raid && d.t > 0.8 && atEntrance(p,d)) { dens.splice(i, 1); startRaid(d); } }
     if (raid) { raid.t -= dt; if (raid.e.dead || raid.e.hp <= 0) endRaid(true); else if (raid.t <= 0 || p.dead) endRaid(false); }
@@ -457,5 +457,5 @@
   }
   function init() { document.head.append(css); document.body.append(ov, hud, bannerEl); window.PS_HUD_LAYERS?.register('ps-dens', draw); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_DENS = { version: 'grounded-depth-den-v5', atEntrance, art: ART, get depthReady(){return depthReady;}, collide: collideDens, blocks: blocksDen, stone: STONE, canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
+  window.PS_DENS = { get occupied() { return !!(dens.length || ldens.length || raid || lden); }, version: 'grounded-depth-den-v5', atEntrance, art: ART, get depthReady(){return depthReady;}, collide: collideDens, blocks: blocksDen, stone: STONE, canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
 })();

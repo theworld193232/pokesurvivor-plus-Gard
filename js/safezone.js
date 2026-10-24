@@ -78,9 +78,9 @@
 
   // ---------------- pink rifts in the battle world ----------------
   const rifts = [];   // {x,y,zone,t,life}
-  const RIFT_EVERY = 180; let runP = null, nextAt = RIFT_EVERY;
+  let runP = null, entering = false;
   function spawnRift(zoneId, near) {
-    const p = B()?.game?.player; if (!p) return null; zoneId = zoneId || (Math.random() < 0.5 ? 'forest-shrine' : 'portal-shrine'); loadZone(zoneId);
+    const p = B()?.game?.player; if (!p || rifts.length || active || entering || window.PS_DENS?.occupied) return null; zoneId = zoneId || (Math.random() < 0.5 ? 'forest-shrine' : 'portal-shrine'); loadZone(zoneId);
     let x = p.x, y = p.y;
     for (let i = 0; i < 30; i++) { const a = Math.random() * TAU, d = near ? 150 : 260 + Math.random() * 140; const nx = p.x + Math.cos(a) * d, ny = p.y + Math.sin(a) * d * 0.8;
       try { const W = B().world; if (W && (W.isWall(nx, ny) || (W.isLiquid && W.isLiquid(nx, ny)))) continue; } catch (_) {} x = nx; y = ny; break; }
@@ -91,10 +91,8 @@
   function tickRifts(dt) {
     const g = B()?.game, p = g?.player; if (!p || g.state !== 'playing' || active) return;
     if (E()?.Coop?.active) return;
-    // natural spawn: same rhythm as the game's own rifts (one every 3 minutes), placed halfway between them
-    if (p !== runP) { runP = p; nextAt = RIFT_EVERY; rifts.length = 0; }
-    const t = (() => { try { const v = E().Game.time; return Number(typeof v === 'function' ? v() : v) || 0; } catch (_) { return 0; } })();
-    if (t >= nextAt) { nextAt += RIFT_EVERY; if (!rifts.length && !(E()?.Rift?.inArena) && !(E()?.Judgment?.active) && !(window.PS_STORY&&window.PS_STORY.on())) spawnRift(); /* no rifts in Story */ }
+    if (p !== runP) { runP = p; rifts.length = 0; }
+    window.PS_RARE_ENCOUNTERS?.tick();
     for (let i = rifts.length - 1; i >= 0; i--) { const r = rifts[i]; r.t += dt; if (r.t >= r.life) { rifts.splice(i, 1); continue; }
       if (r.t > 0.8 && Math.hypot(p.x - r.x, p.y - r.y) < 30) { rifts.splice(i, 1); enter(r.zone, r); return; } }
   }
@@ -146,9 +144,11 @@
     try { const Sp = E()?.Sprites; if (!Sp || !Sp.Animator || !p || !p.anim) return null; const a = new Sp.Animator(p.anim.dex, Number(p.anim.scale) || 1, !!p.anim.shiny); a.shiny = !!p.anim.shiny; return a; } catch (_) { return null; }
   }
   function enter(id, rift) {
-    const g = B()?.game, p = g?.player; if (!p || active || (E()?.Coop?.active)) return false;
+    const g = B()?.game, p = g?.player; if (!p || active || entering || window.PS_DENS?.occupied || (E()?.Coop?.active)) return false;
     const z = ZONES[id], c = loadZone(id);
+    entering = true;
     flash(() => {
+      entering = false;
       try { g.soloHold(true); } catch (_) {}
       active = { id, z, c, x: z.spawn[0] * S, y: z.spawn[1] * S, face: -Math.PI / 2, walk: false, t: 0, shopOpen: false, paused: false, items: rollItems(), rift, anim: makeAnim(p), dex: p.anim && p.anim.dex };
       if (c.mask) { const f = nearestFree(c, active.x, active.y, 12); active.x = f[0]; active.y = f[1]; }
@@ -440,7 +440,7 @@
   }
   function init() { document.head.append(css); document.body.append(ov, cv, hud, shop, test, fade); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_SAFEZONE = { active: false, spawnRift, enter, leave, zones: ZONES, openShop, openPause,
+  window.PS_SAFEZONE = { get occupied() { return !!(active || entering || rifts.length); }, active: false, spawnRift, enter, leave, zones: ZONES, openShop, openPause,
     tp(ax, ay) { if (active) { const f = nearestFree(active.c, ax * S, ay * S, 12); active.x = f[0]; active.y = f[1]; } },
     get rifts() { return rifts.slice(); }, get state() { return active && { id: active.id, x: active.x, y: active.y, nearShop: active.nearShop, nearExit: active.nearExit, paused: active.paused, ui: uiBlock, screens: [...document.querySelectorAll('section.scr:not(.hidden)')].map(e => e.id).join(','), shop: active.shopOpen, anim: !!active.anim, shiny: !!(active.anim && active.anim.shiny) }; } };
 })();
