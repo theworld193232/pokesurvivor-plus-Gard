@@ -24,19 +24,19 @@
     if(!available(e))return null;
     data.time=Number(engine().Game?.time)||0;
     const seed=(Math.random()*4294967296)>>>0,pers=data.Species.roll(e,seed);
-    return {pers,dex:e.dex,homeX:e.x,homeY:e.y,hp:Number(e.hp)||0,anger:0,fear:0,hurt:0,t:0,decision:0,angle:U.rng(seed)()*Math.PI*2,action:'wander',hostile:false};
+    return {pers,dex:e.dex,homeX:e.x,homeY:e.y,hp:Number(e.hp)||0,anger:0,fear:0,hurt:0,t:0,decision:0,angle:U.rng(seed)()*Math.PI*2,awakeFor:0,cryFor:0,hits:0,gestureBeat:-1,action:'wander',hostile:false};
   }
   function stance(e,w,p) {
     const d=Math.hypot(e.x-p.x,e.y-p.y),home=Math.hypot(p.x-w.homeX,p.y-w.homeY);
-    return w.hurt>0 || w.pers.temp==='aggressive' ||
+    return w.hurt>0 && !w.npcAttacker && !w.environmentHit || w.pers.temp==='aggressive' ||
       (['territorial','protective'].includes(w.pers.temp) && home<(w.hostile?230:170)) ||
       (w.pers.temp==='opportunistic' && p.maxHp>0 && p.hp/p.maxHp<.35 && d<280);
   }
   function peaceful(e,s,p) {
     if(!s?.wildlife || !available(e))return false;
     const w=s.wildlife;
-    if(w.pers.temp==='timid' || w.fear>.45 && w.pers.tr.bravery<.35)return true;
-    return Number(e.hp)>=w.hp && !stance(e,w,p);
+    if(w.socialPair || w.cryFor>0 || w.legendReaction || w.pers.temp==='timid' || w.fear>.45 && w.pers.tr.bravery<.35)return true;
+    return Number(e.hp)>=w.hp && (w.npcAttacker || !stance(e,w,p));
   }
   function step(e,s,p,dt,move,mark) {
     if(!available(e)) {s.wildlife=null;return false;}
@@ -45,15 +45,24 @@
     w.t+=dt;w.decision-=dt;
     const tr=w.pers.tr,hp=Number(e.hp)||0;
     if(hp<w.hp-.01) {
+      w.npcAttacker=w.pendingFromNPC||null;w.environmentHit=!!w.pendingEnvironment;
+      const spar=!!w.pendingSpar;w.pendingFromNPC=null;w.pendingEnvironment=false;w.pendingSpar=false;w.hits+=spar?0:1;
+      if(!spar && w.hits<3 && ['friendly','playful'].includes(w.pers.temp) && tr.bravery<.55 && tr.aggression<.45){w.cryFor=2.5;w.fear=Math.max(w.fear,.6);}
+
       w.anger=U.clamp(w.anger+.45+tr.aggression*.8,0,1);
       w.fear=U.clamp(w.fear+.35*(1.35-tr.bravery*.9),0,1);
-      w.hurt=12+tr.grudge*16;mark(s,'!',.8);
+      if(!spar && w.hits>=3 && w.pers.temp!=='timid'){w.cryFor=0;w.fear=Math.min(w.fear,.3);w.anger=1;}
+      w.hurt=spar?0:12+tr.grudge*16;mark(s,'!',.8);
     }
-    w.hp=hp;w.hurt=Math.max(0,w.hurt-dt);
+    w.hp=hp;w.hurt=Math.max(0,w.hurt-dt);w.sadFor=Math.max(0,(w.sadFor||0)-dt);
     w.anger=Math.max(0,w.anger-dt*.045*(.4+tr.forgiveness*1.1-tr.grudge*.2));
     w.fear=Math.max(0,w.fear-dt*.05*(.55+tr.bravery*.9));
     const dx=e.x-p.x,dy=e.y-p.y,d=Math.hypot(dx,dy)||1;
-    const frightened=w.pers.temp==='timid' && (d<190 || w.hurt>0) || (w.fear>.45 && tr.bravery<.35);
+    w.awakeFor=d<75+tr.alertness*45 ? 4+tr.alertness*4 : Math.max(0,w.awakeFor-dt);
+    if(w.cryFor>0){w.cryFor=Math.max(0,w.cryFor-dt);w.action='cry';w.hostile=false;
+      move(e,s,0,0,0);e.touchCd=Math.max(Number(e.touchCd)||0,.6);e.shotCd=Math.max(Number(e.shotCd)||0,.6);s.tc=e.touchCd;s.hp=hp;s.flee=false;e.psAi='wildlife:'+w.pers.temp+':cry';return true;}
+    if(window.PS_WILDLIFE_SOCIAL?.react(e,w,p,dt,move,s,mark))return true;
+    const frightened=w.pers.temp==='timid' && (d<190 || w.hurt>0) || (w.fear>.45 && tr.bravery<.55);
     w.hostile=!frightened && stance(e,w,p);
     if(w.hostile) {
       w.action='fight';s.kind=['skittish','passive','crybaby'].includes(s.baseKind)?'aggressive':s.baseKind;
@@ -69,11 +78,25 @@
       if(w.decision<=0) {
         w.decision=2+tr.alertness*2;w.angle+=(Math.random()-.5)*2;
         const q=w.pers.quirks;
-        w.action=q.has('sleepy')||q.has('lazy') ? (Math.sin(w.t*.18)>-.4?'rest':'wander') : q.has('headache') && Math.sin(w.t*.4)>.2 ? 'rest' : w.pers.temp==='playful'?'play':w.pers.temp==='friendly'?'curious':['territorial','protective'].includes(w.pers.temp)?'guard':'wander';
+        w.action=q.has('sleepy')||q.has('lazy') ? (Math.sin(w.t*.18)>-.4?'rest':'wander')
+          : q.has('headache') && Math.sin(w.t*.4)>.2 ? 'headache'
+          : (q.has('dancer')||q.has('singer')||q.has('cheer')) && Math.sin(w.t*.3)>.2 ? 'dance'
+          : w.pers.temp==='playful'?'play':w.pers.temp==='friendly'?'curious':['territorial','protective'].includes(w.pers.temp)?'guard':'wander';
       }
       let vx=Math.cos(w.angle),vy=Math.sin(w.angle),speed=.45;
       const hx=w.homeX-e.x,hy=w.homeY-e.y,hd=Math.hypot(hx,hy);
+      if(w.action==='rest' && w.awakeFor>0)w.action='watch';
+      if(w.action==='watch' && w.awakeFor<=0){w.action='rest';w.decision=0;}
       if(w.action==='rest') {vx=vy=0;mark(s,'zzz',.3);}
+      else if(w.action==='watch') {vx=vy=0;mark(s,'?',.3);}
+      else if(w.action==='headache'||w.action==='dance') {
+        vx=vy=0;mark(s,w.action==='dance'?'note':'swirl',.3);
+        const beat=Math.floor(w.t/(w.action==='dance'?.6:2));
+        if(beat!==w.gestureBeat){w.gestureBeat=beat;
+          if(w.action==='dance' && e.anim && !e.anim.busy?.())e.anim.dir=(Number(e.anim.dir)+1||0)%8;
+          else if(w.action==='headache' && typeof e.anim?.play==='function' && !e.anim.busy?.())e.anim.play('Hurt',{speed:.7});
+        }
+      }
       else if(w.action==='play' && d<340) {const radial=(d-170)/100;vx=-dy/d-dx/d*radial;vy=dx/d-dy/d*radial;speed=.7;mark(s,'?',.3);}
       else if(w.action==='curious' && d<320) {const radial=(d-140)/100;vx=-dx/d*radial;vy=-dy/d*radial;speed=d>120&&d<160?0:.45;mark(s,'?',.3);}
       if(hd>220 || w.action==='guard' && hd>40) {vx=hx;vy=hy;speed=.55;}

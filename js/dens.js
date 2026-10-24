@@ -42,12 +42,12 @@
     } catch (_) {} });
   }
 
-  // Solid stone footprint with a south-facing entrance. Resolve every native
+  // Solid stone footprint; approach any edge to activate. Resolve every native
   // player movement in small swept steps so a fast dash cannot tunnel through it.
-  const STONE = Object.freeze({rx:68, ry:34, gap:44});
+  const STONE = Object.freeze({rx:70, ry:38});
+  const ART = Object.freeze({size:150, anchorY:.72});
   function blocksDen(body, x, y, den) {
     const r=Math.max(0,Number(body.r)||0),dx=x-den.x,dy=y-den.y;
-    if(dy>=0 && Math.abs(dx)<=Math.max(8,STONE.gap-r))return false;
     return (dx/(STONE.rx+r))**2+(dy/(STONE.ry+r))**2<1;
   }
   function collideDens(body, from) {
@@ -59,11 +59,9 @@
     const n=distance<=1000?Math.max(1,Math.ceil(distance/4)):1;
     let x=n===1?endX:start.x,y=n===1?endY:start.y;
     for(let i=0;i<n;i++) {
-      const prevY=y;
       if(n>1){x+=(endX-start.x)/n;y+=(endY-start.y)/n;}
       for(const d of list)if(blocksDen(body,x,y,d)){
         const r=Math.max(0,Number(body.r)||0),rx=STONE.rx+r,ry=STONE.ry+r;
-        if(prevY>=d.y && Math.abs(x-d.x)<=Math.max(8,STONE.gap-r)){y=d.y+.01;continue;}
         let dx=x-d.x,dy=y-d.y;if(Math.abs(dx)+Math.abs(dy)<.001)dy=-1;
         const norm=Math.hypot(dx/rx,dy/ry)||1;
         x=d.x+dx/norm*1.001;y=d.y+dy/norm*1.001;
@@ -71,10 +69,41 @@
     }
     body.x=x;body.y=y;
   }
+  function atEntrance(p,d){
+    const r=Math.max(0,Number(p.r)||0),dx=p.x-d.x,dy=p.y-d.y;
+    return (dx/(STONE.rx+r+12))**2+(dy/(STONE.ry+r+12))**2<=1;
+  }
+  // Native world depth sorting puts a Pokémon in front of the front stones
+  // when its feet are closer to the camera. The beam is no longer a HUD overlay.
+  let depthReady=false;
+  function denVisible(){const st=B()?.game?.state;return st && st!=='ui' && st!=='over' && !window.PS_SAFEZONE?.active;}
+  function worldDen(ctx,d){
+    ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,(d.life-d.t)/1.5));
+    drawDenArt(ctx,d.x,d.y,1,!!d.legend,performance.now()/1000,Math.min(1,d.t/.8));
+    ctx.font='700 12px Pixelify, monospace';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#15131b';ctx.fillStyle=d.legend?'#ffd49a':'#ffc5de';
+    const label=(d.legend?'LEGENDARY DEN':'MAX RAID DEN')+' · '+Math.ceil(d.life-d.t)+'s';
+    ctx.strokeText(label,d.x,d.y-151);ctx.fillText(label,d.x,d.y-151);ctx.restore();
+  }
+  (function hookDenDepth(){
+    const T=E()?.Training;if(typeof T?.drawables!=='function'){setTimeout(hookDenDepth,300);return;}
+    const original=T.drawables;T.drawables=function(...args){const list=original.apply(this,args)||[];
+      if(!denVisible())return list;
+      return [...list,...[...dens,...ldens].map(d=>({y:d.y+STONE.ry,draw:ctx=>worldDen(ctx,d)}))];
+    };depthReady=true;
+  })();
   (function hookDenCollision(){
     const P=E()?.Player?.prototype;if(typeof P?.update!=='function'){setTimeout(hookDenCollision,300);return;}
     const update=P.update;
     P.update=function(...args){const from={x:this.x,y:this.y};const result=update.apply(this,args);collideDens(this,from);return result;};
+    const W=E()?.World;
+    if(typeof W?.collide==='function'){
+      const collide=W.collide;W.collide=function(body,...args){const result=collide.call(this,body,...args);collideDens(body);return result;};
+    }
+    const EP=E()?.Enemy?.prototype;
+    if(typeof EP?.update==='function'){
+      const enemyUpdate=EP.update;EP.update=function(...args){const from={x:this.x,y:this.y};const result=enemyUpdate.apply(this,args);collideDens(this,from);return result;};
+    }
+
   })();
 
   // a den needs open, dry, flat ground: no walls, water, trees, rocks, chests, crystals or altars under or right next to it
@@ -264,11 +293,11 @@
     if (g.state === 'ui' || g.state === 'levelup' || g.state === 'choice') return;
     if (p !== runP) { runP = p; nextAt = CFG.first; dens.length = 0; ldens.length = 0; raid = null; lden = null; }
     wrapDyn(); hookDenNet(); if (g.state === 'playing' && (!coop() || netHost())) legendTick(dt);   // co-op: only the host runs the den
-    for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < FOOTPRINT.enter) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
+    for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && atEntrance(p,d)) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
     if (!playing() || coop() || (window.PS_STORY&&window.PS_STORY.on()) || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;   // no dens in Story
     if (!raid && clock() >= nextAt) { nextAt += CFG.every; if (!dens.length && !ldens.length && !lden) { if (Math.random() < LCFG.chance) spawnLegendDen(); else if (Math.random() < CFG.chance) spawnDen(false); } }   // a quarter as often as the game's rifts (they come every 3 min)
     for (let i = dens.length - 1; i >= 0; i--) { const d = dens[i]; d.t += dt; if (d.t >= d.life) { dens.splice(i, 1); continue; }
-      if (!raid && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < FOOTPRINT.enter) { dens.splice(i, 1); startRaid(d); } }
+      if (!raid && d.t > 0.8 && atEntrance(p,d)) { dens.splice(i, 1); startRaid(d); } }
     if (raid) { raid.t -= dt; if (raid.e.dead || raid.e.hp <= 0) endRaid(true); else if (raid.t <= 0 || p.dead) endRaid(false); }
   }
 
@@ -281,10 +310,10 @@
   // pillar is faded out, and a swirling, tapering tip is drawn above it instead.
   const dc = document.createElement('canvas');
   function drawDenArt(ctx, X, Y, k, legendary, t, opening) {
-    const w = 150 * k, h = 150 * k, pad = Math.ceil(h * 0.55), dpr = ctx.getTransform().a || 1, W = Math.ceil(w * dpr), H = Math.ceil((h + pad) * dpr);
+    const w = ART.size * k, h = ART.size * k, pad = Math.ceil(h * 0.55), dpr = ctx.getTransform().a || 1, W = Math.ceil(w * dpr), H = Math.ceil((h + pad) * dpr);
     if (dc.width < W || dc.height < H) { dc.width = Math.max(dc.width, W); dc.height = Math.max(dc.height, H); }
     const c = dc.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, dc.width, dc.height); c.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const lx = w / 2, ly = pad + h * 0.84;   // den position on the scratch canvas
+    const lx = w / 2, ly = pad + h * ART.anchorY;   // den position on the scratch canvas
     paintDen(c, lx, ly, k, legendary, t, opening);
     // fade the top of the pillar so it never looks cropped
     c.globalCompositeOperation = 'destination-out';
@@ -310,17 +339,13 @@
     ctx.drawImage(dc, 0, 0, W, H, X - lx, Y - ly, w, h + pad);
   }
   function paintDen(ctx, X, Y, k, legendary, t, opening) {
-    const c = legendary ? 'orange' : 'pink', img = DEN[c], beam = DEN['b' + c], w = 150 * k, h = 150 * k, dx = X - w / 2, dy = Y - h * 0.84;
+    const c = legendary ? 'orange' : 'pink', img = DEN[c], beam = DEN['b' + c], w = ART.size * k, h = ART.size * k, dx = X - w / 2, dy = Y - h * ART.anchorY;
     if (!img.complete || !img.naturalWidth) { ctx.save(); ctx.fillStyle = '#523843'; ctx.beginPath(); ctx.ellipse(X, Y, 48 * k, 21 * k, 0, 0, TAU); ctx.fill(); ctx.strokeStyle = legendary ? '#ff9a2e' : '#ee449c'; ctx.lineWidth = 7 * k; ctx.stroke(); ctx.restore(); return; }
     const col = legendary ? [255, 110, 20] : [255, 70, 170], LK = legendary ? 0.55 : 1;   // additive light turns orange into yellow fast, so it's gentler
     ctx.save(); ctx.imageSmoothingEnabled = false; ctx.globalAlpha = opening;
     // contact shadow so the stones sit on the ground
-    { const sg = ctx.createRadialGradient(X, Y + h * 0.04, 2, X, Y + h * 0.04, w * 0.5); sg.addColorStop(0, 'rgba(0,0,0,.45)'); sg.addColorStop(0.7, 'rgba(0,0,0,.25)'); sg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(X, Y + h * 0.04, w * 0.5, h * 0.15, 0, 0, TAU); ctx.fill(); }
-    // soft light on the ground that breathes
-    ctx.globalCompositeOperation = 'lighter';
-    const pu = 0.5 + 0.5 * Math.sin(t * 3.1), gr = ctx.createRadialGradient(X, Y, 4 * k, X, Y, 85 * k);
-    gr.addColorStop(0, 'rgba(' + col + ',' + (0.22 + 0.14 * pu) + ')'); gr.addColorStop(1, 'rgba(' + col + ',0)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(X, Y, 85 * k, 36 * k, 0, 0, TAU); ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
+    { const sg = ctx.createRadialGradient(X, Y + h * 0.06, 2, X, Y + h * 0.06, w * 0.5); sg.addColorStop(0, 'rgba(0,0,0,.45)'); sg.addColorStop(0.7, 'rgba(0,0,0,.25)'); sg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(X, Y + h * 0.06, w * 0.5, h * 0.15, 0, 0, TAU); ctx.fill(); }
+    const pu = 0.5 + 0.5 * Math.sin(t * 3.1);
     // the den itself; the beam grows out of it while the den opens
     ctx.drawImage(img, dx, dy, w, h);
     if (beam.complete && beam.naturalWidth) {
@@ -380,20 +405,9 @@
       const X = sx(d.x), Y = sy(d.y), open = Math.min(1, d.t / 0.8), fade = Math.max(0, Math.min(1, (d.life - d.t) / 1.5));
       const legend = !!d.legend;
       ctx.save(); ctx.globalAlpha = fade;
-      // Ground clearing, solid rim and the open south-facing entry match collision.
-      ctx.fillStyle = 'rgba(22,16,26,.48)'; ctx.strokeStyle = legend ? '#dd9a47' : '#b77594'; ctx.lineWidth = Math.max(1, 2 * k);
-      ctx.beginPath(); ctx.ellipse(X, Y, FOOTPRINT.rx * k, FOOTPRINT.ry * k, 0, 0, TAU); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = legend ? '#ffe4a3' : '#ffc5e0'; ctx.lineWidth = Math.max(1, k);
-      ctx.beginPath(); ctx.ellipse(X, Y, STONE.rx * k, STONE.ry * k, 0, Math.PI/2+.7, TAU+Math.PI/2-.7); ctx.stroke();
-      ctx.fillStyle=legend?'#ffe4a3':'#ffc5e0';ctx.beginPath();ctx.moveTo(X,Y+22*k);ctx.lineTo(X-6*k,Y+32*k);ctx.lineTo(X+6*k,Y+32*k);ctx.closePath();ctx.fill();
-      // Draw the user's original den artwork, with isolated beam shimmer.
-      // Open animation applies to the entire sprite but the stone never pulses in size.
-      drawDenArt(ctx,X,Y,k,legend,now,open);
-      const hgt = 138 * k * open;
-      ctx.font = '700 ' + Math.round(13 * Math.max(1, k * 0.8)) + 'px Pixelify, "Segoe UI", system-ui, sans-serif';
-      ctx.textAlign='center';ctx.lineWidth=4;ctx.lineJoin='round';ctx.strokeStyle='rgba(0,0,0,.85)';ctx.fillStyle=legend?'#ffb45c':'#ff9bcc';
-      const lb=(legend?'LEGENDARY DEN · ':'MAX RAID DEN · ')+Math.ceil(d.life-d.t)+'s';
-      ctx.strokeText(lb,X,Y-hgt-12);ctx.fillText(lb,X,Y-hgt-12);
+      // Fallback for engines without Training.drawables. Normal Gard rendering
+      // draws the complete den in the native world list, below foreground actors.
+      if(!depthReady)drawDenArt(ctx,X,Y,k,legend,now,open);
       ctx.restore();
       const p = B()?.game?.player; if (p) edgeArrow(ctx, X, Y - 20 * k, W, H, d.legend ? '#ff9a2e' : '#ff4d7a', (d.legend ? 'LEGENDARY DEN · ' : 'MAX RAID DEN · ') + Math.round(Math.hypot(d.x - p.x, d.y - p.y) / 32) + ' m');
     }
@@ -443,5 +457,5 @@
   }
   function init() { document.head.append(css); document.body.append(ov, hud, bannerEl); window.PS_HUD_LAYERS?.register('ps-dens', draw); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_DENS = { version: 'solid-den-v4', collide: collideDens, blocks: blocksDen, stone: STONE, canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
+  window.PS_DENS = { version: 'grounded-depth-den-v5', atEntrance, art: ART, get depthReady(){return depthReady;}, collide: collideDens, blocks: blocksDen, stone: STONE, canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
 })();
