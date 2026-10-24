@@ -42,6 +42,41 @@
     } catch (_) {} });
   }
 
+  // Solid stone footprint with a south-facing entrance. Resolve every native
+  // player movement in small swept steps so a fast dash cannot tunnel through it.
+  const STONE = Object.freeze({rx:68, ry:34, gap:44});
+  function blocksDen(body, x, y, den) {
+    const r=Math.max(0,Number(body.r)||0),dx=x-den.x,dy=y-den.y;
+    if(dy>=0 && Math.abs(dx)<=Math.max(8,STONE.gap-r))return false;
+    return (dx/(STONE.rx+r))**2+(dy/(STONE.ry+r))**2<1;
+  }
+  function collideDens(body, from) {
+    if(!body || !Number.isFinite(body.x) || !Number.isFinite(body.y))return;
+    const list=[...dens,...ldens];if(!list.length)return;
+    const endX=body.x,endY=body.y,start=from||{x:endX,y:endY};
+    const distance=Math.hypot(endX-start.x,endY-start.y);
+    // Teleports are resolved at arrival; ordinary movement and dashes are swept.
+    const n=distance<=1000?Math.max(1,Math.ceil(distance/4)):1;
+    let x=n===1?endX:start.x,y=n===1?endY:start.y;
+    for(let i=0;i<n;i++) {
+      const prevY=y;
+      if(n>1){x+=(endX-start.x)/n;y+=(endY-start.y)/n;}
+      for(const d of list)if(blocksDen(body,x,y,d)){
+        const r=Math.max(0,Number(body.r)||0),rx=STONE.rx+r,ry=STONE.ry+r;
+        if(prevY>=d.y && Math.abs(x-d.x)<=Math.max(8,STONE.gap-r)){y=d.y+.01;continue;}
+        let dx=x-d.x,dy=y-d.y;if(Math.abs(dx)+Math.abs(dy)<.001)dy=-1;
+        const norm=Math.hypot(dx/rx,dy/ry)||1;
+        x=d.x+dx/norm*1.001;y=d.y+dy/norm*1.001;
+      }
+    }
+    body.x=x;body.y=y;
+  }
+  (function hookDenCollision(){
+    const P=E()?.Player?.prototype;if(typeof P?.update!=='function'){setTimeout(hookDenCollision,300);return;}
+    const update=P.update;
+    P.update=function(...args){const from={x:this.x,y:this.y};const result=update.apply(this,args);collideDens(this,from);return result;};
+  })();
+
   // a den needs open, dry, flat ground: no walls, water, trees, rocks, chests, crystals or altars under or right next to it
   function clearSpot(x, y) {
     try {
@@ -345,11 +380,12 @@
       const X = sx(d.x), Y = sy(d.y), open = Math.min(1, d.t / 0.8), fade = Math.max(0, Math.min(1, (d.life - d.t) / 1.5));
       const legend = !!d.legend;
       ctx.save(); ctx.globalAlpha = fade;
-      // Stable ground footprint and entry boundary. The stone ring is walkable, not an invisible wall.
+      // Ground clearing, solid rim and the open south-facing entry match collision.
       ctx.fillStyle = 'rgba(22,16,26,.48)'; ctx.strokeStyle = legend ? '#dd9a47' : '#b77594'; ctx.lineWidth = Math.max(1, 2 * k);
       ctx.beginPath(); ctx.ellipse(X, Y, FOOTPRINT.rx * k, FOOTPRINT.ry * k, 0, 0, TAU); ctx.fill(); ctx.stroke();
       ctx.strokeStyle = legend ? '#ffe4a3' : '#ffc5e0'; ctx.lineWidth = Math.max(1, k);
-      ctx.beginPath(); ctx.ellipse(X, Y, FOOTPRINT.enter * k, FOOTPRINT.enter * 0.55 * k, 0, 0, TAU); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(X, Y, STONE.rx * k, STONE.ry * k, 0, Math.PI/2+.7, TAU+Math.PI/2-.7); ctx.stroke();
+      ctx.fillStyle=legend?'#ffe4a3':'#ffc5e0';ctx.beginPath();ctx.moveTo(X,Y+22*k);ctx.lineTo(X-6*k,Y+32*k);ctx.lineTo(X+6*k,Y+32*k);ctx.closePath();ctx.fill();
       // Draw the user's original den artwork, with isolated beam shimmer.
       // Open animation applies to the entire sprite but the stone never pulses in size.
       drawDenArt(ctx,X,Y,k,legend,now,open);
@@ -407,5 +443,5 @@
   }
   function init() { document.head.append(css); document.body.append(ov, hud, bannerEl); window.PS_HUD_LAYERS?.register('ps-dens', draw); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_DENS = { version: 'grounded-den-v3', canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
+  window.PS_DENS = { version: 'solid-den-v4', collide: collideDens, blocks: blocksDen, stone: STONE, canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
 })();

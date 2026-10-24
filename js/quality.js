@@ -10,10 +10,10 @@
   if (window.PS_QUALITY_INSTALLED) return; window.PS_QUALITY_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const KEY = 'ps.quality.v1';
-  let Q = { minimap: true, fps: false, calm: false, open: false };
+  let Q = { minimap: true, fps: false, calm: false, wildlife: true, open: false };
   try { Object.assign(Q, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (_) {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(Q)); } catch (_) {} };
-  window.PS_SETTINGS = { get reduceFx() { return !!Q.calm; }, get minimap() { return !!Q.minimap; } };
+  window.PS_SETTINGS = { get wildlife() { return Q.wildlife !== false; }, get reduceFx() { return !!Q.calm; }, get minimap() { return !!Q.minimap; } };
   const ownKick = v => { window.__psModKick = true; try { B()?.camera?.kick?.(v); } catch (_) {} finally { window.__psModKick = false; } };
   const playing = () => B()?.game?.state === 'playing';
   const inRun = () => { const st = B()?.game?.state; return !!(st && st !== 'ui' && st !== 'over'); };
@@ -114,6 +114,7 @@
   const panel = document.createElement('div'); panel.id = 'ps-q-panel';
   panel.innerHTML = '<h4>Game settings</h4>' +
     '<label>Minimap<input type="checkbox" data-k="minimap"></label>' +
+    '<label>Wild Pokémon personalities (solo)<input type="checkbox" data-k="wildlife"></label>' +
     '<label>FPS counter<input type="checkbox" data-k="fps"></label>' +
     '<label>Reduce screen shake (base game only)<input type="checkbox" data-k="calm"></label>' +
     '<small>DYNAMAX: clear a Max Raid Den (red beam of light) to earn the Dynamax Band, then press <b>G</b> (or the red button) to go giant for 60 s. 4 min cooldown.</small>';

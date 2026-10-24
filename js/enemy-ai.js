@@ -47,9 +47,10 @@
    if(kind==='flanker'){s.phase='orbit';s.ph=AI.flanker.orbit*(.5+Math.random());}
    if(kind==='ambusher')s.phase='hide';
    if(kind==='hitrun')s.phase='rush';
+   s.baseKind=kind;s.wildlife=window.PS_WILDLIFE?.create(e)||null;
    e.psAi=kind;st.set(e,s);return s;
  }
- const spdOf=e=>(Number(e.spd)||60)*(Number(e.slowT)>0?.5:1)*(Number(e.stunT)>0?0:1);
+ const spdOf=e=>(Number.isFinite(Number(e.spd))?Number(e.spd):60)*(Number(e.slowT)>0?.5:1)*(Number(e.stunT)>0?0:1);
  function moveTo(e,s,vx,vy,dt){   // our own step at the Pokemon's speed (its slows from sizes / domains already applied by the game)
    const l=Math.hypot(vx,vy);let nx=s.x,ny=s.y;
    if(l>.01){const sp=spdOf(e);nx=s.x+vx/l*sp*dt;ny=s.y+vy/l*sp*dt;}
@@ -64,6 +65,20 @@
    if(s.provoked)return;s.provoked=true;s.flee=false;s.coward=false;s.kind=e.psAi='berserker';mark(s,'💢',1e9);
    try{B().fx.dmgText(e.x,e.y-(Number(e.bodyH)||24)-14,'Provoked!','#ff5f5f');}catch(_){}
  }
+ // Peaceful wildlife must suppress native attacks before cooldowns are consumed.
+ (function hookWildlife(){const proto=E()?.Enemy?.prototype;if(!proto?.update){setTimeout(hookWildlife,300);return;}
+   const original=proto.update;proto.update=function(dt,...args){
+     const p=B()?.game?.player;
+     if(p&&window.PS_WILDLIFE?.available(this)){
+       const s=st.get(this)||assign(this);
+       if(window.PS_WILDLIFE.peaceful(this,s,p)){
+         const hold=Math.max(.5,Number(dt)||0)+.1;
+         this.touchCd=Math.max(Number(this.touchCd)||0,hold);this.shotCd=Math.max(Number(this.shotCd)||0,hold);
+       }
+     }
+     return original.call(this,dt,...args);
+   };
+ })();
  let last=0,php=null,pRef=null;
  function frame(ts){
    requestAnimationFrame(frame);const dt=Math.min(.05,last?(ts-last)/1000:0);last=ts;
@@ -72,6 +87,10 @@
    const pHp=Number(p.hp)||0,hurt=pHp<php-.01;php=pHp;   // did you just take damage?
    for(const e of B().enemies.all()){
      if(!e||e.dead||e.remote||e.__psCatch)continue;let s=st.get(e)||assign(e);
+     if(window.PS_WILDLIFE?.available(e)){
+       if(Math.hypot(e.x-s.x,e.y-s.y)>60){s.x=e.x;s.y=e.y;continue;}
+       if(window.PS_WILDLIFE.step(e,s,p,dt,moveTo,mark)){s.x=e.x;s.y=e.y;continue;}
+     }else if(s.wildlife){s.wildlife=null;s.kind=s.baseKind;s.flee=false;s.x=e.x;s.y=e.y;s.mark='';s.markT=0;e.psAi=s.kind;}
      const hp=Number(e.hp)||0,wasHit=hp<s.hp-.01;s.hp=hp;s.t+=dt;if(s.markT>0)s.markT-=dt;
      const tc=Number(e.touchCd)||0,attacked=tc>s.tc+.05;s.tc=tc;   // its contact attack just fired
      // [Gard] provocation: keep pushing a shy / scared Pokemon around and it eventually fights back
@@ -130,10 +149,10 @@
    g.fillStyle='#ffffff';g.strokeStyle='#3b3f5c';g.lineWidth=1;g.beginPath();g.ellipse(x+14,y-h*.55,9,6,0,0,Math.PI*2);g.fill();g.stroke();g.fillStyle='#3b3f5c';g.font='bold 7px monospace';g.textAlign='center';g.fillText(';_;',x+14,y-h*.55+2.5);}
  function puff(g,x,y,t){g.fillStyle='rgba(235,240,255,.85)';for(let i=0;i<3;i++){const r=2.5+i*.8;g.beginPath();g.arc(x+6+i*4+Math.sin(t*10+i)*1,y+1-i,r,0,Math.PI*2);g.fill();}}
  (function hook(){const T=E()?.Training;if(!T||typeof T.drawables!=='function'){setTimeout(hook,300);return;}if(hooked)return;hooked=true;const orig=T.drawables;
-   T.drawables=function(){const r=orig.apply(this,arguments),extra=[];const now=performance.now()/1000;for(const e of B()?.enemies?.all?.()||[]){const s=st.get(e);if(!s||e.dead)continue;
+   T.drawables=function(){const r=orig.apply(this,arguments),extra=[];const now=performance.now()/1000;for(const e of B()?.enemies?.all?.()||[]){const s=st.get(e);if(!s||e.dead||e.__psCatch)continue;
      const m=s.flee?'drop':s.markT>0?s.mark:'';if(!m)continue;
      extra.push({y:e.y+.1,draw(g){const h=Number(e.bodyH)||24,x=e.x+10,y=e.y-h-4;g.save();
-       if(m==='drop')drop(g,x,y);else if(m==='cry')tears(g,e,h,now);else if(m==='!')bang(g,e.x,y-2);else if(m==='💢')anger(g,x,y);else if(m==='💨')puff(g,e.x,e.y-h*.4,now);g.restore();}});}
+       if(m==='drop')drop(g,x,y);else if(m==='cry')tears(g,e,h,now);else if(m==='zzz'||m==='?'){g.fillStyle='#e8f4ff';g.font='bold 11px monospace';g.textAlign='center';g.fillText(m==='zzz'?'z Z':'?',x,y);}else if(m==='!')bang(g,e.x,y-2);else if(m==='💢')anger(g,x,y);else if(m==='💨')puff(g,e.x,e.y-h*.4,now);g.restore();}});}
      return extra.length?[...(r||[]),...extra]:r;};})();
  window.PS_ENEMY_AI={AI,stateOf:e=>st.get(e)};
 })();
