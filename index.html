@@ -140,6 +140,7 @@
 <style>/* fuente (también aquí: el CSS puede estar en caché) */
 @font-face { font-family: 'Pixelify'; src: url('assets/fonts/Fredoka.ttf') format('truetype'); font-weight: 300 900; font-display: block; }</style>
 <script>if (location.hostname === 'intox2b20.github.io') { const s = document.createElement('script'); s.defer = true; s.src = 'https://static.cloudflareinsights.com/beacon.min.js'; s.setAttribute('data-cf-beacon', '{"token": "bb790692d1814e0cb6fdeed3e09efedd"}'); document.head.appendChild(s); }</script>
+<link rel="stylesheet" href="css/coop-layout.css?v=1">
 </head>
 <body>
 
@@ -551,11 +552,11 @@
       <canvas id="upg-stage" class="stage" width="120" height="96"></canvas>
       <div class="grow">
         <p class="sub" style="margin:0">Cada Pokémon tiene sus propias mejoras: sólo cuentan cuando juegas con él.</p>
-        <div class="row" style="margin-top:8px">
+        <div class="row upg-controls" style="margin-top:8px">
           <label for="upg-mon" style="margin:0">Pokémon</label>
-          <select id="upg-mon" class="field" style="width:auto;min-width:220px"></select>
-          <button id="upg-moves" class="btn small gold" data-sfx="select" style="margin-left:8px">Modificar los movimientos</button>
-          <button id="upg-ct" class="btn small gold" data-sfx="none" style="margin-left:auto">Aprender una CT</button>
+          <select id="upg-mon" class="field"></select>
+          <button id="upg-moves" class="btn small gold" data-sfx="select">Modificar los movimientos</button>
+          <button id="upg-ct" class="btn small gold" data-sfx="none">Aprender una CT</button>
         </div>
       </div>
     </div>
@@ -668,7 +669,7 @@
 <!-- datos generados -->
 <script src="config.js"></script>
 <script defer src="js/app.min.js?v=bfd5dbf9cfc2"></script>
-<script defer src="js/hud-layer.js?v=1"></script>
+<script defer src="js/hud-layer.js?v=2"></script>
 <script defer src="js/abilities.js?v=4"></script>
 <script defer src="js/mega-kits.js?v=6"></script>
 <script defer src="js/traits.js?v=2"></script>
@@ -680,7 +681,7 @@
 <script defer src="js/primal-kyogre.js?v=14"></script>
 <script defer src="js/primal-groudon.js?v=8"></script>
 <script defer src="js/delta-stream.js?v=1"></script>
-<script defer src="js/mega-coop-sync.js?v=4"></script>
+<script defer src="js/mega-coop-sync.js?v=5"></script>
 <script defer src="js/primal-outbreak.js?v=1"></script>
 <script defer src="js/story-mode.js?v=5"></script>
 <script defer src="js/partner-rules.js?v=2"></script>
@@ -690,14 +691,14 @@
 <script defer src="js/special-gacha.js?v=7"></script>
 <script defer src="js/enemy-ai.js?v=4"></script>
 <script defer src="js/wild-spawns.js?v=4"></script>
-<script defer src="js/run-plus.js?v=2"></script>
+<script defer src="js/run-plus.js?v=3"></script>
 <script defer src="js/wild-evolve.js?v=5"></script>
 <script defer src="js/bond.js?v=1"></script>
 <script defer src="js/hoopa.js?v=12"></script>
 <script defer src="js/quality.js?v=4"></script>
 <script defer src="js/safezone.js?v=4"></script>
-<script defer src="js/modes.js?v=8"></script>
-<script defer src="js/dens.js?v=12"></script>
+<script defer src="js/modes.js?v=9"></script>
+<script defer src="js/dens.js?v=13"></script>
 <script defer src="js/terrain.js?v=6"></script>
 <script defer src="js/time-orbs.js?v=2"></script>
 <script defer src="js/waves.js?v=3"></script>
