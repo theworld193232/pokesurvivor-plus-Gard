@@ -1,0 +1,87 @@
+[
+  {
+    "offset": 4135442,
+    "removed": 30,
+    "added": "void 0 /* local merged build: no automatic upstream reload */"
+  },
+  {
+    "offset": 4120175,
+    "removed": 111,
+    "added": "if(window.PS_PRE_HUD)window.PS_PRE_HUD(_0x10a5c4,_0x17dd43,_0x28dec2);_0x4a5217['Judgment']['cinematic']||_0x4a5217['HUD']['draw'](_0x10a5c4,_0x17dd43,_0x28dec2,_0x621497,_0x5778e7)"
+  },
+  {
+    "offset": 4111025,
+    "removed": 20,
+    "added": "_0x1e651e+=_0x136529+(window.__psTA||0),window.__psTA=0"
+  },
+  {
+    "offset": 4111002,
+    "removed": 20,
+    "added": "_0x592667+=_0x136529+(window.__psTA=(window.PS_TIME_ADD?window.PS_TIME_ADD(_0x136529):0))"
+  },
+  {
+    "offset": 3639212,
+    "removed": 61,
+    "added": "'orb'===_0x21af98['kind']?((window.PS_ZCAST&&window.PS_ZCAST(_0x33f3ff,_0x21af98))||_0x23f162(_0x33f3ff,_0x21af98,!0x1))"
+  },
+  {
+    "offset": 3030459,
+    "removed": 32,
+    "added": "hoopaActivateAltar:_0x254147,'trapEffect':function(_0x4c9907)"
+  },
+  {
+    "offset": 3020365,
+    "removed": 196,
+    "added": "function _0x97def9(_0x40c84b,_0x2cfe75){const pool=_0x4a5217.DEX.filter(d=>_0x3a2bc6(d,_0x2cfe75)&&d.rarity===_0x40c84b);return window.PS_GACHA_POOL?window.PS_GACHA_POOL(pool,_0x40c84b,_0x2cfe75):pool;}"
+  },
+  {
+    "offset": 2979060,
+    "removed": 53,
+    "added": "return{hoopaCast:_0x598ba4,'tick':function(_0x523794,_0x26127f,_0x4c6640)"
+  },
+  {
+    "offset": 2977141,
+    "removed": 38,
+    "added": "_0x577f93(_0x55a47c.type,_0xa3209b,_0x55a47c)"
+  },
+  {
+    "offset": 2957738,
+    "removed": 145,
+    "added": "function _0x577f93(_0x2257c3,_0x4e3705,_psMove){return _0x4a5217.Types.mult(_0x2257c3,_0x4e3705.types)*_0x4a5217.Weather.mult(_0x2257c3)*(window.PS_HOOKS?.deal?.(_0x2257c3,_0x4e3705,_psMove)??1);}"
+  },
+  {
+    "offset": 2938187,
+    "removed": 42,
+    "added": "case'melee':window.PS_HOOKS?.melee?.(_0xb44b33,_0x2c869d,_0x9b4e06),!function(_0x145c30,_0x1d6766)"
+  },
+  {
+    "offset": 2935424,
+    "removed": 43,
+    "added": "if(_0x2c869d.psCast&&window.PS_CAST){window.PS_CAST(_0xb44b33,_0x2c869d,_0x490a79,_0x9b4e06);return;}switch(_0x2c869d['kind']){case'projectile':"
+  },
+  {
+    "offset": 2911648,
+    "removed": 34,
+    "added": "(this.hp<=0&&!(this.lives>0)&&window.PS_LASTSTAND&&window.PS_LASTSTAND(this)),this['hp']<=0x0&&this['lives']>0x0"
+  },
+  {
+    "offset": 2909964,
+    "removed": 32,
+    "added": "_0x4b23fe*=window.PS_HOOKS?.take?.(_0x36b7eb,this,_0x4b23fe)??1;if(_0x4b23fe<=0)return;let _0x551cbe=null;if(_0x36b7eb)"
+  },
+  {
+    "offset": 2891797,
+    "removed": 49,
+    "added": "Math['min'](_0x121788['SPD_CAP'],this['baseSpd']*(window.PS_HOOKS?.spd?.(this)??1)*"
+  },
+  {
+    "offset": 2711191,
+    "removed": 30,
+    "added": "if(window.PS_PROP_AT&&_0x21ff63>=_0x471ffd()+2){const kind=window.PS_PROP_AT(_0x2f1da9,_0x387290,_0x5f0bd6);if(kind!==undefined){if(kind){const q=_0xbedf93(kind,_0x2f1da9,_0x387290);_0x241ac0.props.push(q);if(q.solid){_0x241ac0.propAt.set(_0x2f1da9+','+_0x387290,q);_0x241ac0.pa[_0x3ce674*_0x5737f6+_0x2a8df8]=q;}}continue;}}if(_0x21ff63<_0x471ffd()+0x2){"
+  },
+  {
+    "offset": 2709146,
+    "removed": 51,
+    "added": "if(window.PS_TERRAIN){const t=window.PS_TERRAIN(_0x31da16,_0x1ffcbf,_0x12414e);if(t!=null)return t;}const _0x3afce0=Math['hypot'](_0x31da16,_0x1ffcbf);"
+  }
+]

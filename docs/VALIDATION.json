@@ -1,0 +1,29 @@
+{
+  "syntaxCheckedScripts": 83,
+  "regressionsPassed": 17,
+  "unchangedFromFriendZip": [
+    "js/ai/34-forest.js",
+    "js/ai/36-sky.js",
+    "js/ai/40-moves.js",
+    "js/ai/50-combat.js",
+    "js/ai/70-brain.js",
+    "js/ai/75-social.js",
+    "js/ai/94-light.js",
+    "js/ai/97-audio.js",
+    "config.js",
+    "firestore.rules"
+  ],
+  "nativePlaytests": [
+    "Solo gameplay and native multi-move NPC battles with slow status",
+    "Special Summon ten-pull",
+    "Primal Kyogre and Mega Gardevoir kits",
+    "Area Zero terrain and Dynamax den activation",
+    "Local offline co-op: both players received and spent five upgrades",
+    "Original lightning flash, strike and queued thunder observed"
+  ],
+  "limits": [
+    "Firebase authentication and internet co-op were not tested",
+    "Full roster, all forms and long-run balance are not exhaustively tested",
+    "New Lavender Town trigger tested with mocked world conditions; audio playback not auditioned"
+  ]
+}
