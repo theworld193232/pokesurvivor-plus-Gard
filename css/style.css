@@ -837,6 +837,18 @@ div.tm-row { cursor: default; }
 
 /* Teclas personalizables (versión perso) */
 .keys.rebind .keybtn { min-width: 64px; }
+.box.settings.wide { width: min(880px, 100%); }
+.ctl-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.ctl-card { background: rgba(8,20,56,.35); border: 2px solid rgba(91,131,214,.45); border-radius: 12px; padding: 4px 12px 12px; }
+.ctl-card .set-h { margin: 8px 0 4px; }
+.ctl-card .set-chips .chip { font-size: 13px; }
+.ctl-g { margin: 10px 0 2px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold2); border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 2px; }
+.ctl-r { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 0; font-size: 13px; }
+.ctl-r span { color: var(--ink); }
+.ctl-r .btn.small { min-width: 70px; padding: 3px 8px; font-size: 12px; flex: none; }
+.ctl-fixed { color: var(--muted); font-size: 12px; font-style: normal; }
+.ctl-card #keys-reset, .ctl-card #pad-reset { margin-top: 10px; width: 100%; }
+@media (max-width: 620px) { .ctl-cols { grid-template-columns: 1fr; } }
 
 /* Curseur à la manette (versión perso) */
 #pad-cursor { position: fixed; left: 0; top: 0; z-index: 9999; width: 26px; height: 26px; pointer-events: none; margin: -2px 0 0 -2px;
@@ -1193,3 +1205,113 @@ div.tm-row { cursor: default; }
   #scr-menu.v2 .pp-info { order: 0; margin-top: 0; align-self: flex-end; }
   #scr-menu.v2 .pp-banner .partner-card { margin-top: 0; }
 }
+
+/* Perso (20-10): mensaje fijo arriba de las novedades. */
+.news-pin { margin: 4px 0 10px; padding: 12px 14px; border-radius: 10px; border: 2px solid #ffd23f; background: linear-gradient(180deg, rgba(255,210,63,.14), rgba(255,210,63,.05)); }
+.news-pin h3 { margin: 0 0 8px; color: #ffd23f; font-size: 26px; letter-spacing: .03em; text-align: center; text-shadow: 2px 2px 0 #7a4b00; }   /* perso (22-10): gros titre */
+.news-pin h4 { margin: 10px 0 4px; color: #ffe9a0; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; }
+.news-pin p { margin: 0; line-height: 1.4; font-size: 15px; }
+.news-pin ul { margin: 0; padding-left: 20px; } .news-pin li { margin: 3px 0; font-size: 15px; }
+.news-pin .news-pin-c { margin-top: 10px; font-size: 14px; color: #c9d8ff; }
+.news-pin a { color: #ffd23f; text-decoration: underline; word-break: break-all; }
+
+/* Perso (22-10): menú Capsulas */
+.caps-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 12px; }
+.caps-bag { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 12px; background: rgba(8,20,56,.35); border: 2px solid #c9d3e6; min-width: 230px; }
+.caps-bag.gold { border-color: var(--gold); }
+.caps-bag b { display: block; }
+.caps-bag small { color: var(--muted); font-size: 12px; }
+.caps-n { margin-left: auto; font-size: 22px; font-weight: 700; color: var(--ink); }
+.caps-bag.gold .caps-n { color: var(--gold); }
+@keyframes capsFlash { from { box-shadow: 0 0 0 3px var(--gold), 0 0 18px var(--gold); } to { box-shadow: none; } }
+.caps-flash { animation: capsFlash .7s ease-out; }
+.lex-evo { cursor: help; text-decoration: underline dotted; text-underline-offset: 3px; }
+
+/* Perso (22-10): Tienda de CT */
+.shop-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.shop-item { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; border: 2px solid var(--rc); box-shadow: 0 0 10px color-mix(in srgb, var(--rc) 45%, transparent); }
+.shop-rar { align-self: stretch; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--rc); }
+.shop-nm { font-size: 16px; }
+.shop-tags { display: flex; gap: 6px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.shop-ds { font-size: 13px; color: var(--muted); margin: 0; flex: 1; }
+.shop-item .btn { min-width: 120px; }
+/* Perso (22-10): 10 entradas en el menú (Tienda y Capsulas): un poco más juntas */
+#scr-menu.v2 .menu-item { padding-top: 5px; padding-bottom: 5px; }
+#scr-menu.v2 .menu-item small { line-height: 1.15; }
+.nat-new { font-size: 10px; color: #9be59b; white-space: nowrap; }
+.nat-chips { gap: 4px; }
+.nat-chips .chip { font-size: 12px; padding: 2px 8px; }
+/* Perso (22-10): Léxico > Movimientos: búsqueda + 3 listas */
+.lex-bar { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin: 6px 0 12px; }
+.lex-bar .lex-q { flex: 1; min-width: 200px; padding: 8px 10px; }
+.lex-bar label { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted, #a9bbe6); }
+.lex-bar select { min-width: 150px; padding: 6px 8px; }
+.lex-bar select option { background: #14203f; color: #fff; }
+.lex-bar .lex-n { color: var(--muted, #a9bbe6); font-size: 13px; margin-left: auto; align-self: center; }
+@media (max-width: 640px) { .lex-bar label { flex: 1 1 30%; } .lex-bar select { min-width: 0; width: 100%; } .lex-bar .lex-q { min-width: 100%; } }
+/* Perso (22-10): móvil y tableta: sin la barra de arriba dentro de los menús (más sitio).
+ * Se queda en Mejoras, Tienda y Límites (ahí hacen falta las monedas). */
+@media (pointer: coarse) {
+  body:has(.scr.dim:not(.hidden):not(#scr-upgrades):not(#scr-shop):not(#scr-caps)) #topbar,
+  body:has(.scr.dim:not(.hidden):not(#scr-upgrades):not(#scr-shop):not(#scr-caps)) #sound-panel { display: none !important; }
+  .scr.dim:not(#scr-upgrades):not(#scr-shop):not(#scr-caps) { padding-top: 6px !important; }
+}
+/* Perso (22-10): Pokémon en móvil horizontal: ficha más grande. */
+@media (max-height: 520px) {
+  #scr-dex .split { grid-template-columns: 1fr minmax(240px, 44%); }
+  #dex-detail .stage { width: 160px; height: 130px; }
+  #dex-detail .stat { grid-template-columns: 74px 1fr 38px; font-size: 13px; }
+  #dex-detail p { font-size: 13px !important; }
+}
+.nat-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.nat-btns .btn { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.nat-btns .btn:disabled { opacity: .45; }
+/* Perso (22-10): Pokémon: ficha a toda la altura, barra de búsqueda y filtros. */
+#scr-dex .dex-box { width: min(1560px, 100%); height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.dex-wrap { display: grid; grid-template-columns: 1fr minmax(320px, 30%); gap: 14px; flex: 1; min-height: 0; }
+.dex-left { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.dex-left .row.between h2 { margin: 0; }
+.dex-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; margin: 8px 0 10px; }
+.dex-bar .dex-q { flex: 1 1 100%; padding: 8px 10px; }
+.dex-bar label { display: flex; flex-direction: column; gap: 2px; font-size: 11px; color: var(--muted); flex: 1 1 0; min-width: 110px; }
+.dex-bar select { padding: 6px 8px; width: 100%; }
+.dex-bar .dex-n { color: var(--muted); font-size: 13px; align-self: center; }
+#scr-dex #dex-grid { flex: 1; min-height: 0; max-height: none; overflow-y: auto; align-content: start; grid-auto-rows: max-content; }
+#scr-dex #dex-detail { height: 100%; min-height: 0; overflow-y: auto; margin: 0; }
+@media (max-height: 520px) {
+  #scr-dex .dex-box { padding: 8px 10px; }
+  .dex-wrap { grid-template-columns: 1fr minmax(250px, 42%); gap: 8px; }
+  .dex-bar { gap: 5px; margin: 4px 0 6px; flex-wrap: nowrap; }
+  .dex-bar .dex-q { flex: 1 1 140px; min-width: 110px; padding: 5px 8px; }
+  .dex-bar label { min-width: 70px; } .dex-bar label span { display: none; } .dex-bar select { padding: 5px 4px; font-size: 12px; }
+  .dex-bar .dex-n { display: none; }
+  .dex-left .row.between h2 { font-size: 18px; }
+}
+@media (min-height: 521px) and (pointer: coarse) { .dex-wrap { grid-template-columns: 1fr minmax(320px, 38%); } }
+@media (max-width: 760px) and (min-height: 521px) {
+  .dex-wrap { grid-template-columns: 1fr; grid-template-rows: 1fr auto; } #scr-dex #dex-detail { height: auto; max-height: 45vh; }
+}
+/* Perso (22-10): subida de nivel: ventana azul (estadísticas) o amarilla (ataques). */
+#scr-levelup .box.lu-stats { border-color: #4fb4ff; box-shadow: 0 0 0 3px #1d4f8a, inset 0 0 0 2px #9fd8ff, 0 0 28px rgba(79,180,255,.45), 0 18px 50px rgba(0,0,0,.55); }
+#scr-levelup .box.lu-moves { border-color: #ffd23f; box-shadow: 0 0 0 3px #7a5a00, inset 0 0 0 2px #ffe89a, 0 0 28px rgba(255,210,63,.45), 0 18px 50px rgba(0,0,0,.55); }
+/* Perso (23-10): tienda: icono en el título y cartel animado. */
+.shop-title { display: flex; align-items: center; gap: 8px; margin: 0; }
+.shop-title .shop-ico img, .shop-title .shop-ico canvas { width: 44px; height: 44px; image-rendering: pixelated; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.shop-banner { margin: 6px 0 10px; border-radius: 10px; overflow: hidden; border: 3px solid var(--edge, #3d5fae); box-shadow: inset 0 0 0 2px rgba(255,255,255,.08); background: #1b1f4a; }
+.shop-banner-cv { display: block; width: 100%; height: auto; aspect-ratio: 320 / 84; image-rendering: pixelated; }
+@media (max-height: 520px) { .shop-banner-cv { aspect-ratio: auto; height: 90px; object-fit: cover; } }
+
+/* Perso (23-10): chat directo con un amigo */
+#scr-friends .box { min-height: 420px; }
+.dm-pop { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; border-radius: 9px; background: linear-gradient(180deg, var(--box1), var(--box2)); }
+.dm-pop.hidden { display: none; }
+.dm-pop h3 { margin: 0; }
+.dm-log { flex: 1; min-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 8px; border-radius: 10px; background: rgba(0,0,0,.25); }
+.dm-msg { align-self: flex-start; max-width: 78%; padding: 7px 11px; border-radius: 12px 12px 12px 4px; background: rgba(255,255,255,.09); font-size: 15px; overflow-wrap: anywhere; }
+.dm-msg small { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+.dm-msg.mine { align-self: flex-end; border-radius: 12px 12px 4px 12px; background: rgba(79,180,255,.22); }
+.dm-msg.mine small { text-align: right; }
+.dm-msg.pend { opacity: .55; }
+.dm-btn { position: relative; }
+.dm-badge { position: absolute; top: -6px; right: -6px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: #ff5f6d; color: #fff; font: 800 11px/17px Fredoka, sans-serif; font-style: normal; }
