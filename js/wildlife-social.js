@@ -13,9 +13,9 @@
     if(e.legend || d?.leg)return true;
     try{if(!legendDex&&window.PS_LEGEND_DEX)legendDex=window.PS_LEGEND_DEX();return !!legendDex?.has(Number(e.dex));}catch(_){return false;}
   }
-  function beginFrame(all,p){
+  function beginFrame(all,p,dt){
     legends=enabled()?[...(legendary(p)?[p]:[]),...all.filter(e=>e&&!e.dead&&!e.__psCatch&&legendary(e))].slice(0,16):[];
-    window.PS_WILDLIFE_INTERACTIONS?.beginFrame(all,p);
+    window.PS_WILDLIFE_INTERACTIONS?.beginFrame(all,p,dt);
   }
   function react(e,w,p,dt,move,s,mark){
     w.legendReaction=null;
@@ -96,6 +96,11 @@
     if(w.action==='guard')return 'eyes';
     return w.pers.temp==='friendly'?'love':'dots';
   }
+  function bubbleVisible(w){
+    if(w.socialPair || w.legendReaction || w.action==='cry' || w.hurt>0)return true;
+    // Quiet routines only get a short occasional emote, never constant labels.
+    return ['rest','watch','dance','headache'].includes(w.action) && w.t%9<1.4;
+  }
   function bubble(ctx,e,w){
     window.PS_WILDLIFE_EMOTES?.bubble(ctx,e.x,e.y-(Number(e.bodyH)||24)-12,emotionIcon(w));
     if(w.action==='cry'){const t=(performance.now()/450)%1;ctx.save();ctx.fillStyle='#7fc8ff';const y=e.y-(Number(e.bodyH)||24)*.72+t*12;ctx.fillRect(Math.round(e.x-5),Math.round(y),2,3);ctx.fillRect(Math.round(e.x+4),Math.round(y+4-t*4),2,3);ctx.restore();}
@@ -138,11 +143,11 @@
     const draw=N.Training.drawables;
     N.Training.drawables=function(...args){const list=draw.apply(this,args)||[];if(!enabled())return list;
       const p=N.Game.player;if(!p)return list;
-      const actors=N.EnemyMgr.all().filter(e=>!e.dead&&!e.__psCatch&&window.PS_WILDLIFE?.available(e)&&state(e)&&Math.hypot(e.x-p.x,e.y-p.y)<600)
-        .sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y)).slice(0,10);
+      const actors=N.EnemyMgr.all().filter(e=>!e.dead&&!e.__psCatch&&window.PS_WILDLIFE?.available(e)&&state(e)&&bubbleVisible(state(e))&&Math.hypot(e.x-p.x,e.y-p.y)<600)
+        .sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y)).slice(0,4);
       return [...list,...actors.map(e=>({y:e.y+.2,draw:ctx=>bubble(ctx,e,state(e))}))];
     };
   }
-  window.PS_WILDLIFE_SOCIAL={beginFrame,react,canTarget,scoped,expression,emotionIcon,get installed(){return installed;},enabled};
+  window.PS_WILDLIFE_SOCIAL={beginFrame,react,canTarget,scoped,expression,emotionIcon,bubbleVisible,get installed(){return installed;},enabled};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();

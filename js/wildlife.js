@@ -1,5 +1,6 @@
 /* Gard solo wildlife adapter. Species weights/traits are ported from the friend's
    Living World AI; short-lived anger/fear follow its personality-scaled model.
+   Occasional individuals only; the majority retains survivor combat.
    Gard's enemy-ai.js remains the only movement controller. */
 (() => {
   'use strict';
@@ -10,15 +11,26 @@
     wpick(weights,rnd) {let total=0;for(const v of Object.values(weights))total+=Math.max(0,v);let n=rnd()*total;for(const k in weights){n-=Math.max(0,weights[k]);if(n<=0)return k;}return 'neutral';}
   };
   const data = window.PS_GARD_WILDLIFE_DATA = {
-    U, cfg:{hostility:1,hostilityRamp:600}, time:0,
+    U, cfg:{hostility:1,hostilityRamp:600,wildlifeChance:.10,maxWildlife:6}, time:0,
     get R() {const E=engine();return {...E,Sprites:{bodyRadius:(dex,scale)=>E.Sprites?.bodyRadius?.(dex,scale)||16,hovers:dex=>!!E.Sprites?.hovers?.(dex)}};},
     define(name,mod) {this[name]=mod;}
   };
   const excluded = e => !e || e.dead || e.remote || e.boss || e.legend || e.isLegend || e.judge || e.arceus || e.dummy || e.elite || e.ally || e.friendly || e.__roamer || e.__maxRaid || e.__wave || e.__legendDen || e.__psCatch || e.__psCaughtGone || ['remote','thief','bomber','healer','shielder','summoner'].includes(e.behavior);
+  // Select once per individual. Most enemies keep native survivor combat.
+  const choices=new WeakMap(),selected=new Set();
+  let runPlayer=null;
+  function selectedForWildlife(e){
+    const player=engine()?.Game?.player;
+    if(player!==runPlayer){selected.clear();runPlayer=player;}
+    if(choices.has(e))return choices.get(e);
+    for(const actor of selected)if(actor.dead || actor.__psCaughtGone)selected.delete(actor);
+    const chosen=selected.size<data.cfg.maxWildlife && Math.random()<data.cfg.wildlifeChance;
+    choices.set(e,chosen);if(chosen)selected.add(e);return chosen;
+  }
   function available(e) {
     const E=engine();
     return !!(E && data.Species && !E.Coop?.active && window.PS_SETTINGS?.wildlife!==false && !excluded(e) &&
-      !E.Rift?.inArena && !E.Judgment?.active && !window.PS_SAFEZONE?.active && !window.PS_ROUTE1?.active?.() && window.PS_MODES?.run?.mode!=='legend');
+      !E.Rift?.inArena && !E.Judgment?.active && !window.PS_SAFEZONE?.active && !window.PS_ROUTE1?.active?.() && window.PS_MODES?.run?.mode!=='legend' && selectedForWildlife(e));
   }
   function create(e) {
     if(!available(e))return null;

@@ -47,7 +47,13 @@
    if(kind==='flanker'){s.phase='orbit';s.ph=AI.flanker.orbit*(.5+Math.random());}
    if(kind==='ambusher')s.phase='hide';
    if(kind==='hitrun')s.phase='rush';
-   s.baseKind=kind;s.wildlife=window.PS_WILDLIFE?.create(e)||null;
+   s.wildlife=window.PS_WILDLIFE?.create(e)||null;
+   // When wildlife is enabled, the unselected majority keep native combat:
+   // no wandering, fear cascades or legacy retreat personalities.
+   if(window.PS_WILDLIFE && !E()?.Coop?.active && window.PS_SETTINGS?.wildlife!==false && !s.wildlife){
+     kind=RANGED.has(e.behavior)?'sniper':'aggressive';s.kind=kind;s.coward=false;
+   }
+   s.baseKind=kind;
    e.psAi=kind;st.set(e,s);return s;
  }
  const spdOf=e=>(Number.isFinite(Number(e.spd))?Number(e.spd):60)*(Number(e.slowT)>0?.5:1)*(Number(e.stunT)>0?0:1);
@@ -85,7 +91,7 @@
    const g=B()?.game,p=g?.player;if(!p||g.state!=='playing')return;
    if(p!==pRef){pRef=p;php=Number(p.hp)||0;}
    const pHp=Number(p.hp)||0,hurt=pHp<php-.01;php=pHp;   // did you just take damage?
-   const enemies=B().enemies.all();window.PS_WILDLIFE_SOCIAL?.beginFrame(enemies,p);
+   const enemies=B().enemies.all();window.PS_WILDLIFE_SOCIAL?.beginFrame(enemies,p,dt);
    for(const e of enemies){
      if(!e||e.dead||e.remote||e.__psCatch)continue;let s=st.get(e)||assign(e);
      if(window.PS_WILDLIFE?.available(e)){
