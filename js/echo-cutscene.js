@@ -40,6 +40,66 @@
   const bump = (t, a, b) => (t <= a || t >= b) ? 0 : Math.sin((t - a) / (b - a) * Math.PI);
   const lerp = (a, b, u) => a + (b - a) * u;
   let run = null;
+  // Our Bond only: preserve the real gameplay position and stop input during the cinematic.
+  // The native Player.update recalculates movement every tick, so toggling "frozen" once
+  // at cutscene start is insufficient; keep it in effect *inside* each update instead.
+  function lockRevivePlayer(p) {
+    const P = p && Object.getPrototypeOf(p);
+    if (!P || P.__echoBondMovementPatch || typeof P.update !== 'function') return;
+    const nativeUpdate = P.update, nativeHurt = P.hurt;
+    P.update = function(dt) {
+      if (!run || run.p !== this) return nativeUpdate.apply(this, arguments);
+      const x = this.x, y = this.y, hp = this.hp, wasFrozen = this.frozen;
+      this.frozen = true;
+      this.svx = 0; this.svy = 0;
+      try { return nativeUpdate.apply(this, arguments); }
+      finally {
+        this.x = x; this.y = y;
+        this.svx = 0; this.svy = 0; this.walking = false;
+        this.hp = Math.max(Number(this.hp) || 0, Number(hp) || 0);
+        this.invuln = Math.max(Number(this.invuln) || 0, 1);
+        this.reviveShield = Math.max(Number(this.reviveShield) || 0, 1);
+        this.frozen = wasFrozen;
+      }
+    };
+    if (typeof nativeHurt === 'function') {
+      P.hurt = function() {
+        if (run && run.p === this) return; // i-frames include collisions and projectiles
+        return nativeHurt.apply(this, arguments);
+      };
+    }
+    Object.defineProperty(P, '__echoBondMovementPatch', { value: true, configurable: false });
+  }
+
+  // Real outward knockback. Does not deal damage or change enemy HP.
+  // In co-op the host owns enemy positions; a guest should only see the VFX
+  // rather than moving a local enemy copy that the host will snap back.
+  function revivePulse(radius, knock, stun) {
+    if (!run || !run.p) return;
+    const p = run.p, bridge = B(), engine = E();
+    try {
+      bridge?.fx?.ring?.(p.x, p.y, 12, radius, '#ffb8ea', 0.65, 7);
+      bridge?.fx?.burst?.(p.x, p.y - 15, '#ffdafa', 24, 200);
+    } catch (_) {}
+    try {
+      if (!engine || (engine.Coop?.active && !engine.Coop?.isHost)) return;
+      const mgr = engine.EnemyMgr;
+      const nearby = typeof mgr?.queryCircle === 'function'
+        ? mgr.queryCircle(p.x, p.y, radius + 40) : mgr?.all?.() || [];
+      for (const enemy of nearby) {
+        if (!enemy || enemy.dead || enemy.remote) continue;
+        const dx = Number(enemy.x) - p.x, dy = Number(enemy.y) - p.y;
+        const dist = Math.hypot(dx, dy), reach = radius + (Number(enemy.r) || 10);
+        if (!Number.isFinite(dist) || dist > reach) continue;
+        const a = dist > 0.01 ? dx / dist : Math.cos(enemy.id || 0);
+        const b = dist > 0.01 ? dy / dist : Math.sin(enemy.id || 0);
+        const strength = (enemy.boss ? 0.4 : 1) * knock * (0.3 + 0.7 * (1 - dist / reach));
+        enemy.x += a * strength;
+        enemy.y += b * strength;
+        enemy.stunT = Math.max(Number(enemy.stunT) || 0, stun);
+      }
+    } catch (e) { console.warn('[echo-cut] knockback', e); }
+  }
 
   function build(R) {   // body without head/arms, plus white / pink / red copies
     const W = R.img.naturalWidth, H = R.img.naturalHeight; R.W = W; R.H = H;
@@ -94,6 +154,7 @@
     const ok = Object.values(RIGS).every(R => R.img.complete && R.img.naturalWidth);
     if (run || !ok) return false;
     for (const R of Object.values(RIGS)) if (!R.v) build(R);
+    lockRevivePlayer(p);
     const cv = document.createElement('canvas'); cv.id = 'ps-echo-cut';
     cv.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483600;pointer-events:auto;opacity:0';
     document.body.append(cv);
@@ -105,15 +166,26 @@
     return true;
   }
   function freeze() {
-    const p = run.p; p.invuln = Math.max(Number(p.invuln) || 0, 1.5); p.reviveShield = Math.max(Number(p.reviveShield) || 0, 1.5);
-    try { for (const e of E().EnemyMgr.all()) if (e && !e.dead) e.stunT = Math.max(Number(e.stunT) || 0, 0.6); } catch (_) {}
+    const p = run.p;
+    p.invuln = Math.max(Number(p.invuln) || 0, 1.5);
+    p.reviveShield = Math.max(Number(p.reviveShield) || 0, 1.5);
+    // Keep danger immediately around the stationary player at bay, not the whole map.
+    // Avoid client-side enemy state edits; the host is authoritative in co-op.
+    try {
+      const engine = E();
+      if (!engine || (engine.Coop?.active && !engine.Coop?.isHost)) return;
+      const mgr = engine.EnemyMgr;
+      const foes = mgr?.queryCircle ? mgr.queryCircle(p.x, p.y, 420) : mgr?.all?.() || [];
+      for (const e of foes) if (e && !e.dead && !e.remote && Math.hypot(e.x - p.x, e.y - p.y) < 420)
+        e.stunT = Math.max(Number(e.stunT) || 0, 0.22);
+    } catch (_) {}
   }
   function once(k, f) { if (!run.fired[k]) { run.fired[k] = true; try { f(); } catch (e) { console.warn('[echo-cut]', e); } } }
   function finish() {
     const r = run; run = null; if (!r) return;
     if (r.gc && r.was) { r.gc.style.transition = 'transform .4s, filter .4s'; r.gc.style.transform = r.was.t; r.gc.style.filter = r.was.f; setTimeout(() => { r.gc.style.transformOrigin = r.was.o; r.gc.style.transition = r.was.tr; }, 450); }
     r.cv.style.transition = 'opacity .3s'; r.cv.style.opacity = '0'; setTimeout(() => r.cv.remove(), 350);
-    try { const p = r.p; p.invuln = Math.max(Number(p.invuln) || 0, 2.5); p.hp = p.maxHp; p.anim.play('Shoot', { speed: 1.2 });
+    try { const p = r.p; p.invuln = Math.max(Number(p.invuln) || 0, 2.5); p.reviveShield = Math.max(Number(p.reviveShield) || 0, 2.5); p.hp = p.maxHp; p.anim.play('Shoot', { speed: 1.2 });
       const b = B(); b.fx.ring(p.x, p.y, 10, 220, '#ff9ad8', 0.8, 8); b.fx.burst(p.x, p.y - 20, '#ffd0f0', 40, 280); b.fx.dmgText(p.x, p.y - (p.bodyH || 40) - 30, 'Echo refused to give up!', '#ff9ad8'); } catch (_) {}
     try { r.opts.done && r.opts.done(); } catch (_) {}
   }
@@ -137,9 +209,9 @@
     if (!run.fired.exitA || t >= T.mShow - 0.1) run.cv.style.opacity = t < T.cut ? '0' : t >= T.fade ? String(Math.max(0, 1 - (t - T.fade) / (T.end - T.fade))) : '1';
     if (t >= T.hit) once('hurt', () => { sfx('hurt'); cry(1.12, 0.55); });
     if (t >= T.land) once('land', () => sfx('bossDown'));
-    if (t >= T.roar) once('cry1', () => cry(1));
+    if (t >= T.roar) once('cry1', () => { cry(1); revivePulse(310, 135, 1.4); });
     if (t >= T.crack) once('crk', () => sfx('select'));
-    if (t >= T.mRoar) once('cry2', () => cry(0.84));
+    if (t >= T.mRoar) once('cry2', () => { cry(0.84); revivePulse(420, 210, 1.8); });
     if (t >= T.end) { finish(); return; }
     if (t >= T.cut) draw(t, dt);
     requestAnimationFrame(frame);
