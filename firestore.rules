@@ -132,7 +132,23 @@ service cloud.firestore {
     //   y nunca más que el tiempo real desde que empezó tu sesión.
     //   lv_: nivel máximo (cada uno el suyo) · dp_: mejor DPS en 5 s (cada uno el suyo). Más es mejor.
     function isArceusBoard(board) { return board.matches('a[123][sg]_.*'); }
-    function isStatBoard(board) { return board.matches('(lv|dp)_.*'); }
+    // Perso (20-10): zl_ / zd_: nivel máximo y DPS máximo de la Zona Cero (aparte de los clásicos).
+    function isStatBoard(board) { return board.matches('(lv|dp|zl|zd)_.*'); }
+    // Perso (19-10): Zona Cero (modo sin fin): zs_ (solo) / zg_ (grupo): tiempo aguantado, MÁS es mejor, hasta 6 h.
+    function isZoneBoard(board) { return board.matches('z[sg]_.*'); }
+    function validZone(board, id) {
+      let d = request.resource.data;
+      let run = get(/databases/$(database)/documents/runs/$(me())).data;
+      return baseEntry(d)
+        && d.t >= 120 && d.t <= 21600
+        && d.t <= (request.time - run.startedAt).seconds() + 30
+        && d.lv <= 10 + d.t / 4
+        && d.kills <= 100 + d.t * 12
+        && (board.matches('zs_.*')
+              ? (d.uids.size() == 1 && id == me())
+              : (d.uids.size() >= 2 && d.uids.size() <= 4 && id == d.uids.join('_')))
+        && (resource == null || d.t > resource.data.t);
+    }
     function baseEntry(d) {
       return d.keys().hasOnly(['t', 'uids', 'names', 'dex', 'shiny', 'lv', 'kills', 'at'])
         && d.t is int && d.t > 0
@@ -149,7 +165,7 @@ service cloud.firestore {
       let d = request.resource.data;
       let run = get(/databases/$(database)/documents/runs/$(me())).data;
       return baseEntry(d)
-        && d.t >= 1200 && d.t <= 3600
+        && d.t >= 1200 && d.t <= 7200   // perso (19-10): tiempo TOTAL de la run (grietas incluidas)
         && d.t <= (request.time - run.startedAt).seconds() + 30
         && d.lv <= 10 + d.t / 4
         && d.kills <= 100 + d.t * 12
@@ -162,7 +178,9 @@ service cloud.firestore {
       let d = request.resource.data;
       return baseEntry(d)
         && d.uids.size() == 1 && id == me()
-        && (board.matches('lv_.*') ? (d.t <= 500 && d.t == d.lv) : d.t <= 100000000)
+        && (board.matches('lv_.*') ? (d.t <= 500 && d.t == d.lv)
+            : board.matches('zl_.*') ? (d.t <= 20000 && d.t == d.lv)
+            : board.matches('zd_.*') ? d.t <= 1000000000000 : d.t <= 100000000)
         && (resource == null || d.t > resource.data.t);
     }
 
@@ -189,7 +207,8 @@ service cloud.firestore {
     match /lb/{board}/e/{id} {
       allow read: if signedIn();
       allow create, update: if signedIn() && (isArceusBoard(board) ? validArceus(board, id)
-                                             : isStatBoard(board) ? validStat(board, id) : validEntry(board, id));
+                                             : isStatBoard(board) ? validStat(board, id)
+                                             : isZoneBoard(board) ? validZone(board, id) : validEntry(board, id));
       allow delete: if signedIn() && (me() in resource.data.uids || admin());
     }
 
@@ -234,10 +253,13 @@ service cloud.firestore {
     match /pres/{uid} {
       allow read: if signedIn();
       allow create, update: if signedIn() && me() == uid
-        && request.resource.data.keys().hasOnly(['at', 'room', 'play', 'on'])
+        && request.resource.data.keys().hasOnly(['at', 'room', 'play', 'on', 'pm', 'ps'])
         && request.resource.data.at == request.time
         && request.resource.data.room is string && request.resource.data.room.size() <= 40
-        && request.resource.data.play is bool && request.resource.data.on is bool;
+        && request.resource.data.play is bool && request.resource.data.on is bool
+        // Perso (19-10): en partida: pm = nivel (1-3, 4 = Zona Cero) y ps = cuándo empezó la run (ms).
+        && (!('pm' in request.resource.data) || (request.resource.data.pm is int && request.resource.data.pm >= 0 && request.resource.data.pm <= 9))
+        && (!('ps' in request.resource.data) || request.resource.data.ps is int);
       allow delete: if signedIn() && me() == uid;
     }
 

@@ -128,6 +128,43 @@ uso **no comercial** y con atribución a sus artistas.
 
 Stats base y nombres en español: [PokeAPI](https://pokeapi.co/),
 descargados una vez y guardados en `js/data/pokedex.js`.
+Alturas y pesos de la Pokédex (para el tamaño de cada especie): también de
+[PokeAPI](https://pokeapi.co/), guardados en `js/ai/12-sizes.js`.
+
+## Árboles, plantas y decorado del bosque
+
+Los árboles, arbustos, flores, hierbas, troncos, setas, farolas y el decorado del
+bosque encantado del "entorno vivo" (`assets/env/atlas.png`) salen de estas hojas:
+
+- **"Cementerio"** (#Tilember2019) de **KioRaka**, público con créditos:
+  farol colgante, velas, lápidas y cruz.
+- Hojas de árboles y vegetación por colores, bosque claro, bosque oscuro con
+  pueblo y bosque encantado: material aportado por DexterDamg para PokéSurvivor+.
+- Hoja de rayos (fotogramas de relámpago e impacto): material aportado por
+  DexterDamg para PokéSurvivor+.
+- **Cementerio** de **TóbalCR** (créditos en la propia hoja): pilares de piedra
+  con faroles, verja de hierro, gárgola, estatua, lápidas, calaveras, vela y el
+  camino de tierra de la mansión encantada.
+- Interior de la mansión (paredes de madera, ventanas, suelos, alfombras,
+  barandillas, mesas, sillas, reloj de pie, telarañas): material aportado por
+  DexterDamg para PokéSurvivor+. La fachada de la mansión se ha compuesto con
+  tejados, paredes, ventanas y puertas de la hoja del pueblo del bosque oscuro.
+- Espejo, retratos, lámpara de araña, estantería, armadura, escudo con espadas,
+  candelabro, puertas y barricada: dibujados para PokéSurvivor+ con la paleta
+  de la hoja del interior.
+- El susto del espejo usa un fotograma de la escena del Mundo Distorsión de
+  *Pokémon Platino* (Nintendo / Creatures Inc. / GAME FREAK), aportado por
+  DexterDamg; la silueta del espejo y del final está recortada de ese fotograma.
+- Helechos, helecho común, juncos, piedras con musgo, hojarasca, rama caída,
+  hiedra, anémonas, campanillas, santuario de piedra, piedra rúnica, mojón,
+  cresta rocosa, lianas y quemaduras del suelo del Bosque Umbrío: dibujados
+  para PokéSurvivor+ con la paleta de las hojas del bosque. El suelo, el agua,
+  el barro y la orilla del Bosque Umbrío se pintan en el propio juego
+  (`js/ai/34-forest.js`).
+  *(Falta indicar aquí el autor original de cada una de estas hojas.)*
+
+Los sonidos de ambiente (pájaros, grillos, lluvia, viento, truenos, caja de
+música…) se sintetizan en el propio juego; no usan archivos de audio.
 
 ## Fuente
 

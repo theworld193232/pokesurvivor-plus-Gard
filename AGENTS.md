@@ -1,0 +1,2 @@
+# Project guardrails
+Keep friend original AI, map identity, weather, lightning and ambience. Gard owns custom kits/balancing/gacha/dens and Area Zero terrain. Story and Trainer battles are removed. LoverGare alone gets client testing controls. Both exclusive and Bikini Gardevoir skins are removed. Keep gameplay hidden/muted during tests; only run meaningful targeted playtests, not repeated minute-by-minute sessions. Do not modify the old Gard source folder as part of this merge.
