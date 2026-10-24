@@ -11,6 +11,7 @@
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const TAU = Math.PI * 2;
   const CFG = { first: 135, every: 180, chance: 0.25, shinyMul: 2, bandChance: 0.30, xpLevels: 2, life: 70, raidTime: 120, hpMul: 4, dmgMul: 1.3, grow: 1.4, coins: 300, coinsAgain: 450 };
+  const FOOTPRINT = Object.freeze({ rx: 84, ry: 44, margin: 20, enter: 34, spacing: 240 });
   const dens = [];        // {x,y,t,life}
   let raid = null;        // {e,t,player}
   let runP = null, nextAt = CFG.first;
@@ -43,20 +44,33 @@
 
   // a den needs open, dry, flat ground: no walls, water, trees, rocks, chests, crystals or altars under or right next to it
   function clearSpot(x, y) {
-    try { const W = B().world, N = E(); if (!W) return true; const R = 64;
-      if (W.isFree && !W.isFree(x, y, R)) return false;
-      for (let i = 0; i < 12; i++) { const a = i / 12 * TAU, px = x + Math.cos(a) * R, py = y + Math.sin(a) * R * 0.6; if (W.isWall(px, py) || (W.isLiquid && W.isLiquid(px, py))) return false; }
-      if ((W.propsInCircle(x, y, R + 24) || []).some(q => q && q.type !== 'grass')) return false;
-      if (W.specialsNear && (W.specialsNear(x, y, R + 30) || []).length) return false;
-      try { const C = N.Crystal; const L = C && (C.all ? C.all() : C.list); if (Array.isArray(L) && L.some(c => c && Math.hypot(c.x - x, c.y - y) < R + 40)) return false; } catch (_) {}
-      for (const o of [...dens, ...ldens]) if (Math.hypot(o.x - x, o.y - y) < 200) return false;
-      return true; } catch (_) { return true; }
+    try {
+      const W = B()?.world, N = E(), R = FOOTPRINT.rx + FOOTPRINT.margin;
+      if (!W || typeof W.isFree !== 'function' || typeof W.propsInCircle !== 'function') return false;
+      // Check the entire clearing, not just a perimeter that can miss an interior obstacle.
+      if (!W.isFree(x, y, R)) return false;
+      for (let yy = -FOOTPRINT.ry - FOOTPRINT.margin; yy <= FOOTPRINT.ry + FOOTPRINT.margin; yy += 16)
+        for (let xx = -R; xx <= R; xx += 16)
+          if (W.isWall?.(x + xx, y + yy) || W.isLiquid?.(x + xx, y + yy)) return false;
+      // Tree trunks can be clear while their canopies still cover the den. Reserve visual space too.
+      for (const q of W.propsInCircle(x, y + 64, 240) || []) {
+        if (!q || q.type === 'grass' || q.flat || (q.destructible && q.hp <= 0)) continue;
+        const tree = /tree|pine|palm|cactus|pole/.test(String(q.type));
+        const r = Math.max(12, Number(q.r) || 12), half = tree ? Math.max(64, r) : r + 12;
+        const top = Number(q.y) - (tree ? 160 : r + 24), bottom = Number(q.y) + r;
+        if (q.x + half >= x - R && q.x - half <= x + R && bottom >= y - FOOTPRINT.ry - FOOTPRINT.margin && top <= y + FOOTPRINT.ry + FOOTPRINT.margin) return false;
+      }
+      if (W.specialsNear?.(x, y, R + 32)?.length) return false;
+      const C = N?.Crystal, L = C && (typeof C.all === 'function' ? C.all() : C.list);
+      if (Array.isArray(L) && L.some(c => c && Math.hypot(c.x - x, c.y - y) < R + 40)) return false;
+      return ![...dens, ...ldens].some(o => Math.hypot(o.x - x, o.y - y) < FOOTPRINT.spacing);
+    } catch (_) { return false; } // unavailable world data must never approve an unsafe spot
   }
   function spawnDen(near) {
     const p = B()?.game?.player; if (!p || coop()) return null; let x = p.x, y = p.y;
     let found = false;
     for (let i = 0; i < 160 && !found; i++) { const a = Math.random() * TAU, d = (near ? 170 : 300 + Math.random() * 160) + Math.floor(i / 40) * 120, nx = p.x + Math.cos(a) * d, ny = p.y + Math.sin(a) * d * 0.8;
-      if (clearSpot(nx, ny)) { x = nx; y = ny; found = true; } }
+      if (clearSpot(Math.round(nx), Math.round(ny))) { x = Math.round(nx); y = Math.round(ny); found = true; } }
     if (!found) return null; // never put a den under the player when every candidate is blocked
     const d = { x, y, t: 0, life: CFG.life }; dens.push(d);
     say('A Pokémon Den is overflowing with Dynamax energy!', 3);
@@ -215,11 +229,11 @@
     if (g.state === 'ui' || g.state === 'levelup' || g.state === 'choice') return;
     if (p !== runP) { runP = p; nextAt = CFG.first; dens.length = 0; ldens.length = 0; raid = null; lden = null; }
     wrapDyn(); hookDenNet(); if (g.state === 'playing' && (!coop() || netHost())) legendTick(dt);   // co-op: only the host runs the den
-    for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < 34) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
+    for (let i = ldens.length - 1; i >= 0; i--) { const d = ldens[i]; d.t += dt; if (d.t >= d.life) { ldens.splice(i, 1); continue; } if (!lden && playing() && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < FOOTPRINT.enter) { if (startLegendDen('battle')) ldens.splice(i, 1); else { d.t = Math.min(d.t, d.life - 10); } } }
     if (!playing() || coop() || (window.PS_STORY&&window.PS_STORY.on()) || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;   // no dens in Story
     if (!raid && clock() >= nextAt) { nextAt += CFG.every; if (!dens.length && !ldens.length && !lden) { if (Math.random() < LCFG.chance) spawnLegendDen(); else if (Math.random() < CFG.chance) spawnDen(false); } }   // a quarter as often as the game's rifts (they come every 3 min)
     for (let i = dens.length - 1; i >= 0; i--) { const d = dens[i]; d.t += dt; if (d.t >= d.life) { dens.splice(i, 1); continue; }
-      if (!raid && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < 34) { dens.splice(i, 1); startRaid(d); } }
+      if (!raid && d.t > 0.8 && Math.hypot(p.x - d.x, p.y - d.y) < FOOTPRINT.enter) { dens.splice(i, 1); startRaid(d); } }
     if (raid) { raid.t -= dt; if (raid.e.dead || raid.e.hp <= 0) endRaid(true); else if (raid.t <= 0 || p.dead) endRaid(false); }
   }
 
@@ -322,11 +336,20 @@
     const st = B()?.game?.state; if ((!dens.length && !ldens.length && !raid && !lden) || st === 'ui' || st === 'over' || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) { if (ov.style.display !== 'none') ov.style.display = 'none'; return; } ov.__dirty = true; if (ov.style.display === 'none') ov.style.display = 'block';
     const cam = B()?.camera, g = gameCanvas(); if (!cam || !g || typeof cam.left !== 'function') return;
     const css = Number(cam._cw) > 0 ? g.r.width / cam._cw : 1, k = cam.scale * css, now = performance.now() / 1000;
-    const sx = x => g.r.left + (x - cam.left()) * k, sy = y => g.r.top + (y - cam.top()) * k;
+    // Match Camera.apply's shake and physical-pixel rounding exactly.
+    const pixel = cam.scale * (Number(cam.dpr) || dpr);
+    const tx = Math.round((-cam.left() + (Number(cam._sx) || 0)) * pixel) / pixel;
+    const ty = Math.round((-cam.top() + (Number(cam._sy) || 0)) * pixel) / pixel;
+    const sx = x => g.r.left + (x + tx) * k, sy = y => g.r.top + (y + ty) * k;
     for (const d of [...dens, ...ldens]) {
       const X = sx(d.x), Y = sy(d.y), open = Math.min(1, d.t / 0.8), fade = Math.max(0, Math.min(1, (d.life - d.t) / 1.5));
       const legend = !!d.legend;
       ctx.save(); ctx.globalAlpha = fade;
+      // Stable ground footprint and entry boundary. The stone ring is walkable, not an invisible wall.
+      ctx.fillStyle = 'rgba(22,16,26,.48)'; ctx.strokeStyle = legend ? '#dd9a47' : '#b77594'; ctx.lineWidth = Math.max(1, 2 * k);
+      ctx.beginPath(); ctx.ellipse(X, Y, FOOTPRINT.rx * k, FOOTPRINT.ry * k, 0, 0, TAU); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = legend ? '#ffe4a3' : '#ffc5e0'; ctx.lineWidth = Math.max(1, k);
+      ctx.beginPath(); ctx.ellipse(X, Y, FOOTPRINT.enter * k, FOOTPRINT.enter * 0.55 * k, 0, 0, TAU); ctx.stroke();
       // Draw the user's original den artwork, with isolated beam shimmer.
       // Open animation applies to the entire sprite but the stone never pulses in size.
       drawDenArt(ctx,X,Y,k,legend,now,open);
@@ -380,9 +403,9 @@
   let last = performance.now(), hudT = 0;
   function loop(now) {
     requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now;
-    try { tick(dt); draw(); hudT += dt; if (hudT > 0.2) { hudT = 0; renderHud(); testBtn(); } } catch (e) { console.warn('[dens]', e); }
+    try { tick(dt); if (!window.PS_HUD_LAYERS?.active) draw(); hudT += dt; if (hudT > 0.2) { hudT = 0; renderHud(); testBtn(); } } catch (e) { console.warn('[dens]', e); }
   }
-  function init() { document.head.append(css); document.body.append(ov, hud, bannerEl); requestAnimationFrame(loop); }
+  function init() { document.head.append(css); document.body.append(ov, hud, bannerEl); window.PS_HUD_LAYERS?.register('ps-dens', draw); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_DENS = { version: 'den-art-music-v2', spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
+  window.PS_DENS = { version: 'grounded-den-v3', canPlace: clearSpot, footprint: FOOTPRINT, spawn: spawnDen, spawnLegend: spawnLegendDen, startLegend: startLegendDen, get legend() { return lden && { kind: lden.kind, stage: lden.stage, list: lden.list.slice(), boss: lden.e && { name: lden.e.name, hp: lden.e.hp, shiny: !!lden.e.shiny } }; }, lcfg: LCFG, get dens() { return dens.slice(); }, get raid() { return raid && { name: raid.name, t: raid.t, hp: raid.e.hp, maxHp: raid.e.maxHp, dead: raid.e.dead }; }, cfg: CFG };
 })();

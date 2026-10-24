@@ -39,15 +39,16 @@
   let netHooked = false;
   function hookNet() {
     const n = E()?.Net; if (netHooked || !n || typeof n.on !== 'function') return; netHooked = true;
-    n.on((uid, msg) => recv(msg));
+    n.on((uid, msg) => recv(msg, uid));
   }
-  function recv(msg) { try {
+  function recv(msg, uid) { try {
       if (!msg) return;
-      if (msg.k === 'psmodeq' && netHost()) { sendMode(); return; }   // a guest asks which mode we're on
-      if (msg.k !== 'psmode' || !MODES[msg.m]) return;
-      hostMode = { m: msg.m, len: Number(msg.len) || 600, at: performance.now() };
+      if (msg.k === 'psmodeq' && netHost()) { if (E()?.Coop?.mate?.(uid)?.connected) sendMode(); return; }
+      if (msg.k !== 'psmode' || !MODES[msg.m] || netHost() || !E()?.Net?.hostUid || String(uid) !== String(E().Net.hostUid)) return;
+      hostMode = { m: msg.m, len: LENGTHS.includes(Number(msg.len)) ? Number(msg.len) : 600, at: performance.now(), uid: String(uid) };
       // our run already started on another mode: switch to the host's while it's still fresh
       if (run.player && coop() && !isHost() && run.mode !== msg.m && performance.now() - (run.startedAt || 0) < 20000) applyMode(run.player, msg.m, hostMode.len);
+      else if (run.player && coop() && !isHost() && run.mode === 'timed' && msg.m === 'timed' && performance.now() - (run.startedAt || 0) < 20000) { run.len = hostMode.len; renderHud(); }
     } catch (_) {} }
   const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
 
@@ -79,7 +80,7 @@
     if ((window.PS_STORY&&window.PS_STORY.on())) m = 'classic';   // Story: no game modes
     if (coop()) {
       if (isHost()) { let n = 0; const tm = setInterval(() => { sendMode(); if (++n >= 6) clearInterval(tm); }, 800); sendMode(); }
-      else { if (hostMode && performance.now() - hostMode.at < 120000) { m = hostMode.m; L = hostMode.len; } else m = 'classic'; try { E().Net.toHost({ k: 'psmodeq' }); } catch (_) {} }
+      else { if (hostMode && hostMode.uid === String(E()?.Net?.hostUid) && performance.now() - hostMode.at < 120000) { m = hostMode.m; L = hostMode.len; } else m = 'classic'; try { E().Net.toHost({ k: 'psmodeq' }); } catch (_) {} }
     }
     run.startedAt = performance.now(); applyMode(p, m, L);
   }

@@ -12,6 +12,11 @@
   const css = document.createElement('style');
   css.textContent = 'html.ps-hudlayer ' + IDS.map(i => '#' + i).join(',html.ps-hudlayer ') + '{opacity:0 !important}';
   let lastCall = 0, on = false;
+  const renderers = new Map();
+  window.PS_HUD_LAYERS = Object.freeze({
+    register(id, render) { if (IDS.includes(id) && typeof render === 'function') renderers.set(id, render); },
+    get active() { return on && performance.now() - lastCall < 600; }
+  });
   window.PS_PRE_HUD = function (ctx, w, h) {
     lastCall = performance.now();
     if (!on) { on = true; document.documentElement.classList.add('ps-hudlayer'); }
@@ -19,6 +24,8 @@
     const r = game.getBoundingClientRect(); if (r.width < 2 || r.height < 2) return;
     const VW = innerWidth, VH = innerHeight;
     for (const id of IDS) {
+      // Refresh registered world layers with this frame's camera before compositing.
+      try { renderers.get(id)?.(); } catch (error) { console.warn('[HUD layer]', id, error); }
       const el = document.getElementById(id); if (!el || !el.width || !el.height) continue;
       if (el.style.display === 'none') continue;
       const kx = el.width / VW, ky = el.height / VH;

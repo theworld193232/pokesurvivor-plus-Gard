@@ -126,7 +126,7 @@
     received++;
     if (Array.isArray(packet.p)) {
       if (Coop.isHost) receiveTuple(uid, packet.p);
-    } else if (packet.p && typeof packet.p === 'object') {
+    } else if (!Coop.isHost && String(uid) === String(Net.hostUid) && packet.p && typeof packet.p === 'object') {
       for (const [who, tuple] of Object.entries(packet.p)) {
         // Host/player yourself is not a puppet on your own client.
         if (String(who) === String(Coop.me)) continue;

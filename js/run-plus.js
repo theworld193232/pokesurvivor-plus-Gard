@@ -1,6 +1,7 @@
 /* RUN PLUS: start with 5 cards + biome spawns
    1) Every run starts with 5 cards to pick (5 ★ points: press Shift / tap ★), in every Act and Level,
-      in Original and Story. Not in co-op (the host's points are shared there).
+      in Original, Story, and co-op. In co-op only the host grants the five shared
+      points; the native readiness/card system gives every player their choices.
    2) More wild Pokemon, matched to the biome you're standing in (js/terrain.js):
         every 8-12 s a group of 3-5 shows up on top of the game's normal spawns, picked from the biome's types,
         and 55% of the game's own spawns that don't fit the biome are swapped for ones that do
@@ -34,9 +35,13 @@
   let giftFor = null;
   function cards(p) {
     const N = E(); if (!p || giftFor === p || !N || !N.Game) return;
-    if (N.Coop && N.Coop.active) { giftFor = p; return; }
     if (B()?.game?.state !== 'playing') return;
-    giftFor = p; if (typeof N.Game.addSkillPoints === 'function') N.Game.addSkillPoints(CFG.startCards);
+    if (N.Coop?.active) {
+      const role = N.Coop.isHost;
+      if (!(typeof role === 'function' ? role.call(N.Coop) : role)) { giftFor = p; return; }
+    }
+    if (typeof N.Game.addSkillPoints !== 'function') return;
+    N.Game.addSkillPoints(CFG.startCards); giftFor = p;
   }
 
   // ---- 2) biome spawns ----
