@@ -1,4 +1,4 @@
-/* Echo's Singularity V2 — exact-length GIF cut-in, then camera pullback to a
+/* Echo's Singularity V3 — exact-length GIF cut-in, then camera pullback to a
  * starfield-tinted LIVE battlefield and a full-screen black-hole shockwave.
  * Owner-only Mega Gardevoir. No extra network packets during playback.
  * Keep this as a standalone add-on; the native Mega/revive scripts are untouched.
@@ -26,6 +26,33 @@
   const lowSelf = p => hpRatio(p) > 0 && hpRatio(p) <= LOW && Number(p.lives) <= 0 && p.__echoBondUsed === true;
 
   let scene = null, playerRef = null, used = false, netHooked = false, debugButton = null;
+  const seenNonces = new Set();
+  const remoteUses = new WeakSet(); // remote Player objects are recreated each run
+  const lockedPlayers = new WeakSet();
+  function lockPlayer(p) {
+    if (!p || lockedPlayers.has(p)) return;
+    lockedPlayers.add(p);
+    const update = p.update, hurt = p.hurt;
+    if (typeof update === 'function') p.update = function() {
+      if (!scene?.owner || scene.p !== this) return update.apply(this, arguments);
+      const lockedScene = scene;
+      const frozen = this.frozen;
+      this.frozen = true;
+      this.svx = this.svy = 0;
+      try { return update.apply(this, arguments); }
+      finally {
+        this.x = lockedScene.x; this.y = lockedScene.y;
+        this.svx = this.svy = this._vx = this._vy = 0;
+        this.walking = false; this.frozen = frozen;
+        this.invuln = Math.max(Number(this.invuln) || 0, 1);
+        this.reviveShield = Math.max(Number(this.reviveShield) || 0, 1);
+      }
+    };
+    if (typeof hurt === 'function') p.hurt = function() {
+      if (scene?.owner && scene.p === this) return;
+      return hurt.apply(this, arguments);
+    };
+  }
   let previous = performance.now(), sheetInstalled = false;
   const ease = x => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
   function style() {
@@ -126,7 +153,7 @@
     return killed;
   }
   function start(nonce, caster, owner) {
-    if(scene||!playing()||!nonce||typeof nonce!=='string'||nonce.length>64)return false;
+    if(scene||!playing()||!nonce||typeof nonce!=='string'||nonce.length>64||seenNonces.has(nonce))return false;
     const p=me();if(owner&&!ownerForm(p))return false;
     style();
     const ui=document.createElement('div');ui.id='ps-echo-singularity';
@@ -136,7 +163,18 @@
     const map=document.createElement('canvas');map.className='ps-echo-realm';map.id='ps-echo-realm-map';
     const flash=document.createElement('div');flash.className='ps-echo-flash';
     cut.appendChild(pic);ui.append(cut,map,cap,flash);document.body.append(ui);
-    scene={nonce,p,owner,caster,ui,cut,map,flash,start:performance.now(),x:p?.x||0,y:p?.y||0,realm:false,impact:false};
+    scene={nonce,p,owner,caster,ui,cut,map,flash,start:null,requested:performance.now(),x:p?.x||0,y:p?.y||0,realm:false,impact:false};
+    const loadingScene = scene;
+    const imageReady = () => {
+      if(scene===loadingScene && loadingScene.start===null) loadingScene.start=performance.now();
+    };
+    pic.onload=imageReady;
+    // If the image fails, continue with the battlefield effect instead of trapping the player.
+    pic.onerror=()=>{if(scene===loadingScene && loadingScene.start===null)loadingScene.start=performance.now()-GIF_MS;};
+    if(pic.complete && pic.naturalWidth)imageReady();
+    seenNonces.add(nonce);
+    if (seenNonces.size > 128) seenNonces.delete(seenNonces.values().next().value);
+    if(owner)lockPlayer(p);
     // Immediate protection before the first animation frame.
     if(p&&!p.dead){p.invuln=Math.max(Number(p.invuln)||0,2);p.reviveShield=Math.max(Number(p.reviveShield)||0,2);}
     return true;
@@ -156,11 +194,13 @@
       if(!coop()||!msg||typeof msg.nonce!=='string'||!/^[0-9]{10,14}-[a-f0-9]{1,8}$/.test(msg.nonce))return;
       if(msg.k==='psEchoSingularityReq'&&host()){
         const m=N.Coop.mate?.(uid),other=m?.pl;
-        if(!m?.connected||Number(other?.dex)!==282||other?.megaForm!==FORM||m.__echoSingularityNetUsed)return;
+        if(!m?.connected||Number(other?.dex)!==282||other?.megaForm!==FORM||remoteUses.has(other))return;
         const declared=String(m.user||m.name||m.username||m.displayName||'').trim().toLowerCase();
         if(declared!==OWNER)return; // never accept an unidentified remote account
-        m.__echoSingularityNetUsed=true;
-        if(start(msg.nonce,'teammate',false))N.Net.broadcast({k:'psEchoSingularity',nonce:msg.nonce,who:String(uid),form:FORM});
+        if(start(msg.nonce,'teammate',false)){
+          remoteUses.add(other);
+          N.Net.broadcast({k:'psEchoSingularity',nonce:msg.nonce,who:String(uid),form:FORM});
+        }
       }else if(msg.k==='psEchoSingularity'&&!host()){
         if(String(uid)!==String(N.Net.hostUid)||scene?.nonce===msg.nonce)return;
         start(msg.nonce,'remote',false);
@@ -168,14 +208,17 @@
     });
   }
   function loop(now){requestAnimationFrame(loop);previous=now;
-    const p=me();if(p!==playerRef){stop();playerRef=p;used=!!p?.__echoSingularityUsed;}
+    const p=me();if(p!==playerRef){stop();playerRef=p;used=!!p?.__echoSingularityUsed;seenNonces.clear();}
     hookNet();
     if(debugButton)debugButton.style.display=ownerForm(p)&&playing()?'':'none';
-    if(scene){const r=scene,t=now-r.start;
+    if(scene){const r=scene;
       if(bridge()?.game?.state==='ui'){stop();return;}
       if(r.p&&!r.p.dead){r.p.invuln=Math.max(Number(r.p.invuln)||0,.5);r.p.reviveShield=Math.max(Number(r.p.reviveShield)||0,.5);
         if(r.owner){r.p.x=r.x;r.p.y=r.y;r.p._vx=0;r.p._vy=0;}
       }
+      // Start the 2.13s clock when the GIF loads, not while its request is in flight.
+      if(r.start===null){if(now-r.requested<4000)return;r.start=now-GIF_MS;}
+      const t=now-r.start;
       // Exactly one 2.13s GIF playback. The remaining time belongs to the map explosion.
       if(t>=GIF_MS&&!r.realm){r.realm=true;r.cut.style.display='none';r.map.style.display='block';}
       if(r.realm)drawRealm(r,t);
@@ -193,6 +236,6 @@
     requestAnimationFrame(loop);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-  window.PS_ECHO_SINGULARITY=Object.freeze({version:2,trigger,get playing(){return !!scene;},get used(){return used;},get owner(){return who()===OWNER;},
+  window.PS_ECHO_SINGULARITY=Object.freeze({version:3,trigger,get playing(){return !!scene;},get used(){return used;},get owner(){return who()===OWNER;},
     config:Object.freeze({hpThreshold:LOW,gifDurationMs:GIF_MS,pullbackMs:PULLBACK_MS,realmMs:REALM_MS,totalMs:TOTAL_MS})});
 })();

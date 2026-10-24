@@ -22,13 +22,20 @@
   const say = (t, d) => { try { E().Spawner.say(t, d || 3); } catch (_) {} tell({ k: 'psden', ev: 'say', t, d: d || 3 }); };
   // co-op guests: hear the host's den messages and get the Legendary too
   let denNet = false;
+  const claimedClears = new WeakMap();
   function hookDenNet() {
     const n = E()?.Net; if (denNet || !n || typeof n.on !== 'function') return; denNet = true;
     n.on((uid, msg) => { try {
-      if (!msg || msg.k !== 'psden' || netHost()) return; const N = E();
+      if (!coop() || !msg || msg.k !== 'psden' || netHost() || String(uid) !== String(n.hostUid)) return; const N = E();
       if (msg.ev === 'say') { try { N.Spawner.say(String(msg.t || ''), Number(msg.d) || 3); } catch (_) {} return; }
       if (msg.ev === 'clear') { const dex = Number(msg.dex), sh = !!msg.shiny; if (!N.DEX_BY[dex]) return;
-        const p = B()?.game?.player; if (p) p.coins = (Number(p.coins) || 0) + 600;
+        const p = B()?.game?.player; if (!p) return;
+        // Current hosts attach an encounter ID; old hosts remain compatible.
+        if (typeof msg.id === 'string' && msg.id.length > 0 && msg.id.length <= 64) {
+          let claims = claimedClears.get(p); if (!claims) claimedClears.set(p, claims = new Set());
+          if (claims.has(msg.id)) return; claims.add(msg.id);
+        }
+        p.coins = (Number(p.coins) || 0) + 600;
         if (!denReward(dex, sh, 'Legendary Den cleared with your group · +600 PokéCoins')) { try { banner.show('Legendary Den cleared! +600 PokéCoins', N.DEX_BY[dex].name + ' got away this time (40% to catch)', true, { dex, shiny: sh, ms: 6000 }); } catch (_) {} }
         try { B().audio?.sfx?.('legend'); } catch (_) {} }
     } catch (_) {} });
@@ -50,6 +57,7 @@
     let found = false;
     for (let i = 0; i < 160 && !found; i++) { const a = Math.random() * TAU, d = (near ? 170 : 300 + Math.random() * 160) + Math.floor(i / 40) * 120, nx = p.x + Math.cos(a) * d, ny = p.y + Math.sin(a) * d * 0.8;
       if (clearSpot(nx, ny)) { x = nx; y = ny; found = true; } }
+    if (!found) return null; // never put a den under the player when every candidate is blocked
     const d = { x, y, t: 0, life: CFG.life }; dens.push(d);
     say('A Pokémon Den is overflowing with Dynamax energy!', 3);
     try { B().fx.ring(x, y, 10, 120, '#ff2a55', 0.7, 6); B().audio?.sfx?.('legend'); } catch (_) {}
@@ -159,7 +167,7 @@
     if (p !== runP) { runP = p; nextAt = CFG.first; dens.length = 0; ldens.length = 0; raid = null; }
     const bp = bossPool(), lp = legendPool(); if (!bp.length || !lp.length) { console.warn('[dens] Legendary den has no boss candidates:',{bosses:bp.length,legendaries:lp.length}); say('Legendary Den unavailable: roster not loaded. Try again.',3); return false; }
     const list = []; for (let i = 0; i < 4; i++) list.push(bp[Math.floor(Math.random() * bp.length)].dex); list.push(lp[Math.floor(Math.random() * lp.length)].dex);
-    lden = { kind, stage: 0, list, e: null, wait: 1.5 };
+    lden = { kind, stage: 0, list, e: null, wait: 1.5, id: Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10) };
     if (kind === 'battle' && !(window.PS_STORY && window.PS_STORY.on())) metDen();
     say('LEGENDARY DEN! Defeat 4 Dynamax Pokémon to reach the Legendary!', 3.5);
     try { window.PS_MUSIC && window.PS_MUSIC.event && window.PS_MUSIC.event('trainer'); } catch (_) {}
@@ -189,7 +197,7 @@
     if (st === 4) {   // the Legendary joins you
       const dex = e.dex, sh = !!e.shiny;
       if (!denReward(dex, sh, 'Legendary Den cleared · +600 PokéCoins')) banner.show('Legendary Den cleared! +600 PokéCoins', e.name + ' got away this time (40% to catch)', true, { dex, shiny: sh, ms: 6000 });
-      tell({ k: 'psden', ev: 'clear', dex, shiny: sh });
+      tell({ k: 'psden', ev: 'clear', dex, shiny: sh, id: lden.id });
       try { B().audio?.sfx?.('legend'); } catch (_) {}
       const kind = lden.kind; lden = null;
       if (kind === 'mode') setTimeout(() => { try { if (B()?.game?.player === p && B()?.game?.state !== 'over') E().Game.winRun(0); } catch (_) {} }, 3500);

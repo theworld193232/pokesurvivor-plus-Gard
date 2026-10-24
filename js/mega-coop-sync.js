@@ -1,5 +1,5 @@
 /* Gard Co-op Mega/Primal Visual Sync v1 (from your GitHub), plus [v73] the REAL effects for teammates:
- *  - a teammate's Mega Evolution plays the same orb-shatter Mega cutscene you see on yourself (wherever they are)
+ *  - a nearby teammate's Mega Evolution plays the same orb-shatter Mega cutscene you see on yourself
  *  - a teammate's Primal Reversion plays the real Reversion scene when you're inside its domain, and its domain
  *    (Primordial Sea / Desolate Land / Delta Stream) shows only while you stand inside it (js/primal-*.js, mega-native).
  *  The old approximate remote overlay (ps-remote-mega-fx) is removed.
@@ -89,7 +89,7 @@
       if (live) try {
         if (form === '382-primal' && near && window.PS_PRIMAL_KYOGRE?.beginRemote) { window.PS_PRIMAL_KYOGRE.beginRemote(p, oldAnim, next); played = true; }
         else if (form === '383-primal' && near && window.PS_PRIMAL_GROUDON?.beginRemote) { window.PS_PRIMAL_GROUDON.beginRemote(p, oldAnim, next); played = true; }
-        else if (!form.endsWith('primal') && window.PS_FX?.has?.('megaevo')) {
+        else if (near && !form.endsWith('primal') && window.PS_FX?.has?.('megaevo')) {
           const dex = form.split('-')[0], cry = { '282': 'assets/cries/282.mp3', '384': 'assets/cries/384-mega.mp3' }[dex] || null;
           p.anim = oldAnim; window.PS_FX.cast('megaevo', p, { id: 'mega-evolution', type: 'normal', dmg: 0, fx: { newAnim: next, form, cry } }, null, true); played = true;
         }
