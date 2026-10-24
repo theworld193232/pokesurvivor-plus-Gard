@@ -1,5 +1,7 @@
 # Living wildlife V2 — October 24, 2026
 
+Historical V2 release, superseded by OCCASIONAL_WILDLIFE.md after the user found its social behavior too widespread. Use the newer Occasional Wildlife ZIP.
+
 This cumulative patch includes the previously packaged co-op menu/five-card fixes, Echo/Mega synchronization fixes, service worker and solo species port.
 
 ## Wildlife

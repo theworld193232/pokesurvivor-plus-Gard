@@ -66,7 +66,7 @@ Upstream 48a8cccb contains the first wildlife files but its index.html does not 
 
 ## Next selected imports
 
-The requested subset is implemented: wordless original pixel emotes, nearby Legendary fear/awe, peaceful-target exclusion with incidental damage and reactive crying/fleeing/retaliation, bounded Pokémon interactions, and den art/depth/collision correction. Dens have no ground energy border and activate from any side. See LIVING_WILDLIFE_V2.md for validation and limits. The co-op/wildlife switch and special-enemy exclusions remain.
+The requested subset is implemented: wordless original pixel emotes, nearby Legendary fear/awe, peaceful-target exclusion with incidental damage and reactive crying/fleeing/retaliation, bounded Pokémon interactions, and den art/depth/collision correction. Dens have no ground energy border and activate from any side. See OCCASIONAL_WILDLIFE.md for the latest rarity/pacing correction and LIVING_WILDLIFE_V2.md for historical integration details. The co-op/wildlife switch and special-enemy exclusions remain.
 
 After those pass, evaluate a single alternate-form family with its metadata and rules, then a bounded environment/decor adapter. Doofcraft work remains selective: Upgrades-specific search and input/accessibility improvements are useful candidates; collection filtering, basic shake controls and overlapping forms are already present.
 
