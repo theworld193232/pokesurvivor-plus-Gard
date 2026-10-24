@@ -19,7 +19,7 @@
   if (window.PS_WAVES_INSTALLED) return; window.PS_WAVES_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const TAU = Math.PI * 2;
-  const CFG = { first: 90, every: 80, warn: 3, meteorFrom: 240 };
+  const CFG = { first: 90, every: 80, warn: 3, meteorFrom: 240, batchSize: 25 }; // 25 enemies in a normal timed wave; NOT total alive enemy cap
   const clock = () => { try { const t = E().Game.time; return Number(typeof t === 'function' ? t() : t) || 0; } catch (_) { return 0; } };
   const say = (t, d) => { try { E().Spawner.say(t, d || 3); } catch (_) {} };
   const active = () => { const N = E(), g = B()?.game; return !!(N && g && g.player && g.state === 'playing' && !(N.Coop && N.Coop.active) && !(window.PS_SAFEZONE && window.PS_SAFEZONE.active) && !(N.Rift && N.Rift.inArena) && !(N.Judgment && N.Judgment.active) && !(window.PS_MODES && window.PS_MODES.run && window.PS_MODES.run.mode === 'legend')); };
@@ -41,7 +41,7 @@
   function scale() { try { return E().Enemies.scale(clock()); } catch (_) { return { hp: 1, dmg: 1, spd: 1 }; } }
   function spawnAround(def, n, mul, role, ring) {
     const N = E(), p = B().game.player, W = B().world, out = [], base = Math.random() * TAU;
-    n = Math.max(1, Math.round(n * (CFG.sizeMul || 1)));
+    n = Math.max(1, Math.round(n)); // explicit 25 per wave, unaffected by global spawn-size multipliers
     for (let i = 0; i < n; i++) {
       let x = p.x, y = p.y; for (let k = 0; k < 20; k++) { const a = base + (ring ? i / n * TAU : (Math.random() - 0.5) * 1.2) + (k ? Math.random() : 0), d = 430 + Math.random() * 120; x = p.x + Math.cos(a) * d; y = p.y + Math.sin(a) * d * 0.8; try { if (W && W.isFree && !W.isFree(x, y, 16)) continue; } catch (_) {} break; }
       let e; try { e = new N.Enemy(Object.assign({}, def), x, y, mul, false); } catch (err) { console.warn('[waves]', err); continue; }
@@ -54,11 +54,11 @@
     const sc = scale(), p = B().game.player;
     const base = pickDef(); if (!base && w.id !== 'meteor') return;
     switch (w.id) {
-      case 'healer': spawnAround(base, 7, sc, 'wave'); spawnAround(pickDef() || base, 2, { hp: sc.hp * 1.3, dmg: sc.dmg * 0.5, spd: sc.spd * 0.85 }, 'healer'); break;
-      case 'shield': spawnAround(base, 7, sc, 'wave'); spawnAround(pickDef() || base, 2, { hp: sc.hp * 1.5, dmg: sc.dmg * 0.5, spd: sc.spd * 0.8 }, 'shield'); break;
-      case 'swift': spawnAround(pickDef(e => e.behavior !== 'shooter' && e.behavior !== 'ranged') || base, 9, { hp: sc.hp * 0.6, dmg: sc.dmg, spd: sc.spd * 1.6 }, 'swift', true); break;
-      case 'elite': spawnAround(pickDef(e => /shoot|range|caster/.test(String(e.behavior))) || base, 4, { hp: sc.hp * 3, dmg: sc.dmg * 1.2, spd: sc.spd * 0.9 }, 'elite', true); break;
-      case 'element': { const ty = (pickDef() ? (E().DEX_BY[base.dex]?.types || ['normal'])[0] : 'normal'); const d = pickDef(e => (e.types || []).includes(ty)) || base; w.label = (E().U.TYPE_NAME?.[ty] || ty); spawnAround(d, 10, sc, 'wave', true); break; }
+      case 'healer': spawnAround(base, CFG.batchSize - 2, sc, 'wave'); spawnAround(pickDef() || base, 2, { hp: sc.hp * 1.3, dmg: sc.dmg * 0.5, spd: sc.spd * 0.85 }, 'healer'); break;
+      case 'shield': spawnAround(base, CFG.batchSize - 2, sc, 'wave'); spawnAround(pickDef() || base, 2, { hp: sc.hp * 1.5, dmg: sc.dmg * 0.5, spd: sc.spd * 0.8 }, 'shield'); break;
+      case 'swift': spawnAround(pickDef(e => e.behavior !== 'shooter' && e.behavior !== 'ranged') || base, CFG.batchSize, { hp: sc.hp * 0.6, dmg: sc.dmg, spd: sc.spd * 1.6 }, 'swift', true); break;
+      case 'elite': spawnAround(base, CFG.batchSize - 5, sc, 'wave', true); spawnAround(pickDef(e => /shoot|range|caster/.test(String(e.behavior))) || base, 5, { hp: sc.hp * 3, dmg: sc.dmg * 1.2, spd: sc.spd * 0.9 }, 'elite', true); break;
+      case 'element': { const ty = (pickDef() ? (E().DEX_BY[base.dex]?.types || ['normal'])[0] : 'normal'); const d = pickDef(e => (e.types || []).includes(ty)) || base; w.label = (E().U.TYPE_NAME?.[ty] || ty); spawnAround(d, CFG.batchSize, sc, 'wave', true); break; }
       case 'mini': spawnAround(base, 1, { hp: sc.hp * 12, dmg: sc.dmg * 1.6, spd: sc.spd }, 'mini').forEach(e => { try { e.anim.scale = (Number(e.anim.scale) || 1) * 1.6; e.r = (Number(e.r) || 12) * 1.4; e.bodyH = (Number(e.bodyH) || 36) * 1.6; } catch (_) {} }); break;
       case 'meteor': meteorLeft = 10; meteorT = 0.2; break;
     }
