@@ -708,7 +708,7 @@ G.Layouts = G.Layouts || (() => {
         for (let n = 0; n < pool.list.length && (pool.list[Math.floor(hl * pool.list.length)] === t || pool.list[Math.floor(hu * pool.list.length)] === t); n++) { k = (k + 1) % pool.list.length; t = pool.list[k]; } }
       return t;
     }
-    const pool = () => { if(!G.Maps?.endless)return null;const b=G.Maps?.cur?.biome||0;return POOLS[b]||POOLS[0]; };
+    const pool = () => { const b = G.Maps && G.Maps.cur ? G.Maps.cur.biome : 0; return POOLS[b] || null; };
     function region(tx, ty, seed, P) {
       tx += CELL / 2; ty += CELL / 2;   // shift so the spawn point (0,0) sits in the middle of cell (0,0)
       const ci = Math.floor(tx / CELL), cj = Math.floor(ty / CELL); let d1 = 1e18, d2 = 1e18, bi = 0, bj = 0, si = 0, sj = 0;
