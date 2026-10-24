@@ -434,7 +434,7 @@
   function loop(now) {
     requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now;
     try { if (active) { uiT += dt; if (uiT > 0.2) { uiT = 0; uiBlock = gameScreenOpen(); if (active.paused && !uiBlock) active.paused = false; } updateScene(dt); drawScene(dt); hudT += dt; if (hudT > 0.25) { hudT = 0; renderHud(); } } else { tickRifts(dt); } drawRifts(); } catch (e) { console.warn('[safezone]', e); }
-    const isMe = String(B()?.user || '').trim().toLowerCase() === 'lovergare';
+    const isMe = !!window.PS_GARD_TEST_ACCESS?.();
     test.style.display = isMe && B()?.game?.state === 'playing' && !active ? 'flex' : 'none';
     if (!active && B()?.game?.state === 'ui' && rifts.length) rifts.length = 0;
   }

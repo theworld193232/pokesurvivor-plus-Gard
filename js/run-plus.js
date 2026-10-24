@@ -51,7 +51,7 @@
     const N = E(), g = B()?.game; if (!N || !g || g.state !== 'playing' || !g.player) return false;
     if (N.Coop && N.Coop.active) return false; if (N.Rift && N.Rift.inArena) return false; if (window.PS_SAFEZONE && window.PS_SAFEZONE.active) return false;
     if (window.PS_ROUTE1 && window.PS_ROUTE1.active()) return false; if (window.PS_MODES?.run?.mode === 'legend') return false;
-    if (N.Maps && N.Maps.endless) return false;
+    if (!N.Maps?.endless) return false; // Friend owns normal-map habitat spawns; Gard owns Area Zero.
     return true;
   }
   let legends = null, pools = null;

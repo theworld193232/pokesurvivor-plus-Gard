@@ -308,7 +308,7 @@
     sharedZ=Math.max(0,sharedZ-dt);updateBombers(dt);
     for(const portal of portals)portal.age+=dt;
     portals=portals.filter(portal=>portal.age<1.2);
-    const enemies=E.EnemyMgr.all().filter(e=>!e.dead);
+    const enemies=E.EnemyMgr.all().filter(e=>!e.dead&&(!window.PSXAI?.enabled||window.PSXAI.Player.autoTargetable(player,e)));
     for (const s of units) {
       if(s.dead)continue;
       s.age+=dt;
