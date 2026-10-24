@@ -23,11 +23,12 @@
  * };
  */
 window.PS_FIREBASE = {
-  apiKey: "AIzaSyAsF3t8KQ4wOBUD09KFP550aDUuYAOc3d4",
-  authDomain: 'pokesurvior-omega.firebaseapp.com',
-  projectId: 'pokesurvior-omega',
-  storageBucket: 'pokesurvior-omega.firebasestorage.app',
-  messagingSenderId: '16212894744',
-  appId: '1:16212894744:web:b257ade083dcae29a1cf6d',
-  databaseURL: 'https://pokesurvior-omega-default-rtdb.firebaseio.com'
+  apiKey: "AIzaSyC21Y0BXVvifmfiCNhGkrXfYLA_ozPGJQs",
+  authDomain: "pokesurvivor-e5802.firebaseapp.com",
+  databaseURL: "https://pokesurvivor-e5802-default-rtdb.firebaseio.com",
+  projectId: "pokesurvivor-e5802",
+  storageBucket: "pokesurvivor-e5802.firebasestorage.app",
+  messagingSenderId: "706742946313",
+  appId: "1:706742946313:web:e92776e5267418b04cc6d8"
 };
+
