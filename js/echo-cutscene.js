@@ -552,7 +552,8 @@
   function vignette(g, W, H) { const v = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.55)'); g.fillStyle = v; g.fillRect(0, 0, W, H); }
   function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
   // ---- LoverGare's test panel: Level 50, 1 HP (no hearts), play the cut-in ----
-  function levelTo(p, lv) { let n = 0; while ((Number(p.level) || 1) < lv && n++ < 400) { const need = Math.max(1, (Number(p.xpNext) || 1) - (Number(p.xp) || 0)) + 0.01; try { p.gainXp(need / (Number(p.xpMul) || 1) / (Number(p.xpK) || 1) + 0.01); } catch (_) { break; } } }
+  function levelTo(p,lv){if(!p||!window.PS_GARD_TEST_ACCESS?.())return;const N=window.PS_HOOPA_ENGINE;let n=0;while(p.level<lv&&n++<400){if(typeof N.Game.debugLevelUp==='function')N.Game.debugLevelUp();else p.gainXp(Math.max(1,(p.xpNext-p.xp+1)/(Number(p.xpK)||1)));}}
+
   function testBtns() {
     const t = document.getElementById('ps-sz-test'); if (!t || t.querySelector('[data-echotest]')) return; t.style.flexWrap = 'wrap'; t.style.maxWidth = '92vw'; t.style.justifyContent = 'center';
     const add = (label, f) => { const b = document.createElement('button'); b.dataset.echotest = '1'; b.textContent = label; b.addEventListener('click', e => { e.stopPropagation(); try { f(B().game.player); } catch (err) { console.warn('[echo test]', err); } }); t.appendChild(b); };

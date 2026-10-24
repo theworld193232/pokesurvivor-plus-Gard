@@ -32,6 +32,7 @@
   window.PS_MUSIC_PLAYLIST_INSTALLED = true;
 
   const TRACKS = {
+    'lavender-town': { title: 'Lavender Town — Let’s Go Pikachu / Eevee', file: 'assets/music/lavender-town-lgpe.mp3' },
     'tera':      { title: 'Tera Raid Battle — Orchestral Remix', file: 'assets/music/tera-raid-orchestral-remix.mp3' },
     'gym-tera':  { title: 'Gym Leader Tera Raid',                file: 'assets/music/gym-tera.mp3' },
     'zone-zero': { title: 'Zone Zero',                           file: 'assets/music/zone-zero.mp3' },
@@ -75,6 +76,7 @@
     safezone:{ songs: ['pallet', 'littleroot', 'rustboro', 'cerulean', 'dewford', 'petalburg', 'oldale', 'viridian'] },   // pink-rift Safe Zones
     mega:    { songs: ['gym-tera'] },
     special: {
+      haunted: { songs: ['lavender-town'] },
       rift:     { songs: ['tera'] },
       judgment: { songs: ['tera'] },
     },
@@ -153,6 +155,7 @@
     const lg = legendSong(); if (lg) return 'legend:' + lg;
     if (gameTrack && RULES.special && RULES.special[gameTrack]) return 'special:' + gameTrack;
     const pr = primalSong(); if (pr) return 'primal:' + pr;
+    if (window.PS_HAUNTED_MUSIC?.active()) return 'special:haunted';
     return 'battle';
   }
   const primalFailed = new Set();
@@ -261,6 +264,11 @@
       }
       if (cur && cur.id === id) { cur.ctx = ctx; audio.loop = true; render(); return; }
       if (!fadeT) { cut(() => start(id, ctx)); render(); return; }
+    }
+    // Enter/leave the haunted atmosphere promptly, with the existing fade and priority rules.
+    if (!locked && !fadeT && cur?.ctx !== 'mega' && !cur?.ctx.startsWith('lowhp:') &&
+        ((ctx === 'special:haunted' && cur?.ctx !== ctx) || (cur?.ctx === 'special:haunted' && ctx !== cur.ctx))) {
+      cut(() => { const id = chooseNext(ctx, null); return id ? start(id, ctx) : false; }); return;
     }
     // 2) going between the menu and a battle switches music right away (title songs never follow you into battle)
     if (leftOrEnteredMenu && ((cur && cur.ctx !== ctx) || fadeT)) {   // also catches a song that was mid-fade-in

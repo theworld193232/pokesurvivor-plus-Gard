@@ -596,7 +596,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    if(p.megaForm){if(p.megaKit===p.megaForm)return TRAITS[p.megaForm]||null;if(WEATHER[p.megaForm])return TRAITS[Number(p.dex)]||null;return null;}
    return LEGENDS[Number(p.dex)]?TRAITS[Number(p.dex)]||null:null;
  }
- function wxKind(){let k=W()?.current?.kind||null;if(k&&k.indexOf('primal-')===0)k=k.slice(7);return k;}
+ function wxKind(){let k=W()?.current?.kind||null;if(k&&k.indexOf('primal-')===0)k=k.slice(7);if(!k){const c=window.PSXAI?.Sky?.st?.cur;if(c)k=c.storm>.55?'storm':c.snow>.5?'snow':c.rain>.5?'rain':c.fog>.6?'fog':c.wind>.85?'winds':null;}return k;}
  function condOK(w,p,t){
    if(!w)return true;const hp=p.maxHp>0?p.hp/p.maxHp:1,now=performance.now();
    if(w.hpBelow!=null&&!(hp<w.hpBelow))return false;
@@ -761,7 +761,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
          if(A.dealMulti&&Number(mv.count)>1)m*=A.dealMulti;
        }
        if(p.__buff&&p.__buff.ab===P.abilityId&&performance.now()<p.__buff.until&&(!p.__buff.type||p.__buff.type==='all'||p.__buff.type===type))m*=p.__buff.deal||1;
-       if(A.weatherBoost){const k=W()?.current?.kind;if(k&&A.weatherBoost.kinds.includes(k))m*=A.weatherBoost.deal;}
+       if(A.weatherBoost){const k=wxKind();if(k&&A.weatherBoost.kinds.includes(k))m*=A.weatherBoost.deal;}
        if(A.lowHp&&A.lowHp.deal&&p.maxHp>0&&p.hp/p.maxHp<A.lowHp.below)m*=A.lowHp.deal;
        if(A.beastBoost)m*=bbMult(p,'deal');
        if(A.slowStart){const t=(performance.now()-(p.__bornAt||performance.now()))/1000;m*=t<A.slowStart.secs?A.slowStart.early:A.slowStart.late;}
@@ -1127,6 +1127,9 @@ function start(){
    "This is our moment, {n}!","Together we're unstoppable, {n}!","I believe in you, {n}!","Let's turn this around, {n}!",
    "Unleash your true power, {n}!","Our bond is our strength, {n}!","Time to shine, {n}!","No holding back now, {n}!"];
  MEGA_CTL={line:(...a)=>trainerLine(...a),mega(dex,key){chosenForm[String(dex)]=key;stoneOwned=true;rewardPending=false;btn.onclick();}};
+ window.PS_GARD_MEGA_TEST={forms:()=>options(getPlayer()).map(f=>({key:f.key,name:f.en||f.name})),
+  evolve(key){if(!window.PS_GARD_TEST_ACCESS?.())return false;const p=resetIfNew(),f=options(p).find(f=>f.key===key)||formFor(p);if(!p||!f||used)return false;chosenForm[String(p.dex)]=f.key;stoneOwned=true;rewardPending=false;btn.onclick();return p.megaForm===f.key;}};
+
  function trainerLine(name,forced,tag){
    // Pokemon-game style text box: white panel, double border, name tag, typewriter text, blinking arrow
    if(!document.getElementById('ps-trainer-css')){const st=document.createElement('style');st.id='ps-trainer-css';st.textContent=`
@@ -1192,72 +1195,4 @@ function start(){
  panel.append(title,status,formsBox,btn,hint,close);document.body.append(mini,panel,ring);setInterval(()=>{refresh();placeHudSlot();drawMegaReward();keepPrimalWeather();megaKitTick();},60);refresh();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-})();
-// ================= CUSTOM ACCOUNT SKINS =================
-// Gives specific accounts their own optional sprite for a Pokemon. Only that account sees it.
-//   username (lowercase)  ->  { dex number : { key: sprite folder in assets/pokemon/, ... } }
-// 'anims' lists the sheets that exist in the skin folder. Any animation NOT listed (Attack, Shoot,
-// Charge, Hurt, Faint) plays the skin's Idle frames, so the skin is always visible while ON.
-// 'res': sheets are drawn at this many times normal resolution (4 = 512x1280 sheet, 128x160/frame).
-// A toggle button appears in the main menu (next to the partner's Upgrades button) ONLY for that
-// account. OFF = the normal sprite exactly as the game draws it (shiny stays shiny).
-// Mega/Primal forms always keep their own sprites.
-(function(){
- const SKINS={
-   'lovergare':{'282':{key:'282-lovergare',label:'Bikini Gardevoir',icon:'\u{1F459}',anims:['Idle','Walk'],res:4}} // Bikini Gardevoir
- };
- const bridge=()=>window.PS_MEGA_BRIDGE_V5;
- const user=b=>String(b?.user||'').trim().toLowerCase();
- const prefKey=(u,dex)=>'ps-skin:'+u+':'+dex;
- function isOn(u,dex){try{return localStorage.getItem(prefKey(u,dex))!=='off';}catch(e){return true;}} // default ON
- function setOn(u,dex,on){try{localStorage.setItem(prefKey(u,dex),on?'on':'off');}catch(e){}}
- function skinFor(b,p){
-   const u=user(b),map=SKINS[u];if(!map||!p||p.megaForm)return null;
-   const dex=String(Number(p.dex)),skin=map[dex];
-   return skin&&isOn(u,dex)?skin:null;
- }
- function ensureMeta(b,skin,dex){
-   if(b.spriteMeta[skin.key])return true;
-   const base=b.spriteMeta[dex];if(!base)return false;
-   const meta=JSON.parse(JSON.stringify(base));delete meta.sh;delete meta.sa; // skin has no shiny variant
-   for(const a of Object.keys(meta.a||{}))if(!skin.anims.includes(a))delete meta.a[a]; // unlisted -> Idle
-   const k=Number(skin.res)||1;
-   if(k!==1)for(const a of Object.values(meta.a||{})){a.w*=k;a.h*=k;a.ax*=k;a.ay*=k;}
-   b.spriteMeta[skin.key]=meta;return true;
- }
- function apply(){
-   const b=bridge(),p=b?.game?.player;
-   if(!b||!p||!b.sprites?.Animator||!b.spriteMeta)return;
-   const dex=String(Number(p.dex)),skin=skinFor(b,p),isSkinned=!!p.__skin&&p.anim&&p.anim.dex===p.__skin.key;
-   if(skin){
-     if(isSkinned&&p.__skin.key===skin.key)return;
-     if(!ensureMeta(b,skin,dex))return;
-     // Remember the real sprite settings (scale, shiny) so OFF restores them exactly.
-     const prev=isSkinned?p.__skin.prev:{scale:Number(p.anim?.scale)||Number(p.scale)||1,shiny:!!p.anim?.shiny};
-     try{p.anim=new b.sprites.Animator(skin.key,prev.scale/(Number(skin.res)||1),false);p.__skin={key:skin.key,prev};}catch(e){console.warn('Skin:',e);}
-   }else if(isSkinned){
-     const prev=p.__skin.prev;
-     try{p.anim=new b.sprites.Animator(p.megaForm||dex,prev.scale,prev.shiny);}catch(e){console.warn('Skin off:',e);}
-     delete p.__skin;
-   }
- }
- // ---- menu toggle (only for accounts that own a skin) ----
- let btn=null;
- function menuButton(){
-   const b=bridge(),u=user(b),map=SKINS[u];
-   const anchor=document.getElementById('menu-partner-upg');
-   if(!map||!anchor){if(btn)btn.style.display='none';return;}
-   // Which partner is shown in the menu? Use the run's Pokemon if any, else the first skinned dex.
-   const dex=Object.keys(map)[0],skin=map[dex];
-   if(!btn){
-     btn=document.createElement('button');btn.type='button';btn.className='pp-upg';btn.id='ps-skin-toggle';
-     btn.style.marginLeft='6px';
-     btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const d=btn.dataset.dex;setOn(user(bridge()),d,!isOn(user(bridge()),d));render();apply();});
-   }
-   if(btn.parentNode!==anchor.parentNode||btn.previousSibling!==anchor)anchor.insertAdjacentElement('afterend',btn);
-   btn.dataset.dex=dex;btn.style.display='';
-   function render(){const on=isOn(user(bridge()),btn.dataset.dex);btn.textContent=skin.icon+' '+skin.label+': '+(on?'ON':'OFF');btn.style.opacity=on?'1':'.6';btn.title='Only visible on your account';}
-   render();
- }
- setInterval(()=>{apply();menuButton();},250);
 })();
