@@ -12,6 +12,7 @@
   if (window.PS_SAFEZONE_INSTALLED) return; window.PS_SAFEZONE_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const TAU = Math.PI * 2;
+  const inTemple=()=>!!(window.PS_CRYSTAL_PEAK?.active?.()&&window.PS_CRYSTAL_PEAK.model.special());
   const ART = 1254;       // map art size (art pixels); the image file is 2x for sharpness
   const S = 2.6;          // map art pixel -> screen pixel
   const CELL = 3;         // mask cell size in art pixels
@@ -88,7 +89,7 @@
       return true;
     } catch (_) { return false; }
   }
-  function spawnRift(zoneId, near) {
+  function spawnRift(zoneId, near) { if(inTemple())return;
     const p = B()?.game?.player; if (!p || rifts.length || active || entering || window.PS_DENS?.occupied) return null; zoneId = zoneId || (Math.random() < 0.5 ? 'forest-shrine' : 'portal-shrine'); loadZone(zoneId);
     let x, y, found = false;
     for (let i = 0; i < 30; i++) { const a = Math.random() * TAU, d = near ? 150 : 260 + Math.random() * 140; const nx = p.x + Math.cos(a) * d, ny = p.y + Math.sin(a) * d * 0.8;
@@ -98,7 +99,7 @@
     try { B().fx.ring(x, y, 10, 90, '#ff7ad0', 0.6, 6); B().fx.dmgText(p.x, p.y - (p.bodyH || 40) - 30, 'A pink rift opened!', '#ff8ad8'); } catch (_) {}
     return r;
   }
-  function tickRifts(dt) {
+  function tickRifts(dt) { if(inTemple())return;
     const g = B()?.game, p = g?.player; if (!p || g.state !== 'playing' || active) return;
     if (E()?.Coop?.active) return;
     if (p !== runP) { runP = p; rifts.length = 0; }
@@ -118,7 +119,7 @@
     ctx.font = '700 15px Pixelify, "Segoe UI", system-ui, sans-serif'; ctx.textAlign = Math.cos(a) > 0.3 ? 'right' : Math.cos(a) < -0.3 ? 'left' : 'center';
     ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,.85)'; ctx.lineJoin = 'round'; const tx = 30 * -Math.cos(a), ty = 26 * -Math.sin(a) + 4; ctx.strokeText(text, tx, ty); ctx.fillStyle = col; ctx.fillText(text, tx, ty); ctx.restore();
   }
-  function drawRifts() {
+  function drawRifts() { if(inTemple()){ov.style.display='none';return;}ov.style.display='block';
     const ctx = ov.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
     if (ov.width !== Math.round(W * dpr)) { ov.width = Math.round(W * dpr); ov.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); if (ov.__dirty) { ctx.clearRect(0, 0, W, H); ov.__dirty = false; }
@@ -153,7 +154,7 @@
   function makeAnim(p) {   // the player's own look (form, Mega, shiny) using the game's sprite animator
     try { const Sp = E()?.Sprites; if (!Sp || !Sp.Animator || !p || !p.anim) return null; const a = new Sp.Animator(p.anim.dex, Number(p.anim.scale) || 1, !!p.anim.shiny); a.shiny = !!p.anim.shiny; return a; } catch (_) { return null; }
   }
-  function enter(id, rift) {
+  function enter(id, rift) { if(inTemple())return;
     const g = B()?.game, p = g?.player; if (!p || active || entering || window.PS_DENS?.occupied || (E()?.Coop?.active)) return false;
     const z = ZONES[id], c = loadZone(id);
     entering = true;

@@ -10,7 +10,7 @@
   if(!p||g.state==='ui'||g.state==='over'){player=null;nextAt=null;return;}
   const t=Number(typeof g.time==='function'?g.time():g.time)||0;
   if(p!==player){player=p;nextAt=t+delay();}
-  if(g.state!=='playing'||p.dead||R.Coop?.active)return;
+  if(g.state!=='playing'||p.dead||R.Coop?.active||window.PS_CRYSTAL_PEAK?.quiet?.())return;
   if(t<nextAt)return;
   // One attempt, never catch up with multiple rolls after a clock jump.
   nextAt=t+delay();

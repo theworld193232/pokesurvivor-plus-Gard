@@ -10,6 +10,7 @@
   if (window.PS_DENS_INSTALLED) return; window.PS_DENS_INSTALLED = true;
   const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
   const TAU = Math.PI * 2;
+  const inTemple=()=>!!(window.PS_CRYSTAL_PEAK?.active?.()&&window.PS_CRYSTAL_PEAK.model.special());
   const CFG = { first: 135, every: 180, chance: 0.25, shinyMul: 2, bandChance: 0.30, xpLevels: 2, life: 70, raidTime: 120, hpMul: 4, dmgMul: 1.3, grow: 1.4, coins: 300, coinsAgain: 450 };
   const FOOTPRINT = Object.freeze({ rx: 84, ry: 44, margin: 20, enter: 34, spacing: 240 });
   const dens = [];        // {x,y,t,life}
@@ -46,11 +47,11 @@
   // player movement in small swept steps so a fast dash cannot tunnel through it.
   const STONE = Object.freeze({rx:70, ry:38});
   const ART = Object.freeze({size:150, anchorY:.72});
-  function blocksDen(body, x, y, den) {
+  function blocksDen(body, x, y, den) { if(inTemple())return false;
     const r=Math.max(0,Number(body.r)||0),dx=x-den.x,dy=y-den.y;
     return (dx/(STONE.rx+r))**2+(dy/(STONE.ry+r))**2<1;
   }
-  function collideDens(body, from) {
+  function collideDens(body, from) { if(inTemple())return false;
     if(!body || !Number.isFinite(body.x) || !Number.isFinite(body.y))return;
     const list=[...dens,...ldens];if(!list.length)return;
     const endX=body.x,endY=body.y,start=from||{x:endX,y:endY};
@@ -69,14 +70,14 @@
     }
     body.x=x;body.y=y;
   }
-  function atEntrance(p,d){
+  function atEntrance(p,d){ if(inTemple())return false;
     const r=Math.max(0,Number(p.r)||0),dx=p.x-d.x,dy=p.y-d.y;
     return (dx/(STONE.rx+r+12))**2+(dy/(STONE.ry+r+12))**2<=1;
   }
   // Native world depth sorting puts a Pokémon in front of the front stones
   // when its feet are closer to the camera. The beam is no longer a HUD overlay.
   let depthReady=false;
-  function denVisible(){const st=B()?.game?.state;return st && st!=='ui' && st!=='over' && !window.PS_SAFEZONE?.active;}
+  function denVisible(){const st=B()?.game?.state;return !inTemple() && st && st!=='ui' && st!=='over' && !window.PS_SAFEZONE?.active;}
   function worldDen(ctx,d){
     ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,(d.life-d.t)/1.5));
     drawDenArt(ctx,d.x,d.y,1,!!d.legend,performance.now()/1000,Math.min(1,d.t/.8));
@@ -130,7 +131,7 @@
       return ![...dens, ...ldens].some(o => Math.hypot(o.x - x, o.y - y) < FOOTPRINT.spacing);
     } catch (_) { return false; } // unavailable world data must never approve an unsafe spot
   }
-  function spawnDen(near) {
+  function spawnDen(near) { if(inTemple())return null;
     const p = B()?.game?.player; if (!p || coop() || dens.length || ldens.length || raid || lden || window.PS_SAFEZONE?.occupied) return null; let x = p.x, y = p.y;
     let found = false;
     for (let i = 0; i < 160 && !found; i++) { const a = Math.random() * TAU, d = (near ? 170 : 300 + Math.random() * 160) + Math.floor(i / 40) * 120, nx = p.x + Math.cos(a) * d, ny = p.y + Math.sin(a) * d * 0.8;
@@ -238,7 +239,7 @@
     try { if (N.Sprites.hasShiny(dex) && Math.random() < rate * shinyMul(p)) { e.shiny = true; try { B().audio?.sfx?.('shiny'); } catch (_) {} e.anim = new N.Sprites.Animator(dex, e.scale, true); } } catch (_) {}
     N.EnemyMgr.add(e); return e;
   }
-  function startLegendDen(kind) {
+  function startLegendDen(kind) { if(inTemple())return null;
     const p = B()?.game?.player, N = E(); if (!p || !N || lden || raid || window.PS_SAFEZONE?.occupied) return false;
     // A den started from a mode button may begin before the first regular update.
     // Mark this player as the current run so the next tick does not erase the challenge.
@@ -281,12 +282,13 @@
       if (kind === 'mode') setTimeout(() => { try { if (B()?.game?.player === p && B()?.game?.state !== 'over') E().Game.winRun(0); } catch (_) {} }, 3500);
     }
   }
-  function spawnLegendDen() { const d = spawnDen(true); if (!d) return null; const idx = dens.indexOf(d); if (idx >= 0) dens.splice(idx, 1); d.legend = true; d.life = 90; ldens.push(d); say('A LEGENDARY DEN appeared! Follow the orange beacon!', 3.5); return d; }
+  function spawnLegendDen() { if(inTemple())return null; const d = spawnDen(true); if (!d) return null; const idx = dens.indexOf(d); if (idx >= 0) dens.splice(idx, 1); d.legend = true; d.life = 90; ldens.push(d); say('A LEGENDARY DEN appeared! Follow the orange beacon!', 3.5); return d; }
   // Dynamax vs Dynamax: while you're Dynamaxed you deal 1.5x damage to Dynamax Pokémon
   let dmgWrapped = false;
   function wrapDyn() { const H = window.PS_HOOKS; if (!H || dmgWrapped) return; dmgWrapped = true; const deal = H.deal;
     H.deal = function (...a) { const m = deal ? deal.apply(this, a) : 1; try { if (window.PS_QUALITY?.dyn?.active && a.some(x => x && typeof x === 'object' && x.__maxRaid)) return m * 1.5; } catch (_) {} return m; }; }
   function tick(dt) {
+    if(inTemple())return;
     const g = B()?.game, p = g?.player;
     if (!p || g.state === 'over') { dens.length = 0; ldens.length = 0; lden = null; raid = null; runP = null; return; }
     // A reward card or pause screen must not delete an in-progress raid.
@@ -393,7 +395,7 @@
     const ctx = ov.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
     if (ov.width !== Math.round(W * dpr) || ov.height !== Math.round(H * dpr)) { ov.width = Math.round(W * dpr); ov.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); if (ov.__dirty) { ctx.clearRect(0, 0, W, H); ov.__dirty = false; }
-    const st = B()?.game?.state; if ((!dens.length && !ldens.length && !raid && !lden) || st === 'ui' || st === 'over' || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) { if (ov.style.display !== 'none') ov.style.display = 'none'; return; } ov.__dirty = true; if (ov.style.display === 'none') ov.style.display = 'block';
+    const st = B()?.game?.state; if (inTemple() || (!dens.length && !ldens.length && !raid && !lden) || st === 'ui' || st === 'over' || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) { if (ov.style.display !== 'none') ov.style.display = 'none'; return; } ov.__dirty = true; if (ov.style.display === 'none') ov.style.display = 'block';
     const cam = B()?.camera, g = gameCanvas(); if (!cam || !g || typeof cam.left !== 'function') return;
     const css = Number(cam._cw) > 0 ? g.r.width / cam._cw : 1, k = cam.scale * css, now = performance.now() / 1000;
     // Match Camera.apply's shake and physical-pixel rounding exactly.
