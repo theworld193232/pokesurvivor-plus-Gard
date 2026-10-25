@@ -3,7 +3,7 @@
      - Enemy shots on screen are capped (10 at the start, growing to 22 by 20 min). When the cap is reached,
        shooters hold their fire for a moment instead of filling the screen.
      - First 5 minutes: ranged enemies fire 35% less often (early runs get swarmed less by bullets).
-     - Enemy shots get a dark outline + faint red ring so they stand out from your own attacks.
+     - Enemy shots use their native move effects; no separate red-circle overlay.
    Item 4, no more "run in circles forever":
      - The game stops spawning at 64 enemies. If the field stays full for 8 s, extra enemies keep arriving in front
        of you (up to 24 over the limit), and enemies you've left far behind for over a minute are moved back in front of you.
@@ -61,28 +61,14 @@
   let lastChip = '';
   function renderChip() { if (combo < 5 || !solo() || B()?.game?.state !== 'playing') { if (chip.style.display !== 'none') chip.style.display = 'none'; lastChip = ''; return; }
     const h = 'Combo <b>×' + combo + '</b>'; if (h !== lastChip) { chip.innerHTML = h; lastChip = h; } chip.classList.toggle('hot', combo >= 30); chip.style.display = 'block'; }
-  // shot outlines
-  const ov = document.createElement('canvas'); ov.id = 'ps-shots'; ov.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:18;display:none';
-  function gameCanvas() { let b = null, ar = 0; for (const c of document.querySelectorAll('canvas')) { if (c.id && c.id.startsWith('ps-')) continue; const r = c.getBoundingClientRect(), a = r.width * r.height; if (a > ar) { ar = a; b = { c, r }; } } return b; }
-  function drawShots() {
-    const L = B()?.game?.state === 'playing' ? hostile() : []; if (!L.length) { if (ov.style.display !== 'none') ov.style.display = 'none'; return; } ov.style.display = 'block';
-    const ctx = ov.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
-    if (ov.width !== Math.round(W * dpr) || ov.height !== Math.round(H * dpr)) { ov.width = Math.round(W * dpr); ov.height = Math.round(H * dpr); }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    const cam = B()?.camera, g = gameCanvas(); if (!cam || !g || typeof cam.left !== 'function') return;
-    const k = cam.scale * (Number(cam._cw) > 0 ? g.r.width / cam._cw : 1), lift = Number(E()?.LIFT) || 0;
-    ctx.lineWidth = 2;
-    for (const q of L) { const X = g.r.left + (q.x - cam.left()) * k, Y = g.r.top + (q.y - cam.top() - lift) * k; if (X < -20 || Y < -20 || X > W + 20 || Y > H + 20) continue; const R = ((Number(q.r) || 6) + 3) * k;
-      ctx.strokeStyle = 'rgba(10,6,20,.85)'; ctx.beginPath(); ctx.arc(X, Y, R, 0, TAU); ctx.stroke(); ctx.strokeStyle = 'rgba(255,70,70,.55)'; ctx.beginPath(); ctx.arc(X, Y, R + 2.5, 0, TAU); ctx.stroke(); }
-  }
   let last = performance.now(), ui = 0;
   function loop(now) { requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now;
     try { wrap(); const g = B()?.game, p = g?.player;
       if (!p || g.state === 'ui' || g.state === 'over') { runP = null; combo = 0; } else {
         if (p !== runP) { runP = p; fullT = 0; combo = 0; comboPaid = 0; best = 0; }
         if (g.state === 'playing') { comboT -= dt; if (comboT <= 0 && combo) { combo = 0; comboPaid = 0; } if (solo()) { shotsTick(dt); capTick(dt); } } }
-      ui += dt; if (ui > 0.15) { ui = 0; renderChip(); } drawShots(); } catch (e) { console.warn('[pressure]', e); } }
-  function init() { document.head.append(css); document.body.append(ov, chip); requestAnimationFrame(loop); }
+      ui += dt; if (ui > 0.15) { ui = 0; renderChip(); } } catch (e) { console.warn('[pressure]', e); } }
+  function init() { document.head.append(css); document.body.append(chip); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
   window.PS_PRESSURE = { cfg: CFG, get combo() { return combo; }, get best() { return best; }, get fullT() { return fullT; } };
 })();

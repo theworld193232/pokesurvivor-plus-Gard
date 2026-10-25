@@ -48,7 +48,10 @@
     const W = B()?.world; for (let i = 0; i < 60; i++) { const a = Math.random() * TAU, d = dmin + Math.random() * (dmax - dmin), x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d * 0.8;
       try { if (W && W.isFree && !W.isFree(x, y, 24)) continue; } catch (_) {} return [x, y]; } return [p.x + dmax, p.y];
   }
+  const mountain=()=>!!window.PS_CRYSTAL_PEAK?.mountain?.();
+  const sanctuary=()=>!!(window.PS_CRYSTAL_PEAK?.active?.()&&window.PS_CRYSTAL_PEAK.model?.special?.());
   function spawnLegend(dex, kind) {
+    if(sanctuary())return null;if(mountain())dex=144;
     const N = E(), p = B()?.game?.player; if (!N || !p || !N.DEX_BY[dex] || !N.SPRITE_META[dex]) return null;
     const T = template(), sc = N.Enemies.scale ? N.Enemies.scale(clock()) : { hp: 1, dmg: 1, spd: 1 }, d = N.DEX_BY[dex], roam = kind === 'roam';
     const def = { dex, name: d.name, hp: Math.round((Number(T.hp) || 1500) * (roam ? 1.2 : 1.6)), spd: Math.round((Number(T.spd) || 85) * (roam ? 1.25 : 1)), dmg: Math.round((Number(T.dmg) || 30) * 1.15), xp: Math.round((Number(T.xp) || 200) * 1.5),
@@ -57,7 +60,7 @@
     let e; try { e = new N.Enemy(def, x, y, { hp: sc.hp || 1, dmg: sc.dmg || 1, spd: Math.min(1.2, sc.spd || 1) }, true); } catch (err) { console.warn('[roamers]', err); return null; }
     e.legend = true; e.__roamer = kind;
     try { const rate = (Number(N.Spawner.SHINY_RATE) || 1 / 4096) * (p.item === 'shinycharm' ? 3 : 1); if (N.Sprites.hasShiny(dex) && Math.random() < rate) { e.shiny = true; e.anim = new N.Sprites.Animator(dex, e.scale, true); } } catch (_) {}
-    N.EnemyMgr.add(e); live.push({ e, kind, t: 0, dex });
+    N.EnemyMgr.add(e);if(mountain()&&dex===144){e.psxK=Math.max(2.2,e.psxK||1);e._psxKOn=true;e.r=Math.max(e.r,N.Sprites.bodyRadius(144,e.scale||1)*1.35);e.__mountainLegend=true;} live.push({ e, kind, t: 0, dex, zone:mountain()?'peak':'main' });
     if (e.shiny) { try { B().audio?.sfx?.('shiny'); B().fx.burst(x, y - 30, '#fff6c0', 30, 220); } catch (_) {} }
     try { B().fx.ring(x, y, 10, 160, roam ? '#9ae6ff' : '#ffd23f', 0.7, 6); B().audio?.sfx?.('legend'); } catch (_) {}
     if (roam) { tell({ ev: 'appear', dex, shiny: !!e.shiny }); cry(dex); say('A wild ' + (e.shiny ? 'shiny ' : '') + d.name + ' has appeared!', 4); toast('A wild ' + d.name + ' appeared!', 'Defeat it before it flees to catch it', { dex, shiny: !!e.shiny, gold: true, ms: 6000 }); }
@@ -81,16 +84,16 @@
     if (p !== runP) { runP = p; live.length = 0; nextRoll = gap(); nextRush = CFG.rushEvery; }
     if (g.state !== 'playing' || (coop() && !host()) || (window.PS_STORY&&window.PS_STORY.on()) || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) return;   // no roamers in Story
     const t = clock(), mode = window.PS_MODES?.run?.mode;
-    if (mode !== 'legend' && t >= nextRoll) { nextRoll = t + gap();
-      if (Math.random() < CFG.mewChance) spawnLegend(MEW, 'roam'); else if (Math.random() < CFG.roamChance) spawnLegend(ROAMERS[Math.floor(Math.random() * ROAMERS.length)], 'roam'); }
-    if (mode === 'bossrush' && t >= nextRush) { nextRush = t + CFG.rushEvery; const L = rushPool(); if (L.length) spawnLegend(L[Math.floor(Math.random() * L.length)], 'rush'); }
-    for (let i = live.length - 1; i >= 0; i--) { const r = live[i]; r.t += dt;
+    if (!sanctuary() && mode !== 'legend' && t >= nextRoll) { nextRoll = t + gap();
+      if(mountain()){if(Math.random()<CFG.roamChance)spawnLegend(144,'roam');}else if (Math.random() < CFG.mewChance) spawnLegend(MEW, 'roam'); else if (Math.random() < CFG.roamChance) spawnLegend(ROAMERS[Math.floor(Math.random() * ROAMERS.length)], 'roam'); }
+    if (!sanctuary() && mode === 'bossrush' && t >= nextRush) { nextRush = t + CFG.rushEvery; const L = rushPool(); if (L.length) spawnLegend(L[Math.floor(Math.random() * L.length)], 'rush'); }
+    for (let i = live.length - 1; i >= 0; i--) { const r = live[i];if(r.zone==='peak'&&!mountain()){r.e.__fled=true;remove(r.e);live.splice(i,1);continue;}if(r.zone==='main'&&(mountain()||sanctuary()))continue;r.t += dt;
       if (r.e.dead || r.e.hp <= 0) { live.splice(i, 1); if (r.kind === 'roam' && !r.e.__fled) caught(r); continue; }
       if (r.kind === 'roam' && r.t >= CFG.flee) { r.e.__fled = true; tell({ ev: 'fled', dex: r.dex }); say(r.e.name + ' fled!', 2.5); cry(r.dex, 0.5); try { B().fx.ring(r.e.x, r.e.y, 10, 120, '#9ae6ff', 0.6, 5); } catch (_) {} remove(r.e); live.splice(i, 1); }
     }
   }
   function testBtn() {
-    const t = document.getElementById('ps-sz-test'); if (!t || t.querySelector('[data-roam]')) return;
+    const t = document.getElementById('ps-sz-test'); if(!t)return;const existing=t.querySelector('[data-roam]');if(existing){existing.textContent=mountain()?'Roaming Articuno':'Roaming Legendary';return;}
     const b = document.createElement('button'); b.dataset.roam = '1'; b.textContent = 'Roaming Legendary';
     b.addEventListener('click', e => { e.stopPropagation(); spawnLegend(Math.random() < 0.5 ? MEW : ROAMERS[Math.floor(Math.random() * ROAMERS.length)], 'roam'); }); t.appendChild(b);
   }
