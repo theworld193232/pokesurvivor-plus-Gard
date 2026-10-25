@@ -1,0 +1,9 @@
+# Mountain prop artwork
+
+Tents: original user-supplied tents.png is saved unchanged as assets/env/mountain-tents-reference.png. The renderer extracts its blue and green front-facing tents and removes only connected backdrop pixels. The human character is outside the selected cells.
+
+Trees: built-in image generation created an original transparent two-sprite atlas using tree.webp as a style reference. Saved at assets/env/mountain-round-trees-v1.png. The original alpha is preserved in the file. The game uses native pixel scaling, rooted sway and snow shedding.
+
+Final tree prompt:
+
+Use case: stylized-concept. Asset type: ORIGINAL handheld-era pixel-art game tree sprite atlas, transparent PNG. Reference tree.webp is a STYLE REFERENCE for the rounded tiered silhouette and winter snow treatment. Create TWO new distinct rounded deciduous mountain trees, side by side in a single horizontal row, each isolated in its own equal-width half with generous transparent margins. Left tree: rounded tiered dark evergreen foliage with heavy settled white and icy-cyan snow on almost all tiers, a small exposed dark-brown trunk and roots. Right tree: a somewhat taller rounded oval canopy almost fully buried in thick white snow, soft blue pixel-shaded scalloped tiers, small visible brown trunk/roots. Both look rooted and face the same elevated top-down Pokémon RPG camera as the reference. Crisp chunky pixel clusters, tiny logical sprite about 48x64 pixels enlarged with nearest-neighbor, limited color palette, no smooth painting, antialiasing or gradient. No scenery, people, letters, logos, watermark, framing, ground disk or cast shadow. Actual alpha transparency outside each tree. Each entire tree including its roots is inside its own half; same baseline, no overlap. Two trees only; do not recreate the reference sheet.
