@@ -7,7 +7,7 @@
   maxNpcs:96,localCap:18,localRadius:360,spawnInterval:.18,spawnBurst:20,speech:false};
  function configure(){
   Object.assign(AI.cfg,enforced);Object.assign(AI.DEFAULTS,enforced);
-  for(const key of ['forestWorld','naturalTerrain','newArt','areaSpawns','gameWeather','evolution','earnedEvents'])Object.defineProperty(AI.cfg,key,{configurable:true,enumerable:true,get:()=>['forestWorld','naturalTerrain','newArt','areaSpawns'].includes(key)?!R.Maps?.endless:enforced[key],set:()=>{}});
+  for(const key of ['forestWorld','naturalTerrain','newArt','areaSpawns','gameWeather','evolution','earnedEvents'])Object.defineProperty(AI.cfg,key,{configurable:true,enumerable:true,get:()=>['forestWorld','naturalTerrain','newArt','areaSpawns'].includes(key)?(!R.Maps?.endless&&!(R.Maps?.cur?.n===2&&R.Maps?.cur?.crystalPeak)):enforced[key],set:()=>{}});
  }
  configure();
  // The full friend's AI controller remains; never install Gard's old AI adapters.

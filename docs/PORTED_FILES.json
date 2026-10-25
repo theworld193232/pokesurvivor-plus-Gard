@@ -732,5 +732,8 @@
   ],
   "addedMusic": [
     "assets/music/lavender-town-lgpe.mp3"
+  ],
+  "originalGeneratedArt": [
+    "assets/env/crystal-atlas-original-v1.png"
   ]
 }

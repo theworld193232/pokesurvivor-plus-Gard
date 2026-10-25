@@ -1,6 +1,6 @@
 {
-  "syntaxCheckedScripts": 83,
-  "regressionsPassed": 17,
+  "syntaxCheckedScripts": 86,
+  "regressionsPassed": 37,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -10,7 +10,6 @@
     "js/ai/75-social.js",
     "js/ai/94-light.js",
     "js/ai/97-audio.js",
-    "config.js",
     "firestore.rules"
   ],
   "nativePlaytests": [
@@ -25,5 +24,73 @@
     "Firebase authentication and internet co-op were not tested",
     "Full roster, all forms and long-run balance are not exhaustively tested",
     "New Lavender Town trigger tested with mocked world conditions; audio playback not auditioned"
-  ]
+  ],
+  "accountConnection": {
+    "project": "pokesurvivor-e5802",
+    "configMatchesOriginalGard": true,
+    "cloudLoginVerified": false
+  },
+  "rareEncounters": "Shared random 120\u2013180 second check; 10% total chance; mutually exclusive den/rift/active encounter; 5 deterministic tests",
+  "pinkRiftPlacement": "Clear 36px footprint plus dry ground samples; unsafe placements skip spawning",
+  "crystalPeak": {
+    "nativeCrystalArtwork": false,
+    "continuousGround": true,
+    "seededFindingsChanceEach": 0.01,
+    "solidCrystals": true,
+    "separateMountainArea": true,
+    "networkMountainTravel": false,
+    "proceduralChambersWaterAndDebris": true,
+    "animatedReflectionPixelCheck": {
+      "changedPixels": 51550,
+      "coloredPixels": 57564,
+      "reflectionSources": 12
+    },
+    "rgbVariants": [
+      "single",
+      "rainbow",
+      "fusion"
+    ],
+    "cart": "rebuilt pixel sprite",
+    "waterDrawnAfterDarkness": true,
+    "originalGeneratedCrystalAtlas": "assets/env/crystal-atlas-pixel-v2.png",
+    "embeddedAtlas": true,
+    "blockedImageReadFallbackVerified": true,
+    "logicalSpriteHeight": 32,
+    "nonOverlapSeedsTested": 100,
+    "pixelRailSprites": true,
+    "caveDripRipples": true,
+    "softLightPulseAndGlints": true,
+    "groundedEllipseCollision": true,
+    "minimumClusterFootprintGap": 56,
+    "floatingChamberLabels": false,
+    "terrainProvider": "gard-layouts-cave",
+    "nativeStreamPhysics": {
+      "drySpeed": 112,
+      "wetSpeed": 67.2,
+      "liquidContact": true,
+      "sampleAlcoves": 5
+    }
+  },
+  "act2CurrentRevision": {
+    "version": "reference-act2-21",
+    "generation": "endless Gard cave samples plus continuous noise, separate endless snow",
+    "rareEntrances": "independent 1% rolls per run seed; separate maps",
+    "giantCrystalHeight": 192,
+    "overlapChecks": "whole sprite bounds, grounded crystal footprints and reserved door approaches",
+    "nativeStream": {
+      "drySpeed": 105.6,
+      "wetSpeed": 63.36,
+      "wet": true
+    },
+    "reflections": {
+      "realCrystalSources": 12,
+      "pokemonSources": 1,
+      "allMatchedSceneObjects": true
+    },
+    "waterAnimationChangedPixels": 8455,
+    "runtimeWarnings": [],
+    "runtimeErrors": [],
+    "artworkEmbedded": true,
+    "soloTransitionsOnly": true
+  }
 }

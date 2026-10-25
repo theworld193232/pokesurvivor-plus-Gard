@@ -177,3 +177,5 @@ licencia en `assets/fonts/OFL.txt`). El juego usa una versión modificada,
 
 Pokémon es propiedad de Nintendo, Creatures Inc. y GAME FREAK.
 Este es un proyecto de fan sin ánimo de lucro.
+
+Act 2 revision 7 original scenery and sanctuary atlases were generated for this project on October 25, 2026; the game trims and renders them at its pixel scale. Native forest art credits above remain applicable.
