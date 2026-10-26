@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 115,
+  "regressionsPassed": 116,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -449,5 +449,18 @@
     "avatarClearance": "fixed outside all-facing Idle/Walk silhouette; base and Mega",
     "browserErrors": 0,
     "tests": 115
+  },
+  "currentVersion": "legendary-only-fixed-light-v28",
+  "legendaryOnlyV28": {
+    "ordinaryNativeSize": true,
+    "legendarySizesRetained": true,
+    "orbFixed": true,
+    "orbVisualScale": 1.5,
+    "lightRadius": 320,
+    "caveVisualCheck": true,
+    "browserErrors": 0,
+    "friendRevision": "51d69dd6cf94a96019c0e5da484a05f6f2aff999",
+    "friendFilesCompared": 16266,
+    "newFriendChanges": 0
   }
 }

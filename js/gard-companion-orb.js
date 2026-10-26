@@ -24,11 +24,11 @@
  function light(){const p=R.Game.player;if(!eligible(p))return null;const h=A?.Scale?.top(p)||p.bodyH||40,key=p.anim?.dex??p.megaKey??p.dex,half=h*(HALF_WIDTH[key]||HALF_WIDTH[p.dex]||.8),x=p.x+half+8,y=p.y-h*.65,boxes=obstacles(p);
   // A fixed shoulder position: scenery occludes the orb instead of moving it elsewhere.
   const visible=(R.World?.isFree?.(x,y,6,true)??true)&&!boxes.some(b=>x+7>b.left&&x-7<b.right&&y+7>b.top&&y-7<b.bottom);
-  return {x,y,visible,alpha:1,r:260,c:[255,190,225],i:1,halo:0};
+  return {x,y,visible,alpha:1,r:320,c:[255,225,242],i:1,halo:0};
  }
 
  // The cave uses a separate darkness mask, so illuminate it before multiplication too.
- function paintLightMap(ctx,cam,q=1){const l=light();if(!l)return;const x=(l.x-cam.left())*cam.scale/q,y=(l.y-cam.top())*cam.scale/q,r=l.r*cam.scale/q,g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,205,235,'+l.i+')');g.addColorStop(.38,'rgba(255,190,225,.65)');g.addColorStop(1,'rgba(255,190,225,0)');ctx.save();try{ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}finally{ctx.restore();}}
+ function paintLightMap(ctx,cam,q=1){const l=light();if(!l)return;const x=(l.x-cam.left())*cam.scale/q,y=(l.y-cam.top())*cam.scale/q,r=l.r*cam.scale/q,g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,240,250,'+l.i+')');g.addColorStop(.25,'rgba(255,225,242,.9)');g.addColorStop(.6,'rgba(255,190,225,.45)');g.addColorStop(1,'rgba(255,190,225,0)');ctx.save();try{ctx.globalCompositeOperation='lighter';ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);}finally{ctx.restore();}}
  function draw(ctx){const l=light();if(!l||!l.visible)return;const cam=R.Camera,z=cam.scale,x=Math.round((l.x-cam.left())*z),y=Math.round((l.y-cam.top())*z),u=Math.max(1,z)*1.5,r=12*u;
   ctx.save();try{ctx.globalAlpha*=l.alpha;ctx.globalCompositeOperation='lighter';const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,150,215,.65)');g.addColorStop(1,'rgba(255,150,215,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);ctx.globalCompositeOperation='source-over';ctx.fillStyle='#ed75b6';ctx.fillRect(x-3*u,y-2*u,6*u,4*u);ctx.fillRect(x-2*u,y-3*u,4*u,6*u);ctx.fillStyle='#ffc1e5';ctx.fillRect(x-2*u,y-2*u,4*u,4*u);ctx.fillStyle='#fff1fa';ctx.fillRect(x-u,y-2*u,2*u,2*u);}finally{ctx.restore();}
  }
