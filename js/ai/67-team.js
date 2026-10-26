@@ -34,8 +34,11 @@
     try {
       const sv = R().DB.save;
       if (sv) {
+        const previousLead=sv.partner,previousShiny=sv.partnerShiny,requested=st.team[0];
+        sv.psxTeamShiny=sv.psxTeamShiny||{};if(previousLead)sv.psxTeamShiny[previousLead]=shinyOwned(previousLead)&&!!previousShiny;
+        const variant=shinyOwned(requested)&&!!(requested===previousLead?previousShiny:sv.psxTeamShiny?.[requested]);
+        if(requested&&owned(requested)){const actual=window.PS_PARTNER?.choose?.(requested,variant)||requested;st.team=[actual,...st.team.slice(1).filter(d=>d!==actual)];sv.partner=actual;sv.partnerShiny=variant&&shinyOwned(actual);sv.psxTeamShiny=sv.psxTeamShiny||{};sv.psxTeamShiny[actual]=sv.partnerShiny;}
         sv.psxTeam = st.team.slice();
-        if (st.team[0] && owned(st.team[0])) sv.partner = st.team[0]; // (the lead is who a run starts with)
         if (R().DB.commit) R().DB.commit();
       }
     } catch (e) { /* ignore */ }
@@ -51,15 +54,18 @@
     if (lead && owned(lead)) t = [lead].concat(t.filter((d) => d !== lead));
     return t.slice(0, MAX);
   }
-  function setTeam(list) { st.team = [...new Set(list.filter((d) => owned(d)))].slice(0, MAX); persist(); render(); }
+  function setTeam(list) { st.team = [...new Set(list.filter((d) => owned(d)))].slice(0, MAX); persist();try{localStorage.setItem(KEY,JSON.stringify(st.team));}catch(_){} render(); }
 
+  function shinyOwned(dex){try{return !!(R().DB.ownsShiny?.(dex)||R().DB.save.shiny?.[dex])&&!!R().Sprites.hasShiny?.(dex);}catch(_){return false;}}
+  function shinyFor(dex){const sv=R().DB.save||{},choice=sv.psxTeamShiny||{};return shinyOwned(dex)&&!!(Number(sv.partner)===Number(dex)?sv.partnerShiny:choice[dex]);}
+  function setShiny(dex,value){if(value&&!shinyOwned(dex))return false;const sv=R().DB.save;sv.psxTeamShiny=sv.psxTeamShiny||{};sv.psxTeamShiny[dex]=!!value;if(Number(sv.partner)===Number(dex))sv.partnerShiny=!!value;R().DB.commit?.();render();return true;}
   // ---------------------------------------------------------------- in a run
   // each member: { dex, shiny, hpK (0…1), moves, slots, active, out }
   function startRun(p) {
     const team = chosen();
     if (!team.includes(p.dex)) {if(team.length)team[0]=p.dex;else team.push(p.dex);}
     const sv = R().DB.save || {};
-    st.run = { p, cur: 0, members: team.slice(0, MAX).map((dex) => ({ dex, shiny: dex === p.dex ? p.shiny : !!(sv.shiny && sv.shiny[dex] && R().Sprites.hasShiny && R().Sprites.hasShiny(dex)), hpK: 1, moves: null, slots: null, active: 0, fainted: false, entered: false })) };
+    st.run = { p, cur: 0, members: team.slice(0, MAX).map((dex) => ({ dex, shiny: dex === p.dex ? p.shiny : shinyFor(dex), hpK: 1, moves: null, slots: null, active: 0, fainted: false, entered: false })) };
     const lead = st.run.members.findIndex((m) => m.dex === p.dex);
     st.run.cur = Math.max(0, lead);
     st.run.members[st.run.cur].entered=true;
@@ -69,7 +75,7 @@
   function cur() { return st.run && st.run.members[st.run.cur]; }
   // keep what's the member's own (its species, HP, moves) when it goes back to the bench
   function stash(p, m) {
-    m.dex = p.dex; m.shiny = p.shiny; m.entered=true;
+    m.dex = p.dex; m.shiny = p.shiny; m.skin=p.mon?.skin||null;m.entered=true;
     m.hpK = p.maxHp > 0 ? U.clamp(p.hp / p.maxHp, 0, 1) : 0;
     m.moves = p.moves; m.slots = p.slots; m.active = p.active;
   }
@@ -82,12 +88,14 @@
     if (!on() || !p || p !== R().Game.player || !canSwitchTo(i)) return false;
     if (!forced && (st.cd > 0 || p.dead || R().Game.state !== 'playing' || (p.evoAnim || p.evoTo))) return false;
     const out = r.members[r.cur], m = r.members[i];
+    const hpK=p.maxHp>0?U.clamp(p.hp/p.maxHp,0,1):0;
+    out.form=!forced&&!p.dead?window.PS_GARD_MEGA_PRESENTATION?.suspend(p):null;
     if(p.megaKey) R().Mega.end(p);
     out.passive=window.PS_SPECIES_PASSIVES?.detach(p);
-    stash(p, out);
+    stash(p, out);out.hpK=hpK;out.megaCd=Number(p.megaCd)||0;
     if (forced) out.fainted = true;
     // in comes the next one: its species (base stats, sprite, size), then its own HP and moves
-    p.shiny = m.shiny;
+    p.shiny = m.shiny;p.megaCd=Number(m.megaCd)||0;
     // Level-gate a fresh bench member once. Returning members keep the evolution they reached.
     const eligible=m.entered||window.PS_PARTNER?.owner?.()?m.dex:(window.PS_WILD_LEVELS?.ancestor(m.dex,p.level)||m.dex);
     p.evolveTo(eligible);
@@ -101,6 +109,7 @@
     p.hp = Math.max(1, Math.round(p.maxHp * (m.fainted ? 0 : m.hpK)));
     window.PS_SPECIES_PASSIVES?.enter(p,m.passive);
     p.dead = false;
+    if(m.form){const restored=window.PS_GARD_MEGA_PRESENTATION?.resume(p,m.form);if(restored)p.hp=Math.max(1,Math.round(p.maxHp*m.hpK));else m.form=null;}
     p.invuln = Math.max(p.invuln || 0, forced ? 2 : 0.6);
     m.dex=p.dex;m.shiny=p.shiny;m.entered=true;
     r.cur = i;
@@ -178,7 +187,7 @@
       ctx.fillRect(x, y, S, S);
       ctx.strokeStyle = out ? '#ffe680' : m.fainted ? '#6a3a3a' : 'rgba(200,210,230,0.5)'; ctx.lineWidth = out ? 2 : 1;
       ctx.strokeRect(x + 0.5, y + 0.5, S - 1, S - 1);
-      drawIcon(ctx, out&&(r.p.megaKey||r.p.megaForm)||m.dex, x, y, S, m.fainted ? 0.3 : 1, m.shiny);
+      drawIcon(ctx, out?(r.p.megaKey||r.p.megaForm||r.p.mon?.skin||m.dex):(m.form?.key||m.skin||m.dex), x, y, S, m.fainted ? 0.3 : 1, m.shiny);
       // its HP
       const k = out ? (r.p.maxHp > 0 ? r.p.hp / r.p.maxHp : 0) : m.fainted ? 0 : m.hpK;
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x + 2, y + S + 3, S - 4, 4);
@@ -206,7 +215,7 @@
     el.innerHTML = '<div style="width:min(860px,calc(100vw - 32px));max-height:88vh;display:flex;flex-direction:column;gap:10px;padding:14px;background:#141a2a;border:2px solid #3d4a80;border-radius:12px;color:#e6ecff;font:14px system-ui,sans-serif">' +
       '<div style="display:flex;justify-content:space-between;align-items:center"><b data-t style="font-size:18px"></b><button data-close style="padding:6px 12px;background:#232b48;color:#e6ecff;border:1px solid #3d4a80;border-radius:6px;cursor:pointer"></button></div>' +
       '<div data-sub style="opacity:.75;font-size:12px"></div>' +
-      '<div data-team style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px"></div>' +
+      '<div data-team style="display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;max-height:40vh;overflow:auto;flex-shrink:0"></div>' +
       '<input data-q style="padding:7px 9px;background:#0e1322;color:#fff;border:1px solid #3a4a7a;border-radius:6px">' +
       '<div data-list style="flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;min-height:160px"></div></div>';
     document.body.appendChild(el);
@@ -217,7 +226,7 @@
     st.el = el;
   }
   function card(dex, extra) {
-    const shiny=!!(R().DB.save.shiny?.[dex]&&R().Sprites.hasShiny?.(dex));
+    const shiny=shinyFor(dex);
     const d = document.createElement('button');
     d.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;background:#1c2440;color:#e6ecff;border:1px solid #33406e;border-radius:8px;cursor:pointer;font:12px system-ui,sans-serif;min-height:92px';
     const cv = document.createElement('canvas'); cv.width = cv.height = 56;
@@ -229,14 +238,17 @@
     const n = document.createElement('div'); n.textContent = nameOf(dex); d.appendChild(n);
     const t = document.createElement('div'); t.textContent = types; t.style.cssText = 'opacity:.6;font-size:10px'; d.appendChild(t);
     if (extra) { const x = document.createElement('div'); x.textContent = extra; x.style.cssText = 'color:#ffe680;font-size:10px'; d.appendChild(x); }
-    return d;
+    const wrap=document.createElement('div');wrap.style.cssText='display:flex;flex-direction:column;gap:3px;min-width:0';wrap.append(d);
+    const select=document.createElement('select');select.setAttribute('aria-label',nameOf(dex)+' appearance');select.style.cssText='width:100%;min-width:0;background:#151e34;color:#e6ecff;border:1px solid #50628c;border-radius:5px;padding:4px;font:11px system-ui';
+    for(const [value,label]of [['normal',T('Normal','Normal')],['shiny',T('Shiny ✨','Variocolor ✨')]]){const o=document.createElement('option');o.value=value;o.textContent=label;o.disabled=value==='shiny'&&!shinyOwned(dex);select.append(o);}select.value=shiny?'shiny':'normal';
+    select.onclick=e=>e.stopPropagation();select.onkeydown=e=>e.stopPropagation();select.onchange=e=>{e.stopPropagation();setShiny(dex,select.value==='shiny');};wrap.append(select);return wrap;
   }
   function render() {
     const el = st.el;
     if (!el || el.style.display === 'none') return;
     el.querySelector('[data-t]').textContent = T('Your team', 'Tu equipo');
     el.querySelector('[data-close]').textContent = T('Done', 'Listo');
-    el.querySelector('[data-sub]').textContent = T('Pick up to six of your Pokémon: click one below to add it. The first is your lead, the one a run starts with. Click a team member to take it out, or "Make lead" to lead with it. In a run, switch with Z / X or click its portrait.', 'Elige hasta seis de tus Pokémon: haz clic en uno de abajo para añadirlo. El primero es tu líder, con el que empieza la partida. Haz clic en uno del equipo para quitarlo, o en "Hacer líder". En partida, cambia con Z / X o haciendo clic en su retrato.');
+    el.querySelector('[data-sub]').textContent = T('Pick up to six of your Pokémon and choose Normal or Shiny below each portrait. Fresh members start at their level-appropriate evolution stage. Click one below to add it. The first is your lead, the one a run starts with. Click a team member to take it out, or "Make lead" to lead with it. In a run, switch with Z / X or click its portrait.', 'Elige hasta seis de tus Pokémon: haz clic en uno de abajo para añadirlo. El primero es tu líder, con el que empieza la partida. Haz clic en uno del equipo para quitarlo, o en "Hacer líder". En partida, cambia con Z / X o haciendo clic en su retrato.');
     el.querySelector('[data-q]').placeholder = T('Search your Pokémon…', 'Busca entre tus Pokémon…');
     const tb = el.querySelector('[data-team]');
     tb.innerHTML = '';
@@ -248,7 +260,7 @@
       c.title = T('Click to take it out of the team', 'Haz clic para quitarlo del equipo');
       c.onclick = () => setTeamLead(chosen().filter((d) => d !== dex));
       if (i > 0) {
-        const lead = document.createElement('span');
+        const lead = document.createElement('button');lead.type='button';
         lead.textContent = T('Make lead', 'Hacer líder');
         lead.style.cssText = 'margin-top:2px;padding:1px 6px;border:1px solid #6a76b0;border-radius:4px;font-size:10px;color:#cfd8ff';
         lead.onclick = (e) => { e.stopPropagation(); setTeamLead([dex].concat(chosen().filter((d) => d !== dex))); };
@@ -260,7 +272,6 @@
   }
   // (changing the lead changes your partner)
   function setTeamLead(list) {
-    try { if (list[0]) R().DB.save.partner = list[0]; } catch (e) { /* ignore */ }
     setTeam(list);
   }
   function renderList() {
@@ -320,5 +331,5 @@
     };
   }
 
-  AI.define('Team', { st, MAX, install, tick, drawScreen, open, close, chosen, setTeam, switchTo, step, startRun, cur, nextHealthy, onLevel, get run() { return st.run; } });
+  AI.define('Team', { st, MAX, install, tick, drawScreen, open, close, chosen, setTeam, shinyFor, setShiny, switchTo, step, startRun, cur, nextHealthy, onLevel, get run() { return st.run; } });
 })();

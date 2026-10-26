@@ -880,6 +880,69 @@
         "total": 1
       }
     },
+    "assets/ui/form-portraits/386_attack.png": {
+      "sourcePath": "0386/0001",
+      "credit": {
+        "primary": "CHUNSOFT",
+        "secondary": [
+          "<@!523152081805115403>",
+          "<@!217899432652308480>"
+        ],
+        "total": 3
+      }
+    },
+    "assets/ui/form-portraits/386_attack-shiny.png": {
+      "sourcePath": "0386/0001/0001",
+      "credit": {
+        "primary": "<@!95638225439166464>",
+        "secondary": [
+          "<@!593113130213572610>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/386_defense.png": {
+      "sourcePath": "0386/0002",
+      "credit": {
+        "primary": "CHUNSOFT",
+        "secondary": [
+          "<@!523152081805115403>",
+          "<@!217899432652308480>"
+        ],
+        "total": 3
+      }
+    },
+    "assets/ui/form-portraits/386_defense-shiny.png": {
+      "sourcePath": "0386/0002/0001",
+      "credit": {
+        "primary": "<@!95638225439166464>",
+        "secondary": [
+          "<@!593113130213572610>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/386_speed.png": {
+      "sourcePath": "0386/0003",
+      "credit": {
+        "primary": "CHUNSOFT",
+        "secondary": [
+          "<@!523152081805115403>",
+          "<@!217899432652308480>"
+        ],
+        "total": 3
+      }
+    },
+    "assets/ui/form-portraits/386_speed-shiny.png": {
+      "sourcePath": "0386/0003/0001",
+      "credit": {
+        "primary": "<@!95638225439166464>",
+        "secondary": [
+          "<@!593113130213572610>"
+        ],
+        "total": 2
+      }
+    },
     "assets/ui/form-portraits/398_mega.png": {
       "sourcePath": "0398/0001",
       "credit": {

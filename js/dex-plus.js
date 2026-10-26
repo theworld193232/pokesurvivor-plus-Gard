@@ -159,13 +159,13 @@
     try { N.UI.sprite(cv, !viewShiny&&(window.PS_COSMETICS?.selected(dex))||dex, { lively: own, spin: own, silhouette: !own, scale: 3, hero: true, shiny: own && viewShiny }); } catch (_) {}
     const info=document.createElement('div');info.className='sub';info.setAttribute('aria-live','polite');d.appendChild(info);
     d.querySelectorAll('[data-move-info]').forEach(b=>{b.onclick=()=>{const m=N.Moves.BY_ID[b.dataset.moveInfo];if(!m)return;const effects=[m.burn?'Burn':null,m.slow?'Slow':null,m.stun?'Stun':null,m.freeze?'Freeze':null,m.poison?'Poison':null].filter(Boolean);info.textContent=[m.name,tname(m.type),m.kind,'Damage: '+(m.dmg??'—'),'Cooldown: '+(m.cd??'—')+'s',...effects].join(' · ');};});
-    if(own&&window.PSXAI?.Team){const team=document.createElement('button');team.className='btn';const list=window.PSXAI.Team.chosen();team.textContent=list.includes(dex)?'Manage team':'Add to team';team.onclick=()=>{const T=window.PSXAI.Team,chosen=T.chosen();if(chosen.includes(dex)){T.open();return;}if(chosen.length>=T.MAX){N.UI.toast('Your team is full. Remove a Pokémon in Manage team first.');T.open();return;}T.setTeam([...chosen,dex]);detail(dex);};d.appendChild(team);}
+    if(own&&window.PSXAI?.Team){const team=document.createElement('button');team.className='btn';const list=window.PSXAI.Team.chosen();team.textContent=list.includes(dex)?'Manage team':'Add to team';team.onclick=()=>{const T=window.PSXAI.Team,chosen=T.chosen();if(chosen.includes(dex)){T.open();return;}if(chosen.length>=T.MAX){N.UI.toast('Your team is full. Remove a Pokémon in Manage team first.');T.open();return;}T.setShiny?.(dex,!!viewShiny);T.setTeam([...chosen,dex]);detail(dex);};d.appendChild(team);}
     d.querySelectorAll('.seg button').forEach(b => { b.onclick = () => { viewShiny = b.dataset.v === '1'; detail(dex); }; });
     const fv = d.querySelector('[data-fav]'); if (fv) fv.onclick = () => { setFav(dex, !isFav(dex)); grid(true); detail(dex); };
     const pk = d.querySelector('[data-pick]'); if (pk) pk.onclick = () => {
       const R = window.PS_PARTNER; let nd = dex;
       if (R) nd = R.choose(dex, hasSh && viewShiny) || dex; else { s.partner = dex; s.partnerShiny = hasSh && viewShiny; try { N.DB.commit(); } catch (_) {} }
-      const q = N.DEX_BY[nd] || p; try { N.UI.toast(q.name + (s.partnerShiny ? ' (shiny)' : '') + ' is now your partner' + (nd !== dex ? ': evolve it in battle to become ' + p.name + '!' : '')); } catch (_) {} grid(true); detail(nd !== dex ? dex : dex); };
+      window.PSXAI?.Team?.setShiny?.(nd,hasSh&&viewShiny);const q = N.DEX_BY[nd] || p; try { N.UI.toast(q.name + (s.partnerShiny ? ' (shiny)' : '') + ' is now your partner' + (nd !== dex ? ': evolve it in battle to become ' + p.name + '!' : '')); } catch (_) {} grid(true); detail(nd !== dex ? dex : dex); };
   }
   scr.addEventListener('click', e => { if (e.target.closest('[data-back]')) close(); });
   addEventListener('keydown', e => { if (scr.style.display === 'flex' && e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); close(); } }, true);

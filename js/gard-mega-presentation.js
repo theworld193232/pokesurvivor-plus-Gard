@@ -4,7 +4,7 @@
  const R=window.__PSX_REG__,A=window.PSXAI,M=R?.Mega;
  if(!M||!A?.Power)throw Error('Mega integration requires friend Mega and Power modules');
  window.PS_FRIEND_MEGA=true;
- const sessions=new WeakMap();
+ const sessions=new WeakMap();let resuming=false;
  const cries={282:'assets/cries/282.mp3',384:'assets/cries/384-mega.mp3'};
  const formName=key=>String(key||'').replace(/_megax$/,'-mega-x').replace(/_megay$/,'-mega-y').replace(/_megaz$/,'-mega-z').replace(/_/g,'-');
  const isMega=key=>/_mega(?:[xyz])?$/.test(String(key||''));
@@ -14,12 +14,13 @@
  M.start=function(p,...args){
   if(!p)return false;
   const previous=p.anim,key=M.keyOf(p.dex),custom=isMega(key)&&window.PS_FX?.has('megaevo');
-  const result=custom?quietNative(()=>begin.call(this,p,...args)):begin.call(this,p,...args);
+  const result=resuming?quietNative(()=>begin.call(this,p,...args)):custom?quietNative(()=>begin.call(this,p,...args)):begin.call(this,p,...args);
   if(!result||!p.megaKey)return result;
   const form=formName(p.megaKey),next=p.anim,state={key:p.megaKey,form,dex:p.dex,age:0,baseAnim:previous,megaAnim:next};
   sessions.set(p,state);p.megaForm=form;p.__psBaseAnim=previous;state.undoMoves=window.PS_GARD_MEGA_MOVES?.grant(p,form);
   if(form==='383-primal')A.Sky?.set({hour:12});
-  if(isMega(p.megaKey)){
+  if(resuming){p.anim=next;if(isMega(p.megaKey))window.PS_MUSIC?.mega?.();}
+  else if(isMega(p.megaKey)){
    // The sprite is revealed when Gard's orb shatters, not at activation.
    if(custom){p.anim=previous;p.invuln=Math.max(Number(p.invuln)||0,1.4);const ok=window.PS_FX.cast('megaevo',p,{id:'mega-evolution',type:'normal',dmg:0,fx:{newAnim:next,form,cry:cries[Number(p.dex)]||null}},null,true);if(!ok)p.anim=next;}
    window.PS_MUSIC?.mega?.();
@@ -36,5 +37,7 @@
  // Reinstall after adapters so native Space/controller/HUD activation asks the stone rules.
  A.Power.registerItems();A.Power.install();
  function exclusiveRevive(p){if(p!==R.Game.player||Number(p.dex)!==282||String(R.DB?.user||'').trim().toLowerCase()!=='lovergare'||Number(p.level)<50||!p.__jWillUsed||!window.__psJWill||p.megaKey)return false;const gate=window.PSXGEN,prior=gate.mega,cd=p.megaCd;p.megaCd=0;gate.mega=q=>q===p?true:prior(q);try{const ok=M.start(p);if(!ok)p.megaCd=cd;return ok;}finally{gate.mega=prior;}}
- window.PS_GARD_MEGA_PRESENTATION={formName,isMega,exclusiveRevive,session:p=>sessions.get(p)||null,mechanics:'friend',presentation:'Gard'};
+ function suspend(p){if(!p?.megaKey||p.dead)return null;const state={dex:p.dex,key:p.megaKey,time:p.megaT,cd:Number(p.megaCd)||0};M.end(p);p.megaCd=state.cd;return state;}
+ function resume(p,state){if(!state||Number(state.dex)!==Number(p.dex)||p.dead)return false;const gate=window.PSXGEN,prior=gate?.mega,cd=p.megaCd;try{if(gate)gate.mega=q=>q===p?true:prior?.(q);if(M.keyOf(p.dex)!==state.key)M.setForm?.(p.dex,state.key);p.megaCd=0;resuming=true;const ok=M.start(p);if(ok&&p.megaKey===state.key){p.megaT=Math.max(.001,Number(state.time)||.001);const session=sessions.get(p);if(session){session.age=10;p.anim=session.megaAnim;}return true;}p.megaCd=cd;return false;}finally{resuming=false;if(gate)gate.mega=prior;}}
+ window.PS_GARD_MEGA_PRESENTATION={formName,isMega,exclusiveRevive,suspend,resume,session:p=>sessions.get(p)||null,mechanics:'friend',presentation:'Gard'};
 })();

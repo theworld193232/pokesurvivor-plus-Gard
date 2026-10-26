@@ -1,0 +1,951 @@
+{
+  "sources": [
+    "local friend ZIP: pokesurvivor-plus-main.zip",
+    "Pok\u00e9Horde public repository tree snapshot",
+    "Doofcraft public sprite metadata snapshot",
+    "SpriteCollab tracker snapshot"
+  ],
+  "requested": {
+    "Mega Mewtwo X": {
+      "gameplaySpriteFound": false,
+      "portraitAvailable": true,
+      "spriteCollabSpriteCredit": {
+        "primary": "",
+        "secondary": [],
+        "total": 0
+      }
+    },
+    "Mega Metagross": {
+      "gameplaySpriteFound": false,
+      "portraitAvailable": true,
+      "spriteCollabSpriteCredit": {
+        "primary": "",
+        "secondary": [],
+        "total": 0
+      }
+    },
+    "Deoxys Attack": {
+      "alreadyInstalled": true,
+      "path": "assets/pokemon/386_attack",
+      "shiny": true
+    },
+    "Deoxys Defense": {
+      "alreadyInstalled": true,
+      "path": "assets/pokemon/386_defense",
+      "shiny": true
+    },
+    "Deoxys Speed": {
+      "alreadyInstalled": true,
+      "path": "assets/pokemon/386_speed",
+      "shiny": true
+    },
+    "Mega Mewtwo Y": {
+      "alreadyInstalled": true,
+      "path": "assets/pokemon/150_megay",
+      "shiny": true
+    }
+  },
+  "notes": [
+    "No gameplay sprite was fabricated from portrait-only artwork.",
+    "No unsupported Mega form was registered without a full animation set.",
+    "Snapshot evidence is bounded to the inspected game files; this is not a claim that no sprites exist elsewhere.",
+    "Direct raw source probes confirmed missing Mega Mewtwo X / Mega Metagross animation files returned HTTP 404."
+  ],
+  "directSpriteCollabChecks": [
+    {
+      "path": "0282/0001",
+      "label": "Mega Gardevoir",
+      "files": {
+        "AnimData.xml": {
+          "bytes": 5460,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0282/0001/AnimData.xml"
+        },
+        "Idle-Anim.png": {
+          "bytes": 5861,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0282/0001/Idle-Anim.png"
+        },
+        "Attack-Anim.png": {
+          "bytes": 17177,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0282/0001/Attack-Anim.png"
+        }
+      }
+    },
+    {
+      "path": "0150/0001",
+      "label": "Mega Mewtwo X",
+      "files": {
+        "AnimData.xml": {
+          "status": 404
+        },
+        "Idle-Anim.png": {
+          "status": 404
+        },
+        "Attack-Anim.png": {
+          "status": 404
+        }
+      }
+    },
+    {
+      "path": "0150/0002",
+      "label": "Mega Mewtwo Y",
+      "files": {
+        "AnimData.xml": {
+          "bytes": 6258,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0150/0002/AnimData.xml"
+        },
+        "Idle-Anim.png": {
+          "bytes": 10027,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0150/0002/Idle-Anim.png"
+        },
+        "Attack-Anim.png": {
+          "bytes": 19496,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0150/0002/Attack-Anim.png"
+        }
+      }
+    },
+    {
+      "path": "0376/0001",
+      "label": "Mega Metagross",
+      "files": {
+        "AnimData.xml": {
+          "status": 404
+        },
+        "Idle-Anim.png": {
+          "status": 404
+        },
+        "Attack-Anim.png": {
+          "status": 404
+        }
+      }
+    },
+    {
+      "path": "0386/0001",
+      "label": "Deoxys Attack",
+      "files": {
+        "AnimData.xml": {
+          "bytes": 5240,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0001/AnimData.xml"
+        },
+        "Idle-Anim.png": {
+          "bytes": 17253,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0001/Idle-Anim.png"
+        },
+        "Attack-Anim.png": {
+          "bytes": 28993,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0001/Attack-Anim.png"
+        }
+      }
+    },
+    {
+      "path": "0386/0002",
+      "label": "Deoxys Defense",
+      "files": {
+        "AnimData.xml": {
+          "bytes": 5209,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0002/AnimData.xml"
+        },
+        "Idle-Anim.png": {
+          "bytes": 13686,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0002/Idle-Anim.png"
+        },
+        "Attack-Anim.png": {
+          "bytes": 30757,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0002/Attack-Anim.png"
+        }
+      }
+    },
+    {
+      "path": "0386/0003",
+      "label": "Deoxys Speed",
+      "files": {
+        "AnimData.xml": {
+          "bytes": 5665,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0003/AnimData.xml"
+        },
+        "Idle-Anim.png": {
+          "bytes": 13924,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0003/Idle-Anim.png"
+        },
+        "Attack-Anim.png": {
+          "bytes": 24925,
+          "url": "https://raw.githubusercontent.com/PMDCollab/SpriteCollab/master/sprite/0386/0003/Attack-Anim.png"
+        }
+      }
+    }
+  ],
+  "addedPortraits": [
+    "386_attack",
+    "386_defense",
+    "386_speed"
+  ],
+  "megaPrimalCatalog": [
+    {
+      "key": "3_mega",
+      "label": "Venusaur Mega",
+      "sourcePath": "0003/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "6_megax",
+      "label": "Charizard Mega_X",
+      "sourcePath": "0006/0001",
+      "spriteContributions": 3,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "6_megay",
+      "label": "Charizard Mega_Y",
+      "sourcePath": "0006/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "9_mega",
+      "label": "Blastoise Mega",
+      "sourcePath": "0009/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "15_mega",
+      "label": "Beedrill Mega",
+      "sourcePath": "0015/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "18_mega",
+      "label": "Pidgeot Mega",
+      "sourcePath": "0018/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "26_megax",
+      "label": "Raichu Mega_X",
+      "sourcePath": "0026/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "26_megay",
+      "label": "Raichu Mega_Y",
+      "sourcePath": "0026/0003",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "36_mega",
+      "label": "Clefable Mega",
+      "sourcePath": "0036/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "65_mega",
+      "label": "Alakazam Mega",
+      "sourcePath": "0065/0001",
+      "spriteContributions": 2,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "71_mega",
+      "label": "Victreebel Mega",
+      "sourcePath": "0071/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "80_mega",
+      "label": "Slowbro Mega",
+      "sourcePath": "0080/0002",
+      "spriteContributions": 2,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "94_mega",
+      "label": "Gengar Mega",
+      "sourcePath": "0094/0001",
+      "spriteContributions": 3,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "115_mega",
+      "label": "Kangaskhan Mega",
+      "sourcePath": "0115/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "121_mega",
+      "label": "Starmie Mega",
+      "sourcePath": "0121/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "127_mega",
+      "label": "Pinsir Mega",
+      "sourcePath": "0127/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "130_mega",
+      "label": "Gyarados Mega",
+      "sourcePath": "0130/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "142_mega",
+      "label": "Aerodactyl Mega",
+      "sourcePath": "0142/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "149_mega",
+      "label": "Dragonite Mega",
+      "sourcePath": "0149/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "150_megax",
+      "label": "Mewtwo Mega_X",
+      "sourcePath": "0150/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "150_megay",
+      "label": "Mewtwo Mega_Y",
+      "sourcePath": "0150/0002",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "154_mega",
+      "label": "Meganium Mega",
+      "sourcePath": "0154/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "160_mega",
+      "label": "Feraligatr Mega",
+      "sourcePath": "0160/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "181_mega",
+      "label": "Ampharos Mega",
+      "sourcePath": "0181/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "208_mega",
+      "label": "Steelix Mega",
+      "sourcePath": "0208/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "212_mega",
+      "label": "Scizor Mega",
+      "sourcePath": "0212/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "214_mega",
+      "label": "Heracross Mega",
+      "sourcePath": "0214/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "227_mega",
+      "label": "Skarmory Mega",
+      "sourcePath": "0227/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "229_mega",
+      "label": "Houndoom Mega",
+      "sourcePath": "0229/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "248_mega",
+      "label": "Tyranitar Mega",
+      "sourcePath": "0248/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "254_mega",
+      "label": "Sceptile Mega",
+      "sourcePath": "0254/0001",
+      "spriteContributions": 1,
+      "installedIdle": false,
+      "portraitOnly": false
+    },
+    {
+      "key": "257_mega",
+      "label": "Blaziken Mega",
+      "sourcePath": "0257/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "260_mega",
+      "label": "Swampert Mega",
+      "sourcePath": "0260/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "282_mega",
+      "label": "Gardevoir Mega",
+      "sourcePath": "0282/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "302_mega",
+      "label": "Sableye Mega",
+      "sourcePath": "0302/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "303_mega",
+      "label": "Mawile Mega",
+      "sourcePath": "0303/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "306_mega",
+      "label": "Aggron Mega",
+      "sourcePath": "0306/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "308_mega",
+      "label": "Medicham Mega",
+      "sourcePath": "0308/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "310_mega",
+      "label": "Manectric Mega",
+      "sourcePath": "0310/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "319_mega",
+      "label": "Sharpedo Mega",
+      "sourcePath": "0319/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "323_mega",
+      "label": "Camerupt Mega",
+      "sourcePath": "0323/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "334_mega",
+      "label": "Altaria Mega",
+      "sourcePath": "0334/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "354_mega",
+      "label": "Banette Mega",
+      "sourcePath": "0354/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "358_mega",
+      "label": "Chimecho Mega",
+      "sourcePath": "0358/0001",
+      "spriteContributions": 1,
+      "installedIdle": false,
+      "portraitOnly": false
+    },
+    {
+      "key": "359_mega",
+      "label": "Absol Mega",
+      "sourcePath": "0359/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "359_megaz",
+      "label": "Absol Mega_Z",
+      "sourcePath": "0359/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "362_mega",
+      "label": "Glalie Mega",
+      "sourcePath": "0362/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "373_mega",
+      "label": "Salamence Mega",
+      "sourcePath": "0373/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "376_mega",
+      "label": "Metagross Mega",
+      "sourcePath": "0376/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "380_mega",
+      "label": "Latias Mega",
+      "sourcePath": "0380/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "381_mega",
+      "label": "Latios Mega",
+      "sourcePath": "0381/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "382_primal",
+      "label": "Kyogre Primal",
+      "sourcePath": "0382/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "383_primal",
+      "label": "Groudon Primal",
+      "sourcePath": "0383/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "384_mega",
+      "label": "Rayquaza Mega",
+      "sourcePath": "0384/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "398_mega",
+      "label": "Staraptor Mega",
+      "sourcePath": "0398/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "428_mega",
+      "label": "Lopunny Mega",
+      "sourcePath": "0428/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "445_mega",
+      "label": "Garchomp Mega",
+      "sourcePath": "0445/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "445_megaz",
+      "label": "Garchomp Mega_Z",
+      "sourcePath": "0445/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "448_mega",
+      "label": "Lucario Mega",
+      "sourcePath": "0448/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "448_megaz",
+      "label": "Lucario Mega_Z",
+      "sourcePath": "0448/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "460_mega",
+      "label": "Abomasnow Mega",
+      "sourcePath": "0460/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "475_mega",
+      "label": "Gallade Mega",
+      "sourcePath": "0475/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "478_mega",
+      "label": "Froslass Mega",
+      "sourcePath": "0478/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "483_primal",
+      "label": "Dialga Primal",
+      "sourcePath": "0483/0002",
+      "spriteContributions": 1,
+      "installedIdle": false,
+      "portraitOnly": false
+    },
+    {
+      "key": "485_mega",
+      "label": "Heatran Mega",
+      "sourcePath": "0485/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "491_mega",
+      "label": "Darkrai Mega",
+      "sourcePath": "0491/0002",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "500_mega",
+      "label": "Emboar Mega",
+      "sourcePath": "0500/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "530_mega",
+      "label": "Excadrill Mega",
+      "sourcePath": "0530/0001",
+      "spriteContributions": 3,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "531_mega",
+      "label": "Audino Mega",
+      "sourcePath": "0531/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "545_mega",
+      "label": "Scolipede Mega",
+      "sourcePath": "0545/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "560_mega",
+      "label": "Scrafty Mega",
+      "sourcePath": "0560/0001",
+      "spriteContributions": 3,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "604_mega",
+      "label": "Eelektross Mega",
+      "sourcePath": "0604/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "609_mega",
+      "label": "Chandelure Mega",
+      "sourcePath": "0609/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "623_mega",
+      "label": "Golurk Mega",
+      "sourcePath": "0623/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "652_mega",
+      "label": "Chesnaught Mega",
+      "sourcePath": "0652/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "655_mega",
+      "label": "Delphox Mega",
+      "sourcePath": "0655/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "658_mega",
+      "label": "Greninja Mega",
+      "sourcePath": "0658/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "668_mega",
+      "label": "Pyroar Mega",
+      "sourcePath": "0668/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "670_mega",
+      "label": "Floette Mega",
+      "sourcePath": "0670/0006",
+      "spriteContributions": 2,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "678_mega",
+      "label": "Meowstic Mega",
+      "sourcePath": "0678/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "687_mega",
+      "label": "Malamar Mega",
+      "sourcePath": "0687/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "689_mega",
+      "label": "Barbaracle Mega",
+      "sourcePath": "0689/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "691_mega",
+      "label": "Dragalge Mega",
+      "sourcePath": "0691/0001",
+      "spriteContributions": 3,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "701_mega",
+      "label": "Hawlucha Mega",
+      "sourcePath": "0701/0001",
+      "spriteContributions": 2,
+      "installedIdle": false,
+      "portraitOnly": false
+    },
+    {
+      "key": "718_mega",
+      "label": "Zygarde Mega",
+      "sourcePath": "0718/0005",
+      "spriteContributions": 2,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "719_mega",
+      "label": "Diancie Mega",
+      "sourcePath": "0719/0001",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "740_mega",
+      "label": "Crabominable Mega",
+      "sourcePath": "0740/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "768_mega",
+      "label": "Golisopod Mega",
+      "sourcePath": "0768/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "780_mega",
+      "label": "Drampa Mega",
+      "sourcePath": "0780/0001",
+      "spriteContributions": 3,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "801_mega",
+      "label": "Magearna Mega",
+      "sourcePath": "0801/0002",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "807_mega",
+      "label": "Zeraora Mega",
+      "sourcePath": "0807/0001",
+      "spriteContributions": 2,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "870_mega",
+      "label": "Falinks Mega",
+      "sourcePath": "0870/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "952_mega",
+      "label": "Scovillain Mega",
+      "sourcePath": "0952/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "970_mega",
+      "label": "Glimmora Mega",
+      "sourcePath": "0970/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    },
+    {
+      "key": "978_mega",
+      "label": "Tatsugiri Mega",
+      "sourcePath": "0978/0003",
+      "spriteContributions": 1,
+      "installedIdle": true,
+      "portraitOnly": false
+    },
+    {
+      "key": "998_mega",
+      "label": "Baxcalibur Mega",
+      "sourcePath": "0998/0001",
+      "spriteContributions": 0,
+      "installedIdle": false,
+      "portraitOnly": true
+    }
+  ]
+}

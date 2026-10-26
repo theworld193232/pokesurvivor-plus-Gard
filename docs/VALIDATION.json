@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 130,
+  "regressionsPassed": 137,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "team-passive-forms-v31",
+  "currentVersion": "team-persistence-v32",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -496,5 +496,21 @@
     "teamPassiveReturnVerified": true,
     "browserErrors": 0,
     "onlineCoopTested": false
+  },
+  "teamPersistenceV32": {
+    "simulatedSwitches": 1000,
+    "nativeBrowserSwitches": 48,
+    "nativeBrowserFailures": [],
+    "forms": [
+      "282_mega",
+      "384_mega",
+      "382_primal",
+      "383_primal"
+    ],
+    "normalMegaBenchTimer": "paused",
+    "perMemberShinySelector": true,
+    "variantPortraitSourcesVerified": true,
+    "deoxysFormHeadshots": 6,
+    "onlineCoopStressTested": false
   }
 }
