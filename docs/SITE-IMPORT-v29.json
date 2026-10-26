@@ -9,7 +9,8 @@
     "publicSpriteRecords": 1021,
     "access": "menu requires login; inspected public modules only",
     "costumePackFound": false,
-    "codeCopied": false
+    "codeCopied": false,
+    "authenticatedFollowup": "See docs/DOOFCRAFT-ACCOUNT-INSPECTION-v30.json: a later authorized account inspection found event forms and trainer backgrounds."
   },
   "newCostumeSprites": 0,
   "existingFormsPreserved": true

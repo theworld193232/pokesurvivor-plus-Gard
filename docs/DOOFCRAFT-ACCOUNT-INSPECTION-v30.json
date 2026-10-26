@@ -1,0 +1,41 @@
+{
+  "site": "https://pokesurvivor.doofcraft.com/",
+  "inspection": "authorized separate test account; invented test credentials; no personal details",
+  "starter": "Fennekin",
+  "audio": "muted in game settings",
+  "gameplay": {
+    "mode": "WAVES",
+    "roundClearRewardObserved": true,
+    "movesObserved": [
+      "Ember",
+      "Fire Spin"
+    ],
+    "movementChecked": true,
+    "saveAndQuitConfirmed": "Fennekin \u00b7 0:50 \u00b7 level 1, saved solo WAVES run"
+  },
+  "authenticatedFindings": {
+    "shop": "candy corn earned in Waves, kept after event",
+    "specialForms": [
+      "Shadow Mewtwo",
+      "Shadow Lugia",
+      "Bloodmoon Ursaluna"
+    ],
+    "regionalForms": [
+      "Galarian Moltres",
+      "Alolan Marowak",
+      "Hisuian Typhlosion",
+      "Hisuian Zorua",
+      "Hisuian Zoroark"
+    ],
+    "trainerCardBackgrounds": [
+      "Pumpkin Patch",
+      "Moonlit Graveyard",
+      "Haunted Manor",
+      "Ghost Tower"
+    ],
+    "waveStructure": "legendary rift every five rounds; boss every twenty-five rounds, per mode description"
+  },
+  "integrationStatus": "observed only; these event forms, backgrounds and server-backed account systems are not ported in v30",
+  "correction": "v29 public-catalog inspection was incomplete for account-only content",
+  "maps": "Existing Gard/friend terrain retained; no external maps imported"
+}

@@ -280,3 +280,7 @@ Normal headshots: SpriteCollab and its contributing artists, CC BY-NC 4.0; unmod
 Required Notice: Copyright 2026 JPTER78 (https://github.com/JPTER78/pokesurvivor)
 
 Collection/move presentation references: PokéHorde and Doofcraft PokéSurvivor. The new elemental pixel generators and native-engine UI adapters are original additions; no Doofcraft client/server code is redistributed.
+
+### Shiny HUD portraits — v30
+
+Additional unmodified Ralts/Gardevoir shiny portraits from SpriteCollab, CC BY-NC 4.0. Per-portrait source links and contributors: `SOURCE_LICENSES/site-import-v29/SHINY-HUD-PORTRAITS-v30.md`.

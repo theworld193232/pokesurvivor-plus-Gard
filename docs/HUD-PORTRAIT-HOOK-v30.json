@@ -1,0 +1,7 @@
+{
+  "scope": "native HUD left portrait frame only",
+  "beforeSha256": "76d174f2147e8d89400632cd64fd7e75916f0766fdce772f159503cfb774dfab",
+  "afterSha256": "e445f78d855d660f1a91ab52644ebb19c3abae6b88529b613ec365733fdbfa11",
+  "hook": "window.PS_PORTRAITS&&window.PS_PORTRAITS.drawHud(_0x4e43cf,_0x5de3f5,_0x9de174+2,_0x347475+2,_0x3f92fb-4)",
+  "fallback": "original animated sprite when portrait unavailable"
+}

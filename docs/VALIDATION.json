@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 120,
+  "regressionsPassed": 123,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "portraits-move-art-v29b",
+  "currentVersion": "hud-headshots-v30",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -473,5 +473,14 @@
     "customCostumeAssetsAdded": 0,
     "nativeBattleChecked": true,
     "browserErrors": 0
+  },
+  "hudPortraitV30": {
+    "nativeMoveBarLeftSlot": true,
+    "shinyRaltsGardevoir": true,
+    "nativeSpriteFallback": true,
+    "borderLivesAndLayoutPreserved": true,
+    "browserVisualCheck": "shiny Gardevoir portrait visible in native bottom move bar",
+    "browserErrors": 0,
+    "doofcraftAuthenticatedPlaytest": true
   }
 }
