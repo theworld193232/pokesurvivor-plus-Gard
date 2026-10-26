@@ -284,3 +284,7 @@ Collection/move presentation references: PokéHorde and Doofcraft PokéSurvivor.
 ### Shiny HUD portraits — v30
 
 Additional unmodified Ralts/Gardevoir shiny portraits from SpriteCollab, CC BY-NC 4.0. Per-portrait source links and contributors: `SOURCE_LICENSES/site-import-v29/SHINY-HUD-PORTRAITS-v30.md`.
+
+## v31 portrait and special-form additions
+
+Default shiny and Mega/Primal portrait artwork is from [SpriteCollab](https://github.com/PMDCollab/SpriteCollab), CC BY-NC 4.0. Per-image artist records and form-sheet credits are retained in `SOURCE_LICENSES/site-import-v31/`; full artist names and license text are in `SOURCE_LICENSES/site-import-v29/`. The Shadow Mewtwo, Shadow Lugia and Bloodmoon Ursaluna SpriteCollab-derived sheets were obtained from Doofcraft’s public sprite assets. No Doofcraft gameplay code was copied.

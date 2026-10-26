@@ -1,0 +1,1519 @@
+{
+  "source": "https://github.com/PMDCollab/SpriteCollab",
+  "license": "CC BY-NC 4.0",
+  "creditNames": "../site-import-v29/spritecollab-credit_names.txt",
+  "portraits": {
+    "assets/ui/form-portraits/3_mega.png": {
+      "sourcePath": "0003/0001",
+      "credit": {
+        "primary": "<@!237286997645983744>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/3_mega-shiny.png": {
+      "sourcePath": "0003/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/6_megax.png": {
+      "sourcePath": "0006/0001",
+      "credit": {
+        "primary": "<@!237286997645983744>",
+        "secondary": [
+          "<@!229131140903075840>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/6_megax-shiny.png": {
+      "sourcePath": "0006/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/6_megay.png": {
+      "sourcePath": "0006/0002",
+      "credit": {
+        "primary": "<@!537560911716810763>",
+        "secondary": [
+          "<@!237286997645983744>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/6_megay-shiny.png": {
+      "sourcePath": "0006/0002/0001",
+      "credit": {
+        "primary": "<@!537560911716810763>",
+        "secondary": [
+          "<@!593113130213572610>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/9_mega.png": {
+      "sourcePath": "0009/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/9_mega-shiny.png": {
+      "sourcePath": "0009/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/15_mega.png": {
+      "sourcePath": "0015/0001",
+      "credit": {
+        "primary": "<@!237286997645983744>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/15_mega-shiny.png": {
+      "sourcePath": "0015/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/18_mega.png": {
+      "sourcePath": "0018/0001",
+      "credit": {
+        "primary": "<@!330751862590406656>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/18_mega-shiny.png": {
+      "sourcePath": "0018/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/26_megax.png": {
+      "sourcePath": "0026/0002",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/26_megax-shiny.png": {
+      "sourcePath": "0026/0002/0001",
+      "credit": {
+        "primary": "<@!1377429093997477928>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/26_megay.png": {
+      "sourcePath": "0026/0003",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/26_megay-shiny.png": {
+      "sourcePath": "0026/0003/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/36_mega.png": {
+      "sourcePath": "0036/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/36_mega-shiny.png": {
+      "sourcePath": "0036/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/65_mega.png": {
+      "sourcePath": "0065/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/65_mega-shiny.png": {
+      "sourcePath": "0065/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/71_mega.png": {
+      "sourcePath": "0071/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/71_mega-shiny.png": {
+      "sourcePath": "0071/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/80_mega.png": {
+      "sourcePath": "0080/0002",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [
+          "<@!229131140903075840>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/80_mega-shiny.png": {
+      "sourcePath": "0080/0002/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/94_mega.png": {
+      "sourcePath": "0094/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/94_mega-shiny.png": {
+      "sourcePath": "0094/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/121_mega.png": {
+      "sourcePath": "0121/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/121_mega-shiny.png": {
+      "sourcePath": "0121/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/127_mega.png": {
+      "sourcePath": "0127/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/127_mega-shiny.png": {
+      "sourcePath": "0127/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/130_mega.png": {
+      "sourcePath": "0130/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/130_mega-shiny.png": {
+      "sourcePath": "0130/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/142_mega.png": {
+      "sourcePath": "0142/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/142_mega-shiny.png": {
+      "sourcePath": "0142/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/149_mega.png": {
+      "sourcePath": "0149/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [
+          "<@!605175889793253377>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/149_mega-shiny.png": {
+      "sourcePath": "0149/0001/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/150_megax.png": {
+      "sourcePath": "0150/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/150_megax-shiny.png": {
+      "sourcePath": "0150/0001/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/150_megay.png": {
+      "sourcePath": "0150/0002",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/150_megay-shiny.png": {
+      "sourcePath": "0150/0002/0001",
+      "credit": {
+        "primary": "<@!1377429093997477928>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/154_mega.png": {
+      "sourcePath": "0154/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/154_mega-shiny.png": {
+      "sourcePath": "0154/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/160_mega.png": {
+      "sourcePath": "0160/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/160_mega-shiny.png": {
+      "sourcePath": "0160/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/181_mega.png": {
+      "sourcePath": "0181/0001",
+      "credit": {
+        "primary": "<@!779213287576436746>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/181_mega-shiny.png": {
+      "sourcePath": "0181/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/208_mega.png": {
+      "sourcePath": "0208/0001",
+      "credit": {
+        "primary": "<@!779213287576436746>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/208_mega-shiny.png": {
+      "sourcePath": "0208/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/212_mega.png": {
+      "sourcePath": "0212/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/212_mega-shiny.png": {
+      "sourcePath": "0212/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/214_mega.png": {
+      "sourcePath": "0214/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/214_mega-shiny.png": {
+      "sourcePath": "0214/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/227_mega.png": {
+      "sourcePath": "0227/0001",
+      "credit": {
+        "primary": "<@!288510084273668096>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/227_mega-shiny.png": {
+      "sourcePath": "0227/0001/0001",
+      "credit": {
+        "primary": "<@!288510084273668096>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/229_mega.png": {
+      "sourcePath": "0229/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/229_mega-shiny.png": {
+      "sourcePath": "0229/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/248_mega.png": {
+      "sourcePath": "0248/0001",
+      "credit": {
+        "primary": "<@!537560911716810763>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/248_mega-shiny.png": {
+      "sourcePath": "0248/0001/0001",
+      "credit": {
+        "primary": "<@!537560911716810763>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/254_mega.png": {
+      "sourcePath": "0254/0001",
+      "credit": {
+        "primary": "<@!327927398941196289>",
+        "secondary": [
+          "<@!229131140903075840>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/254_mega-shiny.png": {
+      "sourcePath": "0254/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [
+          "<@!1377429093997477928>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/257_mega.png": {
+      "sourcePath": "0257/0001",
+      "credit": {
+        "primary": "<@!537560911716810763>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/257_mega-shiny.png": {
+      "sourcePath": "0257/0001/0001",
+      "credit": {
+        "primary": "<@!537560911716810763>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/260_mega.png": {
+      "sourcePath": "0260/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/260_mega-shiny.png": {
+      "sourcePath": "0260/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/282_mega.png": {
+      "sourcePath": "0282/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/282_mega-shiny.png": {
+      "sourcePath": "0282/0001/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/302_mega.png": {
+      "sourcePath": "0302/0001",
+      "credit": {
+        "primary": "<@!779213287576436746>",
+        "secondary": [
+          "<@!833717817445974046>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/302_mega-shiny.png": {
+      "sourcePath": "0302/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/303_mega.png": {
+      "sourcePath": "0303/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/303_mega-shiny.png": {
+      "sourcePath": "0303/0001/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/306_mega.png": {
+      "sourcePath": "0306/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/306_mega-shiny.png": {
+      "sourcePath": "0306/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/308_mega.png": {
+      "sourcePath": "0308/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/308_mega-shiny.png": {
+      "sourcePath": "0308/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/310_mega.png": {
+      "sourcePath": "0310/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/310_mega-shiny.png": {
+      "sourcePath": "0310/0001/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/319_mega.png": {
+      "sourcePath": "0319/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [
+          "<@!229131140903075840>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/319_mega-shiny.png": {
+      "sourcePath": "0319/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/323_mega.png": {
+      "sourcePath": "0323/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/323_mega-shiny.png": {
+      "sourcePath": "0323/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [
+          "<@!544245909639397378>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/334_mega.png": {
+      "sourcePath": "0334/0001",
+      "credit": {
+        "primary": "<@!779213287576436746>",
+        "secondary": [
+          "<@!356635814668664832>",
+          "<@!215638650434617345>"
+        ],
+        "total": 3
+      }
+    },
+    "assets/ui/form-portraits/334_mega-shiny.png": {
+      "sourcePath": "0334/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/354_mega.png": {
+      "sourcePath": "0354/0001",
+      "credit": {
+        "primary": "<@!183561486893842432>",
+        "secondary": [
+          "<@!544245909639397378>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/354_mega-shiny.png": {
+      "sourcePath": "0354/0001/0001",
+      "credit": {
+        "primary": "<@!183561486893842432>",
+        "secondary": [
+          "<@!593113130213572610>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/358_mega.png": {
+      "sourcePath": "0358/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/358_mega-shiny.png": {
+      "sourcePath": "0358/0001/0001",
+      "credit": {
+        "primary": "<@!1377429093997477928>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/359_mega.png": {
+      "sourcePath": "0359/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/359_mega-shiny.png": {
+      "sourcePath": "0359/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/359_megaz.png": {
+      "sourcePath": "0359/0002",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/359_megaz-shiny.png": {
+      "sourcePath": "0359/0002/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/362_mega.png": {
+      "sourcePath": "0362/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/362_mega-shiny.png": {
+      "sourcePath": "0362/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/373_mega.png": {
+      "sourcePath": "0373/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/373_mega-shiny.png": {
+      "sourcePath": "0373/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/376_mega.png": {
+      "sourcePath": "0376/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/376_mega-shiny.png": {
+      "sourcePath": "0376/0001/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/380_mega.png": {
+      "sourcePath": "0380/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/380_mega-shiny.png": {
+      "sourcePath": "0380/0001/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/381_mega.png": {
+      "sourcePath": "0381/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/381_mega-shiny.png": {
+      "sourcePath": "0381/0001/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/382_primal.png": {
+      "sourcePath": "0382/0001",
+      "credit": {
+        "primary": "<@!153547941401853952>",
+        "secondary": [
+          "<@!544245909639397378>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/382_primal-shiny.png": {
+      "sourcePath": "0382/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/383_primal.png": {
+      "sourcePath": "0383/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/383_primal-shiny.png": {
+      "sourcePath": "0383/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/384_mega.png": {
+      "sourcePath": "0384/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/384_mega-shiny.png": {
+      "sourcePath": "0384/0001/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/398_mega.png": {
+      "sourcePath": "0398/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/398_mega-shiny.png": {
+      "sourcePath": "0398/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/428_mega.png": {
+      "sourcePath": "0428/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/428_mega-shiny.png": {
+      "sourcePath": "0428/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/445_mega.png": {
+      "sourcePath": "0445/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/445_mega-shiny.png": {
+      "sourcePath": "0445/0001/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/445_megaz.png": {
+      "sourcePath": "0445/0002",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/445_megaz-shiny.png": {
+      "sourcePath": "0445/0002/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/448_mega.png": {
+      "sourcePath": "0448/0001",
+      "credit": {
+        "primary": "<@!330751862590406656>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/448_mega-shiny.png": {
+      "sourcePath": "0448/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/448_megaz.png": {
+      "sourcePath": "0448/0002",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/460_mega.png": {
+      "sourcePath": "0460/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/460_mega-shiny.png": {
+      "sourcePath": "0460/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/475_mega.png": {
+      "sourcePath": "0475/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/475_mega-shiny.png": {
+      "sourcePath": "0475/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/478_mega.png": {
+      "sourcePath": "0478/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/478_mega-shiny.png": {
+      "sourcePath": "0478/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/483_primal.png": {
+      "sourcePath": "0483/0002",
+      "credit": {
+        "primary": "CHUNSOFT",
+        "secondary": [
+          "<@!350050109741858829>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/485_mega.png": {
+      "sourcePath": "0485/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/485_mega-shiny.png": {
+      "sourcePath": "0485/0001/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/491_mega.png": {
+      "sourcePath": "0491/0002",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/491_mega-shiny.png": {
+      "sourcePath": "0491/0002/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/500_mega.png": {
+      "sourcePath": "0500/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/500_mega-shiny.png": {
+      "sourcePath": "0500/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/530_mega.png": {
+      "sourcePath": "0530/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/530_mega-shiny.png": {
+      "sourcePath": "0530/0001/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/531_mega.png": {
+      "sourcePath": "0531/0001",
+      "credit": {
+        "primary": "<@!252249733588975616>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/531_mega-shiny.png": {
+      "sourcePath": "0531/0001/0001",
+      "credit": {
+        "primary": "<@!252249733588975616>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/545_mega.png": {
+      "sourcePath": "0545/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/545_mega-shiny.png": {
+      "sourcePath": "0545/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/560_mega.png": {
+      "sourcePath": "0560/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/560_mega-shiny.png": {
+      "sourcePath": "0560/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/604_mega.png": {
+      "sourcePath": "0604/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/604_mega-shiny.png": {
+      "sourcePath": "0604/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/609_mega.png": {
+      "sourcePath": "0609/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/609_mega-shiny.png": {
+      "sourcePath": "0609/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/623_mega.png": {
+      "sourcePath": "0623/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/623_mega-shiny.png": {
+      "sourcePath": "0623/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/652_mega.png": {
+      "sourcePath": "0652/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/652_mega-shiny.png": {
+      "sourcePath": "0652/0001/0001",
+      "credit": {
+        "primary": "<@!1377429093997477928>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/655_mega.png": {
+      "sourcePath": "0655/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/655_mega-shiny.png": {
+      "sourcePath": "0655/0001/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/658_mega.png": {
+      "sourcePath": "0658/0002",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/658_mega-shiny.png": {
+      "sourcePath": "0658/0002/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/668_mega.png": {
+      "sourcePath": "0668/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/668_mega-shiny.png": {
+      "sourcePath": "0668/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/670_mega.png": {
+      "sourcePath": "0670/0006",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/670_mega-shiny.png": {
+      "sourcePath": "0670/0006/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/678_mega.png": {
+      "sourcePath": "0678/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/678_mega-shiny.png": {
+      "sourcePath": "0678/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/687_mega.png": {
+      "sourcePath": "0687/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/689_mega.png": {
+      "sourcePath": "0689/0001",
+      "credit": {
+        "primary": "<@!229131140903075840>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/689_mega-shiny.png": {
+      "sourcePath": "0689/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/691_mega.png": {
+      "sourcePath": "0691/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/691_mega-shiny.png": {
+      "sourcePath": "0691/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/701_mega.png": {
+      "sourcePath": "0701/0001",
+      "credit": {
+        "primary": "<@!157796074457661440>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/701_mega-shiny.png": {
+      "sourcePath": "0701/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/718_mega.png": {
+      "sourcePath": "0718/0005",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/719_mega.png": {
+      "sourcePath": "0719/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/719_mega-shiny.png": {
+      "sourcePath": "0719/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/740_mega.png": {
+      "sourcePath": "0740/0001",
+      "credit": {
+        "primary": "<@!229131140903075840>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/768_mega.png": {
+      "sourcePath": "0768/0001",
+      "credit": {
+        "primary": "<@!229131140903075840>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/768_mega-shiny.png": {
+      "sourcePath": "0768/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/780_mega.png": {
+      "sourcePath": "0780/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/780_mega-shiny.png": {
+      "sourcePath": "0780/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/801_mega.png": {
+      "sourcePath": "0801/0002",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/801_mega-shiny.png": {
+      "sourcePath": "0801/0002/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/807_mega.png": {
+      "sourcePath": "0807/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/807_mega-shiny.png": {
+      "sourcePath": "0807/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/870_mega.png": {
+      "sourcePath": "0870/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/870_mega-shiny.png": {
+      "sourcePath": "0870/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/952_mega.png": {
+      "sourcePath": "0952/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/952_mega-shiny.png": {
+      "sourcePath": "0952/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/970_mega.png": {
+      "sourcePath": "0970/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/970_mega-shiny.png": {
+      "sourcePath": "0970/0001/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/978_mega.png": {
+      "sourcePath": "0978/0003",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/978_mega-shiny.png": {
+      "sourcePath": "0978/0003/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/998_mega.png": {
+      "sourcePath": "0998/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/998_mega-shiny.png": {
+      "sourcePath": "0998/0001/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    }
+  },
+  "errors": []
+}

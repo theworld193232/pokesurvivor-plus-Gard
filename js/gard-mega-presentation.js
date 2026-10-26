@@ -18,6 +18,7 @@
   if(!result||!p.megaKey)return result;
   const form=formName(p.megaKey),next=p.anim,state={key:p.megaKey,form,dex:p.dex,age:0,baseAnim:previous,megaAnim:next};
   sessions.set(p,state);p.megaForm=form;p.__psBaseAnim=previous;state.undoMoves=window.PS_GARD_MEGA_MOVES?.grant(p,form);
+  if(form==='383-primal')A.Sky?.set({hour:12});
   if(isMega(p.megaKey)){
    // The sprite is revealed when Gard's orb shatters, not at activation.
    if(custom){p.anim=previous;p.invuln=Math.max(Number(p.invuln)||0,1.4);const ok=window.PS_FX.cast('megaevo',p,{id:'mega-evolution',type:'normal',dmg:0,fx:{newAnim:next,form,cry:cries[Number(p.dex)]||null}},null,true);if(!ok)p.anim=next;}
@@ -27,12 +28,13 @@
   return result;
  };
  M.end=function(p,...args){const result=end.call(this,p,...args);if(p&&!p.megaKey)cleanup(p);return result;};
- M.tick=function(p,...args){const result=tick.call(this,p,...args);const state=p&&sessions.get(p);
+ M.tick=function(p,...args){const elapsed=Math.max(0,Number(args[0])||0);if(p&&!p.dead&&/_primal$/.test(String(p.megaKey||'')))p.megaT=(Number(p.megaT)||0)+elapsed;const result=tick.call(this,p,...args);const state=p&&sessions.get(p);
   if(p&&!p.megaKey)cleanup(p);
   else if(state&&p.megaKey===state.key&&p.dex===state.dex&&!p.dead){state.age+=Math.max(0,Number(args[0])||0);
    if(state.age>(/_primal$/.test(state.key)?3.6:1.3)&&p.anim?.dex!==state.megaAnim?.dex){state.megaAnim.dir=p.anim?.dir??state.megaAnim.dir;p.anim=state.megaAnim;}
   }return result;};
  // Reinstall after adapters so native Space/controller/HUD activation asks the stone rules.
  A.Power.registerItems();A.Power.install();
- window.PS_GARD_MEGA_PRESENTATION={formName,isMega,session:p=>sessions.get(p)||null,mechanics:'friend',presentation:'Gard'};
+ function exclusiveRevive(p){if(p!==R.Game.player||Number(p.dex)!==282||String(R.DB?.user||'').trim().toLowerCase()!=='lovergare'||Number(p.level)<50||!p.__jWillUsed||!window.__psJWill||p.megaKey)return false;const gate=window.PSXGEN,prior=gate.mega,cd=p.megaCd;p.megaCd=0;gate.mega=q=>q===p?true:prior(q);try{const ok=M.start(p);if(!ok)p.megaCd=cd;return ok;}finally{gate.mega=prior;}}
+ window.PS_GARD_MEGA_PRESENTATION={formName,isMega,exclusiveRevive,session:p=>sessions.get(p)||null,mechanics:'friend',presentation:'Gard'};
 })();

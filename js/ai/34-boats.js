@@ -34,6 +34,7 @@
     return [[x, y], [x + c * HL, y + s * HL * 0.7], [x - c * HL, y - s * HL * 0.7], [x - s * HW, y + c * HW * 0.7], [x + s * HW, y - c * HW * 0.7], [x + c * HL * 0.55 - s * HW, y + (s * HL * 0.55 + c * HW) * 0.7], [x - c * HL * 0.55 + s * HW, y - (s * HL * 0.55 + c * HW) * 0.7]];
   }
   function waterOk(x, y) {
+    if(window.PS_GROUDON_LAND?.has(x,y))return false;
     const sp = O().sample(x, y);
     if (sp.cls < 1 || sp.solid) return false;
     return !(AI.Decor && AI.Decor.blocked(x, y, 4));

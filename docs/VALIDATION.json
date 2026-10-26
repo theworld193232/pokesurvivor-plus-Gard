@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 123,
+  "regressionsPassed": 130,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "hud-headshots-v30",
+  "currentVersion": "team-passive-forms-v31",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -482,5 +482,19 @@
     "browserVisualCheck": "shiny Gardevoir portrait visible in native bottom move bar",
     "browserErrors": 0,
     "doofcraftAuthenticatedPlaytest": true
+  },
+  "teamFormsPortraitsV31": {
+    "transformationSignatures": [
+      "Ad Astra",
+      "Origin Pulse (Primal)",
+      "Precipice Blades (Primal)"
+    ],
+    "primalRealSecondsVerified": 91,
+    "shinyPortraits": 965,
+    "formPortraits": 185,
+    "formKeys": 95,
+    "teamPassiveReturnVerified": true,
+    "browserErrors": 0,
+    "onlineCoopTested": false
   }
 }

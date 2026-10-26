@@ -77,7 +77,7 @@
  function nearCells(x,y,r){const out=[];for(let cy=Math.floor((y-r)/CELL);cy<=Math.floor((y+r)/CELL);cy++)for(let cx=Math.floor((x-r)/CELL);cx<=Math.floor((x+r)/CELL);cx++)out.push(makeCell(cx,cy));return out;}
  function waterField(x,y){if(special()){const r=Math.hypot(x/1.2,y);let e=zone==='terapagos'&&r>210&&r<460&&Math.abs(x)>44&&Math.abs(y)>44?Math.min(r-210,460-r):-999;if(e>0)for(const c of sanctuaryCrystals())e=Math.min(e,Math.hypot(x-c.x,(y-c.y)*1.2)-42);return {e,kind:'pool'};}if(outside())return {e:-999,kind:null};let e=-999,kind=null;for(const c of nearCells(x,y,430)){if(c.pool){const p=c.pool,dx=(x-p.x)/p.rx,dy=(y-p.y)/p.ry,angle=Math.atan2(dy,dx),edge=(1-Math.hypot(dx,dy))*Math.min(p.rx,p.ry)+(vn(x/120,y/120,seed+41)-.5)*24+Math.sin(angle*5+hash(c.cx,c.cy)*6)*9;if(edge>e){e=edge;kind='pool';}}
    if(c.stream){const st=c.stream;let d=999;for(let i=1;i<st.pts.length;i++)d=Math.min(d,distance(x,y,st.pts[i-1],st.pts[i]));const edge=st.w-d+(vn(x/45,y/45,seed+42)-.5)*7;if(edge>e){e=edge;kind='stream';}}}return {e,kind:e>0?kind:null};}
- const waterAt=(x,y)=>waterField(x,y).e>0;
+ const waterAt=(x,y)=>!window.PS_GROUDON_LAND?.has(x,y)&&waterField(x,y).e>0;
  // A watercourse carves its own connected passage into the infinite cave, never a detached painted pool.
  const floor=(x,y)=>outside()||rawFloor(x,y)||(!special()&&waterField(x,y).e>-22);
  function crystalMetrics(c){const scale=c.size>=145?6:c.size>=110?4:c.size<48?1:c.size<82?2:3;return {scale,h:(c.prismatic?40:32)*scale,w:36*scale*(c.prismatic?1.25:1)};}

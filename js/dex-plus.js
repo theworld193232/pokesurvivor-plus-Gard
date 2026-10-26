@@ -117,7 +117,7 @@
     if (p.dex === s.partner) c.insertAdjacentHTML('beforeend', '<span class="br" title="Partner">' + ico('crown', 14) + '</span>');
     else if (isFav(p.dex)) c.insertAdjacentHTML('beforeend', '<span class="br" title="Favorite">' + ico('star', 12) + '</span>');
     else if (sh) c.insertAdjacentHTML('beforeend', '<span class="br" title="Shiny owned">' + ico('shiny', 12) + '</span>');
-    const portrait=portraitGrid&&window.PS_PORTRAITS?.element(p.dex,72,{silhouette:!own,name:own?p.name:'Unknown Pokémon'});
+    const portrait=portraitGrid&&window.PS_PORTRAITS?.element(p.dex,72,{silhouette:!own,name:own?p.name:'Unknown Pokémon',shiny:sh&&(F.shiny||p.dex===S().partner&&S().partnerShiny)});
     if(portrait){portrait.style.margin='16px auto 4px';c.appendChild(portrait);}else {
     try { c.appendChild(E().UI.spriteCanvas(p.dex, 92, 74, { scale: 2, silhouette: !own, shadow: own, shiny: sh && p.dex === s.partner && s.partnerShiny })); } catch (_) {}
     }
@@ -152,10 +152,11 @@
         (start ? '<p class="center" style="margin:6px 0 2px;font-size:14px">Starts with <b class="gold">' + start + '</b></p>' : '') + (moves ? '<div class="moves">' + moves + '</div>' : '') +
         (using ? '<button class="btn" disabled style="width:100%">Your partner</button>' : pickBtn(dex, p, viewShiny))
         : '<p class="center mut">You don\'t have it yet.<br>Get it from the <b class="gold">' + (GEN[p.gen - 1] || '') + '</b> banner' + (p.rarity === 5 ? ', a Legendary Den,' : '') + ' or by defeating it when it shows up shiny.</p>');
-    const head=window.PS_PORTRAITS?.element(dex,80,{silhouette:!own,name:own?p.name:'Unknown Pokémon'});if(head){head.style.margin='0 auto';head.title='Normal portrait artwork · SpriteCollab';d.prepend(head);}
+    const head=window.PS_PORTRAITS?.element(dex,80,{silhouette:!own,name:own?p.name:'Unknown Pokémon',shiny:own&&viewShiny});if(head){head.style.margin='0 auto';head.title=(viewShiny&&window.PS_PORTRAITS?.hasShiny(dex)?'Shiny':'Normal')+' portrait artwork · SpriteCollab';d.prepend(head);}
     if(hasSh){const compare=document.createElement('button');compare.className='chip';compare.textContent='Compare Normal / Shiny';let panel=null;compare.onclick=()=>{if(panel){panel.remove();panel=null;return;}panel=document.createElement('div');panel.style.cssText='display:flex;justify-content:center;gap:6px;flex-wrap:wrap';compare.after(panel);for(const shiny of [false,true]){const item=document.createElement('div'),label=document.createElement('div'),canvas=document.createElement('canvas');label.textContent=shiny?'Shiny':'Normal';label.className='center';canvas.width=100;canvas.height=100;canvas.style.imageRendering='pixelated';item.append(label,canvas);panel.append(item);N.UI.sprite(canvas,dex,{lively:true,spin:true,scale:2,hero:true,shiny});}};d.appendChild(compare);}
+    window.PS_COSMETICS?.controls(d,dex,()=>detail(dex));
     const cv = d.querySelector('.stage'); cv.style.setProperty('--stage-c', !own ? '#5b83d6' : viewShiny ? '#9ae6ff' : ((N.U.TYPE_COLOR || {})[p.types[0]] || '#5b83d6')); cv.classList.toggle('shiny', own && viewShiny);
-    try { N.UI.sprite(cv, dex, { lively: own, spin: own, silhouette: !own, scale: 3, hero: true, shiny: own && viewShiny }); } catch (_) {}
+    try { N.UI.sprite(cv, !viewShiny&&(window.PS_COSMETICS?.selected(dex))||dex, { lively: own, spin: own, silhouette: !own, scale: 3, hero: true, shiny: own && viewShiny }); } catch (_) {}
     const info=document.createElement('div');info.className='sub';info.setAttribute('aria-live','polite');d.appendChild(info);
     d.querySelectorAll('[data-move-info]').forEach(b=>{b.onclick=()=>{const m=N.Moves.BY_ID[b.dataset.moveInfo];if(!m)return;const effects=[m.burn?'Burn':null,m.slow?'Slow':null,m.stun?'Stun':null,m.freeze?'Freeze':null,m.poison?'Poison':null].filter(Boolean);info.textContent=[m.name,tname(m.type),m.kind,'Damage: '+(m.dmg??'—'),'Cooldown: '+(m.cd??'—')+'s',...effects].join(' · ');};});
     if(own&&window.PSXAI?.Team){const team=document.createElement('button');team.className='btn';const list=window.PSXAI.Team.chosen();team.textContent=list.includes(dex)?'Manage team':'Add to team';team.onclick=()=>{const T=window.PSXAI.Team,chosen=T.chosen();if(chosen.includes(dex)){T.open();return;}if(chosen.length>=T.MAX){N.UI.toast('Your team is full. Remove a Pokémon in Manage team first.');T.open();return;}T.setTeam([...chosen,dex]);detail(dex);};d.appendChild(team);}
@@ -169,7 +170,7 @@
   scr.addEventListener('click', e => { if (e.target.closest('[data-back]')) close(); });
   addEventListener('keydown', e => { if (scr.style.display === 'flex' && e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); close(); } }, true);
   // the main menu's "Pokémon" button opens this screen instead of the old one
-  document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-go="dex"]'); if (!b || !E()) return; e.stopImmediatePropagation(); e.preventDefault(); try { E().Audio.sfx('click'); } catch (_) {} open(); }, true);
+  document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-go="dex"],#menu-partner,#menu-partner-name'); if (!b || !E()) return; e.stopImmediatePropagation(); e.preventDefault(); try { E().Audio.sfx('click'); } catch (_) {} open(); }, true);
   function init() { document.head.append(css); document.body.append(scr); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
   window.PS_DEXPLUS = { open, close };

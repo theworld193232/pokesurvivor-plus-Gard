@@ -213,7 +213,15 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  }
 
  // Shared with native friend Mega activation: existing bonus moves and owner-only Echo variations.
- window.PS_GARD_MEGA_MOVES={grant(p,form){if(!registerSignatureMoves())return null;const undo=grantSignature(p,form);if(MEGA_KITS[form])p.megaKit=form;return ()=>{undo?.();if(p.megaKit===form)delete p.megaKit;};}};
+ function grantTransformationEvolution(p,form){
+   const entry=Object.entries(PRIMAL_EVOS).find(([,e])=>e.form===form);if(!entry)return null;const [id,pe]=entry,m=getBridge()?.moves;if(!m?.BY_ID?.[id]||!p.addMove)return null;
+   const before=new Set(p.moves||[]),previousMax=Number(p.maxMoves)||4,previousBonds=Number(p.bonds)||0;let inst=(p.moves||[]).find(v=>v.id===id),snapshot=inst?{...inst}:null;
+   if(!inst){p.maxMoves=Math.max(previousMax,p.slots?.length||0)+1;if(!p.addMove(id)){p.maxMoves=previousMax;return null;}inst=p.moves.find(v=>v.id===id);}
+   grantSignature(p,form);if(inst&&!inst.evolved){let guard=20;while(guard-->0&&m.levelUp?.(inst));pe.apply(inst);inst.baseName=inst.name;inst.name=pe.name;inst.evolved=true;}
+   const addedBonds=Math.max(0,(Number(p.bonds)||0)-previousBonds),addedSlot=!(snapshot),added=new Set((p.moves||[]).filter(v=>!before.has(v)));
+   return ()=>{p.slots=(p.slots||[]).map(slot=>slot.filter(v=>!added.has(v))).filter(slot=>slot.length);p.moves=(p.moves||[]).filter(v=>!added.has(v));if(snapshot&&inst){for(const k of Object.keys(inst))if(!(k in snapshot))delete inst[k];Object.assign(inst,snapshot);}if(addedSlot)p.maxMoves=Math.max(previousMax,(Number(p.maxMoves)||previousMax+1)-1);p.bonds=Math.max(previousBonds,(Number(p.bonds)||0)-addedBonds);p.arrange?.();if(p.slots.length)p.active=Math.min(Number(p.active)||0,p.slots.length-1);};
+ }
+ window.PS_GARD_MEGA_MOVES={grant(p,form){if(!registerSignatureMoves())return null;const undo=Object.values(PRIMAL_EVOS).some(e=>e.form===form)?grantTransformationEvolution(p,form):grantSignature(p,form);if(MEGA_KITS[form])p.megaKit=form;return ()=>{undo?.();if(p.megaKit===form)delete p.megaKit;};}};
  // ---- Primal weather ----
  // Natural weather (rain, sun, sandstorm, snow, fields...) keeps happening normally for the world,
  // but it does NOT affect the Primal player:
@@ -691,7 +699,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    return {tier:T,dex,type:ty,fx:{dex,shot,life:QUEEN.allyLife,scale:T.scale,rate:T.rate,heart:T.col,tier:T.id,pierce:T.pierce||0,mult:T.share,share:T.share,chests:true,onScreen:true,
      poison:ty==='poison'?1:0,burn:ty==='fire'?1:0,slow:ty==='ice'?0.4:(dex===10||dex===664?0.3:0),colors:['#ffffff',T.col,T.col]}};}
  function queenOn(p){const b=getBridge();return !!(p&&b&&String(b.user||'').trim().toLowerCase()===QUEEN.user&&Number(p.dex)===QUEEN.dex&&!p.megaForm);}
- function queenKills(p){let k=0;try{k=typeof p.myKills==='function'?Number(p.myKills())||0:0;}catch(e){}return Math.min(QUEEN.killCap,k);}
+ function queenKills(p){if(window.PS_SPECIES_PASSIVES)return Math.min(QUEEN.killCap,window.PS_SPECIES_PASSIVES.kills(p));let k=0;try{k=typeof p.myKills==='function'?Number(p.myKills())||0:0;}catch(e){}return Math.min(QUEEN.killCap,k);}
  function queenTick(p,dt,now){
    if(p.hp<p.maxHp)p.hp=Math.min(p.maxHp,p.hp+QUEEN.regen*dt);
    if(!window.PS_FX)return;if(!p.__qAt)p.__qAt=now-(QUEEN.summonEvery-3)*1000;
@@ -704,11 +712,12 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  const ECHO={user:'lovergare',dex:282,xp:1.6,deal:1.3,spd:1.15,lives:2,crit:0.25,take:0.85,   // take 0.85 = Echo's Love: 15% defense
    // Mega Gardevoir only: "J and Echo's Bond" - when HP drops below 50%:
    bond:{form:'282-mega',below:0.5,cooldown:30,regen:20,regenDur:10,deal:10,dealDur:10,spd:1.5,spdDur:5,take:0.8,takeDur:30}};
+ window.PS_ECHO_CONFIG=ECHO;
  function echoOn(p){const b=getBridge();return !!(p&&b&&String(b.user||'').trim().toLowerCase()===ECHO.user&&Number(p.dex)===ECHO.dex);}
  // Friends For Life (LoverGare's Gardevoir only): every KO adds +0.5% damage, EXP, defense and critical chance.
  // Damage and defense stop at 1000 KOs (+500%), EXP at +600%, critical chance at +30%.
  const FFL={per:0.005,dealCap:5,defCap:5,xpCap:6,critCap:0.30};
- function fflKills(p){let k=0;try{k=typeof p.myKills==='function'?Number(p.myKills())||0:0;}catch(e){}return Math.max(0,k);}
+ function fflKills(p){if(window.PS_SPECIES_PASSIVES)return window.PS_SPECIES_PASSIVES.kills(p);let k=0;try{k=typeof p.myKills==='function'?Number(p.myKills())||0:0;}catch(e){}return Math.max(0,k);}
  function fflBonus(p,stat){const v=fflKills(p)*FFL.per;return stat==='deal'?Math.min(FFL.dealCap,v):stat==='take'?Math.min(FFL.defCap,v):stat==='xp'?Math.min(FFL.xpCap,v):stat==='crit'?Math.min(FFL.critCap,v):0;}
  function echoMul(p,stat){if(!echoOn(p))return 1;const now=performance.now(),bd=p.__echoBond;let m=stat==='deal'?ECHO.deal:stat==='spd'?ECHO.spd:stat==='take'?ECHO.take:1;
    if(bd){if(stat==='deal'&&now<bd.deal)m*=ECHO.bond.deal;if(stat==='spd'&&now<bd.spd)m*=ECHO.bond.spd;if(stat==='take'&&now<bd.take)m*=ECHO.bond.take;}
@@ -717,8 +726,9 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    {const fx=1+fflBonus(p,'xp'),old=Number(p.__fflXp)||1;if(fx!==old){p.xpMul=(Number(p.xpMul)||1)/old*fx;p.__fflXp=fx;}   // Friends For Life: EXP
     const fc=fflBonus(p,'crit'),oc=Number(p.__fflCrit)||0;if(fc!==oc){p.critChance=(Number(p.critChance)||0)-oc+fc;p.__fflCrit=fc;}}   // Friends For Life: critical chance
    if(!p.__echoXp){p.__echoXp=true;p.xpMul=(Number(p.xpMul)||1)*ECHO.xp;}                       // EXP +60%
-   if(!p.__echoLives){p.__echoLives=true;p.lives=(Number(p.lives)||0)+ECHO.lives;               // Echo's Resolve For J: +2 second chances
+   if(!p.__echoLives){p.__echoLives=true;p.__echoLivesLeft=ECHO.lives;p.lives=(Number(p.lives)||0)+ECHO.lives;               // Echo's Resolve For J: +2 second chances
      try{getBridge().fx.dmgText(p.x,p.y-(p.bodyH||40)-24,"Echo's Resolve For J: +2 ♥",'#ff9ad8');}catch(e){}}
+   {const last=p.__echoLifeLast??p.lives;p.__echoLivesLeft=Math.max(0,(p.__echoLivesLeft??ECHO.lives)-Math.max(0,last-p.lives));p.__echoLifeLast=p.lives;}
    if(!p.__echoCrit){p.__echoCrit=true;p.critChance=(Number(p.critChance)||0)+ECHO.crit;}   // Echo's Love: +25% crit chance
    if(!p.__jInt){p.__jInt=true;p.rerollBonus=(Number(p.rerollBonus)||0)*2+1;}   // J's Intuition: double rerolls (6 -> 12)
    if(p.megaForm==='282-mega'){const d=getBridge()?.moves?.BY_ID?.['true-moon-blast'];   // Echo's True Potential replaces True Moon Blast (her game only)
@@ -739,7 +749,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
      try{MEGA_CTL&&MEGA_CTL.line('Echo',"I'll call you... {n}!");}catch(e){}
      return true;}catch(e){console.warn('echo z',e);return false;}
  };
- function echoUndo(p){if(p&&p.__echoXp&&!echoOn(p)){p.xpMul=(Number(p.xpMul)||ECHO.xp)/ECHO.xp;p.__echoXp=false;}}
+ function echoUndo(p){if(p&&!echoOn(p)){if(window.PS_SPECIES_PASSIVES)window.PS_SPECIES_PASSIVES.stripEcho(p);else if(p.__echoXp){p.xpMul=(Number(p.xpMul)||ECHO.xp)/ECHO.xp;p.__echoXp=false;}}}
  // Beast Boost (Ultra Beasts): each KO stacks a boost to one stat for a few seconds
  function bbMult(p,stat){const P=passiveFor(p),A=P&&P.ability,bb=A&&A.beastBoost;if(!bb||bb.stat!==stat||!p.__bb||performance.now()>p.__bb.until||p.__bb.ab!==P.abilityId)return 1;
    const n=p.__bb.n;return stat==='take'?Math.max(0.5,1-n*bb.per):1+n*bb.per;}
@@ -943,10 +953,10 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  window.PS_LASTSTAND=function(p){
    try{if(ourBond(p))return true;}catch(e){console.warn('Our Bond',e);}
    try{if(!p||p!==getPlayer()||!echoOn(p)||p.__jWillUsed||p.megaForm||used||(Number(p.level)||1)<JWILL.level||(Number(p.lives)||0)>0)return false;
-     p.__jWillUsed=true;p.lives=JWILL.lives+1;   // the game's own revive uses one right after this -> 2 hearts left
+     p.__jWillUsed=true;p.__echoLivesLeft=JWILL.lives;p.__echoLifeLast=JWILL.lives;p.lives=JWILL.lives+1;   // the game's own revive uses one right after this -> 2 hearts left
      window.__psJWill=true;
      const tryMega=(n)=>{const b=getBridge();if(!b||getPlayer()!==p)return;if(b.game?.state!=='playing'&&n<60){setTimeout(()=>tryMega(n+1),100);return;}
-       try{MEGA_CTL.mega('282','282-mega');}catch(e){console.warn("J's Will mega",e);}
+       try{if(window.PS_FRIEND_MEGA)window.PS_GARD_MEGA_PRESENTATION?.exclusiveRevive(p);else MEGA_CTL.mega('282','282-mega');}catch(e){console.warn("J's Will mega",e);}
        setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.line,'J');}catch(_){}},1150);
        setTimeout(()=>{try{MEGA_CTL.line('Echo',JWILL.after,'Echo');b.fx.dmgText(p.x,p.y-(p.bodyH||40)-30,JWILL.after,'#ff9ad8');}catch(_){}window.__psJWill=false;},4600);};
      setTimeout(()=>tryMega(0),30);

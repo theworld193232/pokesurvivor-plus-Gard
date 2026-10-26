@@ -171,6 +171,7 @@
     return shoreR(o, Math.atan2(y - o.y, x - o.x)) - d + (vn(x / 170, y / 170, s + 3) - 0.5) * o.R * (big ? 0.34 : 0.26) + (vn(x / 48, y / 48, s + 4) - 0.5) * (big ? 26 : 14);
   }
   function water(x, y) {
+    if(window.PS_GROUDON_LAND?.has(x,y)){W0.e=-1e9;W0.dk=-1e9;W0.deep=false;W0.kind=null;return W0;}
     const p = plan();
     const s = p.seed;
     let e = -1e9, dk = -1e9, kind = null;
@@ -733,6 +734,7 @@
   const SURFACE = new Set([283]);
   const locoCache = new Map();
   function locomotion(dex) {
+    if(Number(dex)===383)return 'amphi';
     let l = locoCache.get(dex);
     if (l) return l;
     const R = AI.R;

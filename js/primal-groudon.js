@@ -571,7 +571,7 @@
    ctx.restore();
  }
  function update(dt){
-   if(!scene)return;scene.t+=dt;
+   if(!scene)return;if(Number(scene.player.dex)!==383||scene.player.megaForm!==FORM){scene=null;return;}scene.t+=dt;
    if(!scene.revealed&&scene.t>=REVEAL){scene.player.anim=scene.next;scene.revealed=true;sound('cry');}
    if(scene.t>=REVEAL&&scene.t<END){scene.kickIn-=dt;if(scene.kickIn<=0){kick(.07*(1-(scene.t-REVEAL)/(END-REVEAL)));scene.kickIn=.09;}}
    if(scene.t>=END)scene=null;

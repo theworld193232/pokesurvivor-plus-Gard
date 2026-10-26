@@ -396,6 +396,7 @@
     if (dv <= 0 && ringAt(x, y)) { o.solid = true; o.ring = true; }
     o.e = e; o.dv = dv;
     o.cls = dv <= 0 ? 0 : Math.min(4, 1 + Math.floor(dv));
+    if(!o.solid&&window.PS_GROUDON_LAND?.has(x,y)){o.e=-1;o.dv=-.1;o.cls=0;o.tidal=null;}
     return o;
   }
   function cls(x, y) { return sample(x, y).cls; }
@@ -491,6 +492,7 @@
   function isPlayerEnt(ent) { try { return !!ent && (ent === AI.R.Game.player || (AI.players && AI.players.includes(ent))); } catch (e) { return false; } }
   // the player: a Water type swims; everyone else wades the shallows and takes a boat beyond
   function playerLoco(p) {
+    if(Number(p?.dex)===383)return 'amphi';
     const types = (p && p.mon && p.mon.types) || (p && p.types) || [];
     return types.includes('water') ? 'amphi' : 'walk';
   }

@@ -171,6 +171,7 @@
  const deltaStream=()=>!!window.PS_DELTA_STREAM?.active?.();
  function update(dt){
    clock+=dt;
+   if(scene&&(Number(scene.player.dex)!==382||scene.player.megaForm!==FORM))scene=null;
    if(scene){scene.t+=dt;
      if(!scene.revealed&&scene.t>=REVEAL){scene.player.anim=scene.next;scene.revealed=true;sound('cry');}
      if(scene.t>=REVEAL&&scene.t<END){scene.kickIn-=dt;if(scene.kickIn<=0){kick(.07*(1-(scene.t-REVEAL)/(END-REVEAL)));scene.kickIn=.09;}}

@@ -11,5 +11,5 @@
   const a=active();if(a)return {...a,left:a.until-R.Game.time};
   return current.get.call(W);
  }});
- window.PS_GARD_WEATHER={get aura(){return active();},world:AI.Sky};
+ window.PS_GARD_WEATHER={clear(p){if(!p||aura?.player===p)aura=null;},get aura(){return active();},world:AI.Sky};
 })();

@@ -936,6 +936,7 @@
    active(){if(live.length||shinySp.length||opSlowed.size)return true;const p=B()?.game?.player;if(shinyOf(p))return true;for(const e of enemies())if(e.shiny===true)return true;return false;},
    update(dt){opSlowTick(dt);for(let i=live.length-1;i>=0;i--){let keep=false;try{keep=live[i].style.update(live[i],dt);}catch(e){console.warn('fx update',e);}if(!keep)live.splice(i,1);}},
    draw(ctx,view){try{ctx.save();drawShiny(ctx,view);ctx.restore();}catch(e){}for(const c of live){try{ctx.save();c.style.draw(c,ctx,view);ctx.restore();}catch(e){console.warn('fx draw',e);}}},
+   clearForPlayer(player){for(let i=live.length-1;i>=0;i--)if(live[i].player===player)live.splice(i,1);},
    clear(){live.length=0;}
  };
 })();
