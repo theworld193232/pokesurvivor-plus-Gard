@@ -124,6 +124,49 @@ uso **no comercial** y con atribución a sus artistas.
 | YoukaiMinori | <@91001329228464128> | 252, 253 |
 | ◥θ┴θ◤ | DC:<@215638650434617345> | 157, 445, 501, 504, 505, 566, 577, 595, 627, 650, 651, 658, 661, 676, 684, 707, 724, 726, 728, 729, 730, 761, 763, 790, 823, 872, 907, 991 |
 
+### Retratos de los cuadros de diálogo
+
+Los retratos de los cuadros de diálogo (`assets/portraits`) también vienen de
+[SpriteCollab](https://github.com/PMDCollab/SpriteCollab), con la misma licencia
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Muchos son los
+retratos originales de los juegos de *Mundo Misterioso* de
+[Spike Chunsoft](https://www.spike-chunsoft.com/) (nº 1, 4, 5, 6, 7, 25, 92, 93,
+94, 133, 152, 155, 158, 200, 243, 244, 245, 251, 252, 255, 258, 355, 356, 377, 387,
+390, 391, 392, 393, 394, 395, 429, 477, 488, 489, 490, 491, 492; y en parte 249 y 386); el resto son obra de estos artistas:
+
+| Artista | Contacto | Retratos (nº de Pokédex) |
+|---|---|---|
+| 0palite | https://zeropalart.tumblr.com/ | 5, 6, 395 |
+| baronessfaron |  | 355, 356, 391, 429, 488, 491, 640, 656, 657, 680, 681, 724, 785, 786, 787, 788, 897 |
+| CamusZekeSirius |  | 377 |
+| Cloudy | https://twitter.com/cloudyskys17695 | 656 |
+| distress | https://www.artstation.com/distress/albums/1200843 | 908 |
+| Emmuffin | https://twitter.com/Ernmuffin | 245, 355, 391, 392, 394, 488, 489, 490, 495, 498, 501, 607, 608, 609, 650, 656, 658, 679, 681, 722, 725, 728, 813, 816, 897, 906, 907 |
+| Fable | https://twitter.com/fabledpainter | 728 |
+| G〜 | https://bsky.app/profile/justtr4sh.pmd.social | 249, 356, 477, 653, 656, 679, 810, 816, 893, 907 |
+| JFain |  | 92 |
+| JustAGunk | <@1377429093997477928> | 657, 723, 810, 907 |
+| leafia_barrett |  | 251 |
+| Mojo |  | 492 |
+| Morei | https://bsky.app/profile/murpia57.bsky.social | 200 |
+| NeroIntruder | https://twitter.com/NeroIntruder | 813 |
+| Noivern | https://twitter.com/notarealnoivern | 498 |
+| NOLASMOR |  | 657 |
+| Noo | https://artfight.net/~NooNoo_Skidoo | 386, 650 |
+| PhillipsYoung | https://twitter.com/PhilliYoung196 | 93 |
+| programmedsleepstate | <@224476380790915072> | 243 |
+| RoyalRust |  | 200 |
+| Soulja | https://twitter.com/OlSoulja | 893 |
+| Tainted#3886 |  | 356 |
+| Top_Kec | @topkec.bsky.social | 244, 724 |
+| ◥θ┴θ◤ | DC:<@215638650434617345> | 656, 657, 723, 728 |
+
+Uno de los retratos de Deoxys (386) es de un colaborador de SpriteCollab que no figura con
+nombre público (Discord 523152081805115403).
+
+Los retratos de otros Pokémon se descargan de SpriteCollab durante la partida,
+con la misma licencia y la autoría que figura en su repositorio.
+
 ## Datos
 
 Stats base y nombres en español: [PokeAPI](https://pokeapi.co/),
@@ -162,9 +205,61 @@ bosque encantado del "entorno vivo" (`assets/env/atlas.png`) salen de estas hoja
   el barro y la orilla del Bosque Umbrío se pintan en el propio juego
   (`js/ai/34-forest.js`).
   *(Falta indicar aquí el autor original de cada una de estas hojas.)*
+- **Pozo Siniestro** (`assets/env/creepy_well.png`): material aportado por DexterDamg para
+  PokéSurvivor+, devuelto a su rejilla de píxeles y recortado del fondo negro; el original, tal como
+  se aportó, en `assets/env/src/creepy_well@6x.webp`. *(Falta indicar el autor original.)*
+
+## La mansión encantada, por dentro y por fuera
+
+- **Fachada grande** (tres plantas, torres de cuatro, alas) y **cobertizo**: compuestos por
+  `tools/mansion_art.py` a partir de la fachada de la mansión del atlas (ver arriba).
+- **Muebles del Viejo Château** (cama, sofá, alfombras, estantería, reloj de pie, candelabros,
+  bustos, osos de peluche, macetas, paredes moradas, alfombra de la escalera), recortados en
+  `assets/mansion/chateau.png`; el **mapa del vestíbulo del Viejo Château** (referencia de la
+  escalera doble) y una **fachada de mansión** (todavía sin usar), en `assets/mansion/src`:
+  material aportado por DexterDamg para PokéSurvivor+, en el estilo de *Pokémon Diamante y Perla*
+  (Nintendo / Creatures Inc. / GAME FREAK). *(Falta indicar el autor original de la hoja.)*
+- La verja con su arco, la fuente seca, las puertas del cobertizo, las velas pequeñas, los
+  escalones y las escaleras interiores se pintan en el propio juego (`js/ai/87-mansion.js`).
+- **Música del interior**: *Old Chateau* (Viejo Château) de *Pokémon Diamante y Perla*
+  (Nintendo / Creatures Inc. / GAME FREAK), `assets/music/old-chateau.mp3`, aportada por
+  DexterDamg.
+- **Música del Bosque Umbrío**: *Viridian Forest* (Bosque Verde) de *Pokémon Rojo Fuego y Verde
+  Hoja* (Nintendo / Creatures Inc. / GAME FREAK), `assets/music/viridian-forest.mp3`, aportada por
+  DexterDamg. Junto con la de la mansión, son los únicos archivos de audio del juego que no son
+  originales del proyecto.
+- El fondo del Nivel 1 en el menú (`assets/ui/zone-1-mansion*.webp`) son capturas del propio juego.
+
+## Océano Tropical (Nivel 3)
+
+Arte de `assets/ocean` (los originales, tal como se aportaron, en `assets/ocean/src`):
+
+- **Pueblo del puerto** (muelle, faro, ferry, playa): material aportado por DexterDamg para
+  PokéSurvivor+. *(Falta indicar el autor original.)*
+- **Isla Origen**: el mapa de la isla de *Pokémon Rojo Fuego y Verde Hoja / Esmeralda*
+  (Nintendo / Creatures Inc. / GAME FREAK), aportado por DexterDamg; el triángulo de Deoxys está
+  recortado de él.
+- **Isla de los guardianes y su hoja de tiles**: de ella se han recortado las palmeras, los
+  cerezos rosas, las rocas, la rafflesia, el santuario, los tótems y la choza. Aportada por
+  DexterDamg; la imagen lleva una marca de agua de deviantart. *(Falta indicar el autor original.)*
+- **Barcos** rojo, azul y amarillo: material aportado por DexterDamg. *(Falta indicar el autor
+  original.)*
+- El mapa de ruta tropical se aportó pero no se usa.
+- El mar, las islas, el oleaje, la espuma, los corales, las algas, las boyas, los pecios, el haz
+  del faro, el santuario de Lugia y las inscripciones se pintan en el propio juego
+  (`js/ai/34-ocean-draw.js`, `js/ai/82-sea.js`, `js/ai/82-guardians.js`).
+
+Iconos de objetos de `assets/items` (Piedra Espíritu, Orbes, Piedras Oscura y Clara, Trozo Estrella, Célula de Zygarde, amuletos de Mesprit y Azelf, Alas, Botella Prisión, Maximuñequera)
+y las hojas de Megapiedras, Cristales Z y bayas en árbol:
+material aportado por DexterDamg para PokéSurvivor+.
+
+Hoja de cultivos de bayas (`assets/items/sheets/berry_crops.png`, todavía sin usar): iconos de las
+bayas kuo, touga y chilan por **Ponylover888**, árbol de berenjena por **Anarlaurendil**, árbol y
+algunas bayas por **DarkusShadow**.
 
 Los sonidos de ambiente (pájaros, grillos, lluvia, viento, truenos, caja de
-música…) se sintetizan en el propio juego; no usan archivos de audio.
+música…) se sintetizan en el propio juego; no usan archivos de audio (la música
+del Bosque Umbrío y la de la mansión son la excepción, ver arriba).
 
 ## Fuente
 
@@ -177,5 +272,3 @@ licencia en `assets/fonts/OFL.txt`). El juego usa una versión modificada,
 
 Pokémon es propiedad de Nintendo, Creatures Inc. y GAME FREAK.
 Este es un proyecto de fan sin ánimo de lucro.
-
-Act 2 revision 7 original scenery and sanctuary atlases were generated for this project on October 25, 2026; the game trims and renders them at its pixel scale. Native forest art credits above remain applicable.

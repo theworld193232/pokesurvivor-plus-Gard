@@ -35,6 +35,8 @@
       const d = AI.Forest.depthClass(x, y), l = AI.Forest.locomotion(e.dex);
       if (l === 'swim' ? d === 0 : l === 'walk' && d === 2) return false;
     }
+    // …and the Tropical Ocean's: fish stay in the sea, shore-dwellers on the coast (34-ocean.js)
+    if (AI.Ocean && AI.Ocean.on() && e.dex != null && !AI.Ocean.canBe(e, x, y)) return false;
     if (e.flying) return true;
     if (!E.free(x, y, Math.max(8, e.r * 0.7))) return false;
     if (E.isLiquid(x, y) && (E.hurtsIn(e.types) || (e.psx && e.psx.p.hatesWater))) return false;
@@ -488,15 +490,24 @@
     },
     start(e, s) {
       const tree = nearProp(e, s, 'tree', 200);
-      s.bs.spot = tree && s.lod === 0 ? [tree.x + U.rand(-14, 14), tree.y + 16] : [e.x, e.y];
+      // at the foot of a tree, beside the trunk (never inside it)
+      s.bs.spot = [e.x, e.y];
+      if (tree && s.lod === 0) {
+        for (const [ox, oy] of [[U.rand(-14, 14), 24], [-26, 18], [26, 18], [0, 34]]) {
+          if (AI.Env.free(tree.x + ox, tree.y + oy, (e.r || 12) * 0.8)) { s.bs.spot = [tree.x + ox, tree.y + oy]; break; }
+        }
+      }
       s.bs.down = false;
       s.bs.t0 = AI.time;
+      s.bs.bestD = Infinity; s.bs.stuck = 0;
     },
     update(e, s, dt, it) {
       if (s.wokeAt && s.wokeAt >= s.bs.t0) { animReset(e); return false; }
       if (!s.bs.down) {
         const d = Math.hypot(s.bs.spot[0] - e.x, s.bs.spot[1] - e.y);
-        if (d > 12 && Math.random() > dt * 0.1) { go(it, s.bs.spot[0], s.bs.spot[1], 0.4); return true; }
+        // getting nowhere (a root, a log in the way)? then right here will do
+        if (d < s.bs.bestD - 1) { s.bs.bestD = d; s.bs.stuck = 0; } else s.bs.stuck += dt;
+        if (d > 12 && s.bs.stuck < 1.5 && Math.random() > dt * 0.1) { go(it, s.bs.spot[0], s.bs.spot[1], 0.4); return true; }
         s.bs.down = true;
         e.anim.play('Faint', { hold: true, speed: 0.6 });
       }

@@ -65,9 +65,11 @@
     weatherDuration: { es: 'Duración del clima', en: 'Weather duration', fr: 'Durée de la météo', zh: '天氣持續時間' },
     fogSpawns: { es: 'La niebla reduce apariciones', en: 'Fog reduces spawns', fr: 'Le brouillard réduit les apparitions', zh: '霧減少出現' },
     lightningRate: { es: 'Frecuencia de rayos', en: 'Lightning frequency', fr: 'Fréquence des éclairs', zh: '閃電頻率' },
+    nightVisibility: { es: 'Visibilidad nocturna (accesibilidad)', en: 'Night visibility (accessibility)', fr: 'Visibilité nocturne (accessibilité)', zh: '夜間能見度（無障礙）' },
+    manual: { es: 'Manual (L)', en: 'Manual (L)', fr: 'Manuel (L)', zh: '手動（L）' },
     flashIntensity: { es: 'Destellos de rayos (accesibilidad)', en: 'Lightning flashes (accessibility)', fr: 'Flashs d\'éclairs (accessibilité)', zh: '閃電閃光（無障礙）' },
     mansionTitle: { es: 'La mansión encantada', en: 'The haunted mansion', fr: 'Le manoir hanté', zh: '鬼屋洋館' },
-    mansion: { es: 'Mansión, sustos e historia', en: 'Mansion and hauntings', fr: 'Manoir, hantises et histoire', zh: '洋館、靈異事件與劇情' },
+    mansion: { es: 'Mansión, sustos e historia', en: 'Mansion, hauntings & story', fr: 'Manoir, hantises et histoire', zh: '洋館、靈異事件與劇情' },
     jumpscare: { es: 'Susto del espejo a pantalla completa', en: 'Full-screen mirror jumpscare', fr: 'Jumpscare du miroir en plein écran', zh: '全螢幕鏡子驚嚇' },
     hauntRate: { es: 'Frecuencia de sucesos', en: 'Haunting frequency', fr: 'Fréquence des hantises', zh: '靈異事件頻率' },
     replay: { es: 'Ver de nuevo', en: 'Replay', fr: 'Revoir', zh: '重播' },
@@ -94,9 +96,9 @@
   const TOGGLES = ['evolution', 'friendlyFire', 'debug'];
   const ENV_TOGGLES = ['atmosphere', 'newArt', 'areaSpawns', 'speech'];
   const ENV_SLIDERS = [['dayLength', 60, 1800, 30], ['startHour', 0, 23.5, 0.5], ['weatherFreq', 0, 3, 0.1], ['ambientVol', 0, 1, 0.05]];
-  const ENV_SELECTS = [['season', ['auto', 'spring', 'summer', 'autumn', 'winter']], ['lightQuality', ['auto', 'low', 'medium', 'high']], ['lantern', ['auto', 'on', 'off']]];
+  const ENV_SELECTS = [['season', ['auto', 'spring', 'summer', 'autumn', 'winter']], ['lightQuality', ['auto', 'low', 'medium', 'high']], ['lantern', ['manual', 'on', 'off']]];
   const WORLD_TOGGLES = ['naturalTerrain', 'treeSizes', 'speciesScale', 'softTelegraphs', 'earnedEvents', 'hordes'];
-  const WORLD_SLIDERS = [['treeDensity', 0.3, 2, 0.1], ['eventCooldown', 20, 240, 5], ['weatherDuration', 0.3, 3, 0.1], ['fogSpawns', 0, 1.5, 0.05], ['lightningRate', 0, 3, 0.1], ['flashIntensity', 0, 1, 0.05]];
+  const WORLD_SLIDERS = [['treeDensity', 0.3, 2, 0.1], ['eventCooldown', 20, 240, 5], ['weatherDuration', 0.3, 3, 0.1], ['fogSpawns', 0, 1.5, 0.05], ['lightningRate', 0, 3, 0.1], ['flashIntensity', 0, 1, 0.05], ['nightVisibility', 0, 1, 0.05]];
   const MANSION_TOGGLES = ['mansion', 'jumpscare'];
   const FOREST_TOGGLES = ['forestWorld', 'mysteries', 'enemyBars', 'announce', 'forestTraps'];
   let el = null;
@@ -138,6 +140,10 @@
     h += '<h4 style="margin:14px 0 6px;color:#c9a0f0">' + AI.tr('mansionTitle') + '</h4>';
     for (const k of MANSION_TOGGLES) h += row('<label><input type="checkbox" data-k="' + k + '"' + (c[k] ? ' checked' : '') + '> ' + AI.tr(k) + '</label>');
     h += row('<div style="display:flex;justify-content:space-between"><span>' + AI.tr('hauntRate') + '</span><b data-v="hauntRate">' + c.hauntRate + '</b></div><input type="range" style="width:100%" min="0" max="3" step="0.1" value="' + c.hauntRate + '" data-k="hauntRate">');
+    const jr = AI.Story ? AI.Story.journal() : [];
+    if (!jr.length) h += '<div style="opacity:.7;font-size:12px">' + AI.tr('noScenes') + '</div>';
+    for (const j of jr) h += '<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0"><span>' + j.title + '</span><button class="btn" data-replay="' + j.id + '">▶ ' + AI.tr('replay') + '</button></div>';
+    if (jr.length) h += '<div style="text-align:right;margin-top:6px"><button class="btn" data-a="resetStory">' + AI.tr('resetStory') + '</button></div>';
     h += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="btn" data-a="reset">' + AI.tr('reset') + '</button><button class="btn gold" data-a="close">' + AI.tr('close') + '</button></div>';
     box.innerHTML = h;
     box.querySelectorAll('input,select').forEach((inp) => inp.addEventListener('input', onInput));

@@ -23,7 +23,7 @@
     415: 'day', 406: 'day', 25: 'day', 214: 'day', 127: 'day', 123: 'day', 216: 'day', 469: 'day',
     163: 'night', 164: 'night', 43: 'night', 44: 'night', 45: 'night', 182: 'day', 167: 'night', 168: 'night', 48: 'night', 49: 'night',
     41: 'night', 42: 'night', 169: 'night', 92: 'night', 93: 'night', 94: 'night', 198: 'night', 430: 'night', 200: 'night', 302: 'night',
-    401: 'dusk', 402: 'dusk', 313: 'night', 314: 'night', 19: 'any', 20: 'any', 263: 'any', 264: 'any', 399: 'any', 400: 'any',
+    401: 'dusk', 402: 'dusk', 313: 'night', 314: 'night', 595: 'night', 596: 'night', 197: 'night', 19: 'any', 20: 'any', 263: 'any', 264: 'any', 399: 'any', 400: 'any',
     46: 'any', 47: 'any', 69: 'any', 70: 'any', 71: 'any', 29: 'any', 30: 'any', 32: 'any', 33: 'any', 285: 'any', 286: 'any',
     114: 'any', 465: 'any', 217: 'any', 275: 'night', 274: 'any', 273: 'day',
   };
@@ -38,16 +38,19 @@
     16: ['tree'], 17: ['tree'], 18: ['tree'], 21: ['tree'], 22: ['tree'], 163: ['tree'], 164: ['tree'], 165: ['tree', 'bush'], 166: ['tree'],
     396: ['tree'], 397: ['tree'], 398: ['tree'], 415: ['tree', 'berry'], 214: ['tree'], 127: ['tree', 'log'], 123: ['grass'], 198: ['tree'],
     46: ['mush', 'log'], 47: ['mush', 'log'], 285: ['mush', 'log'], 286: ['mush'], 25: ['tree', 'grass'], 401: ['grass'], 402: ['grass'],
-    216: ['berry', 'log'], 217: ['log'], 114: ['bush'], 465: ['bush'], 92: ['log'], 93: ['log'], 41: ['tree'], 42: ['tree'],
+    216: ['berry', 'log'], 217: ['log'], 114: ['bush'], 465: ['bush'], 92: ['log'], 93: ['log'], 41: ['tree'], 42: ['tree'], 595: ['bush', 'tree'], 596: ['tree'],
   };
   const RARE = { 25: 0.25, 92: 0.35, 93: 0.4, 123: 0.3, 214: 0.6, 127: 0.6, 198: 0.5, 465: 0.5, 469: 0.5, 182: 0.5 };
+  // the sea: Chinchou and Lanturn light up the night water, Wingull keep to the day; the big ones are rare
+  Object.assign(ACTIVE, { 170: 'night', 171: 'night', 456: 'night', 457: 'night', 278: 'day', 279: 'day', 742: 'day', 743: 'day', 761: 'day', 762: 'day', 763: 'day', 309: 'any', 403: 'any' });
+  Object.assign(RARE, { 130: 0.35, 230: 0.3, 131: 0.25, 321: 0.3, 350: 0.2, 369: 0.45, 477: 0.4, 466: 0.5, 282: 0.45, 475: 0.45, 94: 0.5, 781: 0.6, 26: 0.3 });
 
   // the starting woodland, tier by tier (tiers start at 0, 70, 160, 260, 380, 500 s)
   const ROSTERS = {
     0: {
       tiers: [
-        [16, 19, 161, 10, 13, 265, 263, 165, 396, 163, 43, 167, 48, 401],
-        [16, 19, 161, 11, 14, 266, 268, 46, 69, 29, 32, 25, 285, 406, 415, 21, 163, 43, 167, 48, 41, 401],
+        [16, 19, 161, 10, 13, 265, 263, 165, 396, 163, 43, 167, 48, 401, 595],
+        [16, 19, 161, 11, 14, 266, 268, 46, 69, 29, 32, 25, 285, 406, 415, 21, 163, 43, 167, 48, 41, 401, 595, 198],
         [17, 20, 162, 12, 15, 267, 269, 264, 397, 400, 166, 402, 70, 47, 30, 33, 22, 216, 164, 168, 49, 44, 198, 92],
         [22, 286, 214, 127, 71, 45, 182, 398, 114, 217, 20, 162, 164, 93, 168, 49],
         [217, 214, 123, 127, 286, 18, 398, 45, 71, 164, 93, 169, 15, 12],
@@ -56,9 +59,24 @@
       bosses: [[20, 162, 15, 12, 164], [18, 217, 47, 71], [123, 214, 127, 286], [217, 398, 45, 465], [469, 465, 275]],
     },
   };
+  /* The Tropical Ocean (Level 3): sea Pokémon by habitat, the mainland's forest Pokémon, and each guardian island's own (who
+   * actually turns up depends on where you are: 34-ocean.js). Registered once the ocean has its
+   * biome number (see oceanRoster below). */
+  const OCEAN = {
+    tiers: [
+      [129, 72, 278, 90, 79, 86, 118, 116, 98, 120, 222, 170, 318, 366, 341, 54, 370, 309, 403, 100, 81, 280, 742, 546, 753, 761, 406, 92, 355, 353, 200, 425, 731, 734, 102, 190, 43, 46, 10],
+      [129, 72, 278, 90, 79, 86, 118, 116, 98, 120, 222, 170, 318, 223, 211, 456, 690, 751, 767, 739, 183, 309, 403, 100, 81, 702, 777, 280, 742, 764, 546, 753, 761, 548, 285, 736, 406, 92, 93, 355, 353, 200, 425, 731, 734, 102, 190, 43, 44, 46, 165, 270],
+      [73, 119, 117, 87, 80, 91, 171, 319, 279, 224, 99, 342, 226, 320, 457, 458, 55, 222, 211, 404, 310, 82, 737, 281, 743, 547, 754, 762, 315, 286, 93, 356, 354, 426, 200, 424, 44, 47, 271, 357, 102],
+      [73, 121, 130, 230, 199, 367, 368, 369, 691, 752, 768, 781, 319, 171, 279, 87, 405, 738, 466, 282, 475, 763, 407, 94, 429, 477, 354, 356, 103, 424, 47, 357, 127, 123, 272],
+      [121, 130, 230, 199, 367, 368, 369, 321, 131, 350, 781, 768, 319, 171, 279, 405, 738, 466, 282, 475, 763, 407, 94, 429, 477, 103, 357, 127, 123, 272],
+      [130, 230, 321, 131, 350, 369, 781, 121, 199, 319, 171, 405, 466, 282, 475, 763, 407, 94, 429, 477, 103, 357, 127, 272],
+    ],
+    bosses: [[73, 87, 80, 119], [319, 171, 91, 279], [130, 121, 230, 199], [131, 369, 768, 781], [321, 130, 350, 230]],
+  };
+  function oceanRoster() { if (AI.Ocean && AI.Ocean.BIOME >= 0 && !ROSTERS[AI.Ocean.BIOME]) ROSTERS[AI.Ocean.BIOME] = OCEAN; }
 
   function enabled() { return AI.enabled && AI.cfg.areaSpawns !== false; }
-  function roster() { return enabled() ? ROSTERS[AI.Env.biome()] || null : null; }
+  function roster() { if (!enabled()) return null; oceanRoster(); return ROSTERS[AI.Env.biome()] || null; }
   function active(dex) {
     if (ACTIVE[dex]) return ACTIVE[dex];
     const d = AI.R && AI.R.DEX_BY[dex];
@@ -79,10 +97,11 @@
     const Sky = AI.Sky;
     if (!Sky || AI.cfg.atmosphere === false || Sky.indoor()) return 1;
     const a = active(dex), d = Sky.darkness(), ph = Sky.phase();
+    // at night the forest belongs to the night Pokémon: the rest are barely about
     if (a === 'night') return U.clamp(d * 1.2 - 0.1, 0.05, 1);
-    if (a === 'day') return U.clamp(1.1 - d * 1.15, 0.04, 1);
-    if (a === 'dusk') return ph === 'dusk' || ph === 'dawn' ? 1 : d > 0.5 ? 0.7 : 0.3;
-    return 1 - d * 0.35;
+    if (a === 'day') return U.clamp(1.1 - d * 1.15, 0.02, 1);
+    if (a === 'dusk') return ph === 'dusk' || ph === 'dawn' ? 1 : d > 0.5 ? 0.35 : 0.3;
+    return U.clamp(1 - d * 0.92, 0.07, 1);
   }
 
   // ---------------------------------------------------------------- roster → spawn definitions
@@ -166,9 +185,21 @@
   }
 
   // weigh the spawn bag by time of day, season, weather and rarity
+  // near the haunted mansion the ordinary Pokémon thin out and Ghost types gather (84-journey.js)
+  const GHOSTS = [92, 355, 200, 353, 607, 708];
   function weightBag(bag) {
     if (!roster() || !bag || !bag.length) return null;
     const Sky = AI.Sky;
+    const jk = AI.Journey ? AI.Journey.partyK() : 0;
+    if (jk > 0.15) {
+      const R = AI.R, T = R.Enemies.TIERS;
+      const t = R.Game.time || 0, ti = [0, 70, 160, 260, 380, 500].filter((s) => t >= s).length - 1;
+      for (const g of GHOSTS) {
+        if (!R.DEX_BY[g] || !R.SPRITE_META[g] || bag.some((d) => d.dex === g)) continue;
+        const n = Math.round(jk * 2.5);
+        for (let i = 0; i < n; i++) bag = bag.concat([defFor(R.DEX_BY[g], T[Math.max(0, Math.min(ti, T.length - 1))], ti)]);
+      }
+    }
     const se = Sky ? Sky.season() : 'summer';
     const out = [];
     for (const d of bag) {
@@ -178,6 +209,11 @@
       if (Sky && types.includes('bug') && Sky.midday() && Sky.cloud < 0.5) w *= 1.4;
       if (Sky && Sky.rain > 0.4 && (types.includes('bug') || types.includes('fire'))) w *= 0.5;
       if (Sky && Sky.fog > 0.5 && (types.includes('ghost') || types.includes('dark'))) w *= 2.2;
+      if (jk > 0.15) w *= types.includes('ghost') ? 1 + jk * 4 : 1 - jk * 0.75;
+      // tree-dwellers mostly live in their trees (63-wildlife.js): cocoons never roam, few caterpillars do
+      if (AI.Wildlife && AI.cfg.wildlife !== false) { if (AI.Wildlife.COCOON.has(d.dex)) w = 0; else if (AI.Wildlife.CRAWLER.has(d.dex)) w *= 0.35; }
+      // at sea, who lives around you (34-ocean.js)
+      if (AI.Ocean && AI.Ocean.on()) w *= AI.Ocean.weight(d.dex);
       const n = Math.floor(w) + (Math.random() < w - Math.floor(w) ? 1 : 0);
       for (let i = 0; i < n; i++) out.push(d);
     }
@@ -210,6 +246,7 @@
     r *= fogFactor(1);
     r *= 1 - Sky.storm * 0.4 - Math.max(0, Sky.rain - 0.5) * 0.4;
     if (Sky.windNow() > 0.85) r *= 0.7;
+    if (AI.Journey) r *= 1 - AI.Journey.partyK() * 0.5; // the forest goes quiet near the mansion
     return U.clamp(r, 0.12, 1);
   }
 
@@ -238,6 +275,7 @@
   function place(e) {
     if (!enabled() || e.boss || e.legend) return;
     e.psxNative = true; // lives here: goes home at the end of its day
+    if (AI.Ocean && AI.Ocean.on()) { AI.Ocean.place(e); return; } // (at sea: lagoons, reefs, currents, beaches… 34-ocean.js)
     const R = AI.R;
     const p = R.Game.player;
     const cam = R.Camera;

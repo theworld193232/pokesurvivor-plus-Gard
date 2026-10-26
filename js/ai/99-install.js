@@ -24,6 +24,14 @@
     if (installed) return;
     installed = true;
     AI.R = R;
+    // Level 3 becomes the Tropical Ocean (34-ocean.js): registered before anything reads the maps
+    try { if (AI.Ocean) AI.Ocean.register(R); } catch (e) { AI.warn('ocean-register', e); }
+    // the main menu's level banners and the Shady Forest's status line (96-menu.js)
+    try { if (AI.Menu) AI.Menu.install(R); } catch (e) { AI.warn('menu-install', e); }
+    // no gacha: Pokémon join you when defeated (65-catch.js); the dev console (98-devconsole.js)
+    try { if (AI.Catch) AI.Catch.install(R); } catch (e) { AI.warn('catch-install', e); }
+    try { if (AI.Dev) AI.Dev.install(R); } catch (e) { AI.warn('dev-install', e); }
+    try { if (AI.Spiritomb) AI.Spiritomb.install(R); } catch (e) { AI.warn('spiritomb-install', e); }
     const P = R.Enemy.prototype;
 
     // ------------------------------------------------------------ enemies
@@ -144,6 +152,7 @@
     R.Hazards.draw = function (ctx) {
       if (AI.enabled) try { AI.Ground.drawGround(ctx); } catch (e) { AI.warn('env-ground', e); }
       if (AI.enabled) try { AI.Render.drawGround(ctx); } catch (e) { AI.warn('ground', e); }
+      if (AI.enabled && AI.Boats) try { AI.Boats.drawWakes(ctx); AI.Sea.drawUnder(ctx); AI.Guardians.drawUnder(ctx); AI.Birth.drawUnder(ctx); } catch (e) { AI.warn('sea-under', e); }
       if (AI.enabled && AI.cfg.softTelegraphs !== false) { try { AI.Ground.drawHazards(ctx); return; } catch (e) { AI.warn('telegraph', e); } }
       return oHDraw.apply(this, arguments);
     };
@@ -173,16 +182,20 @@
     const insideAt = (x, y) => AI.enabled && AI.Mansion.inside && AI.Mansion.inInterior(x, y);
     const oCollide = W.collide;
     W.collide = function (ent) {
+      if (ent && AI.enabled && AI.Totem.inside(ent.x, ent.y)) return AI.Totem.collide(ent); // (a Totem's maze: 89-totem.js)
       if (ent && insideAt(ent.x, ent.y)) return AI.Mansion.collide(ent);
+      if (AI.enabled && ent && ent.psx && (ent.psx.vis.perch > 2 || ent.psx.vis.trunk)) return false; // on or up a tree (63-wildlife.js)
+      if (AI.enabled && ent && AI.Boats && AI.Boats.riding(ent)) return false; // (a boat carries it: 34-boats.js)
       const r = oCollide.apply(this, arguments);
-      if (AI.enabled && ent) try { AI.Mansion.collideExterior(ent); AI.Decor.collide(ent); AI.Forest.collideWater(ent); } catch (e) { AI.warn('mansion-collide', e); }
+      if (AI.enabled && ent) try { AI.Mansion.collideExterior(ent); AI.Decor.collide(ent); AI.Forest.collideWater(ent); AI.Ocean.collide(ent); } catch (e) { AI.warn('mansion-collide', e); }
       return r;
     };
     const oFree = W.isFree;
     W.isFree = function (x, y, r) {
+      if (AI.enabled && AI.Totem.inside(x, y)) return AI.Totem.freeAt(x, y, r);
       if (insideAt(x, y)) return AI.Mansion.freeAt(x, y, r);
       const f = oFree.apply(this, arguments);
-      return f && !(AI.enabled && (AI.Mansion.blockedExterior(x, y, r || 12) || AI.Decor.blocked(x, y, r || 12)));
+      return f && !(AI.enabled && (AI.Mansion.blockedExterior(x, y, r || 12) || AI.Decor.blocked(x, y, r || 12) || AI.Ocean.blocked(x, y, r || 12)));
     };
     const inHouse = {
       kindAt: (x, y) => (AI.Mansion.freeAt(x, y, 2) ? 'floor' : 'wall'), isWall: (x, y) => !AI.Mansion.freeAt(x, y, 2), isLiquid: () => false,
@@ -190,22 +203,43 @@
       reachable: () => true, propsInCircle: () => [], specialsNear: () => [], nearestBreakable: () => null, obstacleNear: () => false,
       breakAt: () => undefined, useAltarAt: () => undefined, damageProp: () => false,
     };
+    const mazeWall = (x, y) => { const [tx, ty] = AI.Totem.tileOf(x, y); return AI.Totem.wall(tx, ty); };
+    const inMaze = {
+      kindAt: (x, y) => (mazeWall(x, y) ? 'wall' : 'floor'), isWall: (x, y) => mazeWall(x, y), isLiquid: () => false, walkable: (x, y) => !mazeWall(x, y),
+      projectileBlock: () => null, underCanopy: () => false, clearance: () => null, reachable: () => true, propsInCircle: () => [], specialsNear: () => [],
+      nearestBreakable: () => null, obstacleNear: () => false, breakAt: () => undefined, useAltarAt: () => undefined, damageProp: () => false,
+    };
+    // the Tropical Ocean answers for its own sea, coasts and paintings (34-ocean.js)
+    const atSea = {
+      kindAt: (x, y) => AI.Ocean.kindAt(x, y), isWall: (x, y) => AI.Ocean.solidAt(x, y), isLiquid: (x, y) => AI.Ocean.cls(x, y) > 0,
+    };
     for (const k of Object.keys(inHouse)) {
       const o = W[k];
       if (typeof o !== 'function') continue;
-      W[k] = function (x, y) { return insideAt(x, y) ? inHouse[k].apply(null, arguments) : o.apply(this, arguments); };
+      W[k] = function (x, y) {
+        if (insideAt(x, y)) return inHouse[k].apply(null, arguments);
+        if (AI.enabled && AI.Totem.inside(x, y)) return inMaze[k].apply(null, arguments);
+        if (atSea[k] && AI.Ocean.on()) return atSea[k].apply(null, arguments);
+        return o.apply(this, arguments);
+      };
     }
     const oDG = W.drawGround;
     W.drawGround = function (ctx) {
+      if (AI.enabled && AI.Totem.active()) { try { AI.Totem.drawGround(ctx); } catch (e) { AI.warn('totem-draw', e); } return; }
       if (AI.enabled && AI.Mansion.inside) { try { AI.Mansion.drawInterior(ctx); } catch (e) { AI.warn('mansion-draw', e); } return; }
-      // the Shady Forest's ground is one continuous painted surface, not a grid of tiles
+      // the Shady Forest's ground is one continuous painted surface, not a grid of tiles; so is the sea
       if (AI.Forest.on()) { try { AI.Forest.drawGround(ctx); return; } catch (e) { AI.warn('forest-ground', e); } }
+      if (AI.Ocean.on()) { try { AI.OceanDraw.drawGround(ctx); return; } catch (e) { AI.warn('ocean-ground', e); } }
       return oDG.apply(this, arguments);
     };
     const oDL = W.drawLiquid;
-    W.drawLiquid = function () { if (AI.enabled && (AI.Mansion.inside || AI.Forest.on())) return; return oDL.apply(this, arguments); };
+    W.drawLiquid = function () { if (AI.enabled && (AI.Mansion.inside || AI.Forest.on() || AI.Ocean.on() || AI.Totem.active())) return; return oDL.apply(this, arguments); };
     const oVP = W.visibleProps;
-    W.visibleProps = function (cam) { if (AI.enabled && AI.Mansion.inside && cam === R.Camera) return AI.Mansion.visibleProps(cam); return oVP.apply(this, arguments); };
+    W.visibleProps = function (cam) {
+      if (AI.enabled && AI.Totem.active() && cam === R.Camera) return AI.Totem.visibleProps(cam);
+      if (AI.enabled && AI.Mansion.inside && cam === R.Camera) return AI.Mansion.visibleProps(cam);
+      return oVP.apply(this, arguments);
+    };
     const oDP = W.drawProp;
     W.drawProp = function (ctx, prop) {
       if (prop && (prop.psxMansion || prop.psxDraw)) { try { AI.Mansion.drawProp(ctx, prop); } catch (e) { AI.warn('mansion-prop', e); } return; }
@@ -223,12 +257,42 @@
       obj[k] = function () { quiet++; try { return o.apply(this, arguments); } finally { quiet--; } };
     }
 
+    // the game's own finale (Judgment, at 20 minutes) waits until the haunted mansion's story is done:
+    // the mansion is the only way to complete the Shady Forest (84-journey.js)
+    if (R.Judgment && R.Judgment.update) {
+      const oJU = R.Judgment.update;
+      const AT = R.Judgment.AT || 1200;
+      R.Judgment.update = function (dt, p, time) {
+        if (AI.enabled && AI.Journey.blocksFinale() && time >= AT - 1) return oJU.call(this, dt, p, AT - 1);
+        return oJU.apply(this, arguments);
+      };
+    }
+
+    // the game moves far-away or lagging Pokémon ahead of the player; tree-dwellers stay home instead
+    // (they quietly leave and come back to the same tree later: 63-wildlife.js)
+    if (R.Spawner.ahead) {
+      const oAhead = R.Spawner.ahead;
+      R.Spawner.ahead = function (e) {
+        if (AI.enabled && e && (e.psxResident || (e.psx && e.psx.eco && e.psx.vis.perch > 0))) return false;
+        const r = oAhead.apply(this, arguments);
+        // at sea, a Pokémon moved ahead must land somewhere it can be (or it quietly leaves)
+        if (r && AI.enabled && e && AI.Ocean.on() && !AI.Ocean.spawnOk(e)) return false;
+        return r;
+      };
+    }
+    // no ground shadow under a Pokémon that's up a tree
+    if (R.Sprites.drawShadow) {
+      const oShadow = R.Sprites.drawShadow;
+      R.Sprites.drawShadow = function () { if (AI.noShadow) return; return oShadow.apply(this, arguments); };
+    }
+
     // story scenes can point the camera elsewhere
     const oFollow = R.Camera.follow;
     R.Camera.follow = function (x, y, dt) { const c = AI.enabled && AI.Story && AI.Story.cam; return c ? oFollow.call(this, c[0], c[1], dt * 0.35) : oFollow.apply(this, arguments); };
     // story scenes hold the player still
     const oAxis = R.Input.axis;
-    R.Input.axis = function () { if (AI.enabled && AI.Story && AI.Story.lockInput()) return [0, 0]; return oAxis.apply(this, arguments); };
+    const seaBusy = () => (AI.Sea && AI.Sea.busy()) || (AI.Guardians && AI.Guardians.busy()) || (AI.Birth && AI.Birth.busy());
+    R.Input.axis = function () { if (AI.enabled && ((AI.Story && AI.Story.lockInput()) || (AI.Trio && AI.Trio.busy()) || (AI.Spiritomb && AI.Spiritomb.busy()) || seaBusy())) return [0, 0]; return oAxis.apply(this, arguments); };
 
     // ------------------------------------------------------------ combat resolution
     const tracked = new Map(); // NPC shot → { move, target } for hit/miss learning
@@ -267,16 +331,20 @@
       if (AI.enabled) try { AI.Player.drawHud(ctx); AI.Light.drawClock(ctx); AI.Render.drawDebugHud(ctx, w, h); } catch (e) { AI.warn('hud', e); }
       if (AI.enabled) try { AI.Mysteries.drawScreen(ctx, w, h); } catch (e) { AI.warn('myst-hud', e); }
       if (AI.enabled) try { AI.Haunt.drawScreen(ctx, w, h); AI.Mansion.drawScreen(ctx, w, h); AI.Story.drawScreen(ctx, w, h); } catch (e) { AI.warn('mansion-hud', e); }
+      if (AI.enabled) try { AI.OceanDraw.drawScreen(ctx, w, h); if (AI.Boats) AI.Boats.drawScreen(ctx, w, h); AI.Guardians.drawScreen(ctx, w, h); AI.Birth.drawScreen(ctx, w, h); AI.Sea.drawScreen(ctx, w, h); } catch (e) { AI.warn('ocean-hud', e); }
+      if (AI.enabled) try { AI.Events.drawScreen(ctx, w, h); AI.Totem.drawScreen(ctx, w, h); if (AI.Trio) AI.Trio.drawScreen(ctx, w, h); if (AI.Well) AI.Well.drawScreen(ctx, w, h); if (AI.Spiritomb) AI.Spiritomb.drawScreen(ctx, w, h); } catch (e) { AI.warn('events-hud', e); }
+      if (AI.enabled) try { AI.Talk.draw(ctx, w, h); } catch (e) { AI.warn('talk', e); }
       return r;
     };
 
     const oAir = R.Training.drawAir;
     R.Training.drawAir = function (ctx) {
       const r = oAir.apply(this, arguments);
-      if (AI.enabled) try { AI.Forest.drawMist(ctx); AI.Forest.drawFlies(ctx); } catch (e) { AI.warn('forest-air', e); }
+      if (AI.enabled) try { AI.Forest.drawMist(ctx); AI.Journey.drawFog(ctx); AI.Journey.drawSils(ctx); AI.Forest.drawFlies(ctx); } catch (e) { AI.warn('forest-air', e); }
+      if (AI.enabled) try { AI.OceanDraw.drawAir(ctx); AI.Sea.drawAir(ctx); AI.Guardians.drawAir(ctx); AI.Birth.drawAir(ctx); } catch (e) { AI.warn('ocean-air', e); }
       if (AI.enabled) try { AI.Light.drawAir(ctx); } catch (e) { AI.warn('env-air', e); }
       if (AI.enabled) try { AI.Mansion.drawAir(ctx); } catch (e) { AI.warn('mansion-air', e); }
-      if (AI.enabled) try { AI.Render.drawAir(ctx); } catch (e) { AI.warn('air', e); }
+      if (AI.enabled) try { AI.Events.drawAir(ctx); AI.Power.drawAir(ctx); AI.Totem.drawAir(ctx); AI.Render.drawAir(ctx); if (AI.Trio) AI.Trio.drawAir(ctx); if (AI.Spiritomb) AI.Spiritomb.drawAir(ctx); } catch (e) { AI.warn('air', e); }
       if (AI.enabled) try { AI.Lore.drawSpeech(ctx); } catch (e) { AI.warn('speech', e); }
       return r;
     };
@@ -287,6 +355,8 @@
       if (AI.enabled && !AI.Population.allowAdd(e)) return e;
       const r = oAdd.apply(this, arguments);
       if (AI.enabled) try { AI.Scale.apply(e); } catch (err) { AI.warn('scale', err); }
+      // a swimmer the game made a hoverer (Luvdisc…) is in the water, not over it: it keeps to the water and sits low in it
+      if (AI.enabled && e.flying && !e.boss && e.dex != null) try { const W = AI.Ocean && AI.Ocean.on() ? AI.Ocean : AI.Forest && AI.Forest.on() ? AI.Forest : null; if (W && W.locomotion(e.dex) === 'swim') { e.flying = false; e.psxWasFlying = true; } } catch (err) { /* ignore */ }
       if (AI.enabled && (e.boss || e.legend)) AI.Bus.emit({ type: 'legend', x: e.x, y: e.y, loud: 760, dex: e.dex, kind: 'boss', power: 1.1 });
       return r;
     };
@@ -358,6 +428,15 @@
         AI.Sky.tick(dt);
         AI.Decor.tick(dt);
         AI.Forest.tick(dt);
+        AI.Ocean.tick(dt);
+        AI.OceanDraw.tick(dt);
+        if (AI.Boats) AI.Boats.tick(dt);
+        AI.Sea.tick(dt);
+        AI.Guardians.tick(dt);
+        AI.Birth.tick(dt);
+        AI.Journey.tick(dt);
+        AI.Light.tick(dt);
+        AI.Wildlife.tick(dt);
         AI.Mysteries.tick(dt);
         AI.Areas.tick(dt);
         AI.EnvBeh.tick(dt);
@@ -367,6 +446,15 @@
         AI.Mansion.tick(dt);
         AI.Haunt.tick(dt);
         AI.Story.tick(dt);
+        AI.Talk.tick(dt);
+        AI.Exp.tick(dt);
+        AI.Events.tick(dt);
+        AI.Power.tick(dt);
+        AI.Totem.tick(dt);
+        if (AI.Trio) AI.Trio.tick(dt);
+        if (AI.Well) AI.Well.tick(dt);
+        if (AI.Breakables) AI.Breakables.tick(dt);
+        if (AI.Spiritomb) AI.Spiritomb.tick(dt);
         AI.Player.frame();
         AI.Legend.tick(dt);
         AI.Social.tick(dt);
@@ -377,6 +465,13 @@
       try { AI.Population.afterUpdate(); lodStats(); } catch (e) { AI.warn('post', e); }
       const ms = performance.now() - t0 - (AI.vanillaMs || 0);
       AI.stats.aiMs += (ms - AI.stats.aiMs) * 0.05;
+      return r;
+    };
+    // chests pay EXP once (91-exp.js)
+    const oBreak = R.World.breakProp;
+    if (oBreak) R.World.breakProp = function (prop) {
+      const r = oBreak.apply(this, arguments);
+      if (AI.enabled) try { AI.Exp.onBreak(prop); AI.Power.onChest(prop); } catch (e) { AI.warn('chest-exp', e); }
       return r;
     };
     function lodStats() {
@@ -390,7 +485,7 @@
     // ------------------------------------------------------------ new run → fresh world
     const oWR = R.World.reset;
     R.World.reset = function (seed) {
-      try { resetWorld(); AI.Decor.reset(seed); AI.Forest.reset(); AI.Mysteries.reset(); AI.Sky.reset(); AI.Areas.reset(); AI.Lore.reset(); AI.Mansion.reset(); AI.Haunt.reset(); AI.Story.reset(); AI.Player.lanternToggle = null; } catch (e) { AI.warn('reset', e); }
+      try { resetWorld(); AI.Decor.reset(seed); AI.Journey.reset(AI.Decor.seed); AI.Wildlife.reset(); AI.Light.reset(); AI.Talk.reset(); AI.Exp.reset(); AI.Events.reset(); AI.Power.reset(); AI.Totem.reset(); if (AI.Trio) AI.Trio.reset(); if (AI.Well) AI.Well.reset(); if (AI.Breakables) AI.Breakables.reset(); if (AI.Spiritomb) AI.Spiritomb.reset(); AI.Forest.reset(); AI.Ocean.reset(); AI.OceanDraw.reset(); if (AI.Boats) AI.Boats.reset(); AI.Sea.reset(); AI.Guardians.reset(); AI.Birth.reset(); AI.Mysteries.reset(); AI.Sky.reset(); AI.Areas.reset(); AI.Lore.reset(); AI.Mansion.reset(); AI.Haunt.reset(); AI.Story.reset(); } catch (e) { AI.warn('reset', e); }
       return oWR.apply(this, arguments);
     };
     function resetWorld() {
@@ -405,6 +500,8 @@
 
     AI.Player.installPointer();
     AI.Panel.install();
+    try { AI.Power.registerItems(); AI.Power.install(); } catch (e) { AI.warn('power', e); }
+    try { if (AI.Boats) AI.Boats.install(); } catch (e) { AI.warn('boats', e); }
     AI.installed = true;
     console.info('[PSXAI] Living World AI ' + AI.version + ' installed');
   }

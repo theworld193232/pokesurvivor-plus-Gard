@@ -105,9 +105,11 @@
       if (prop.type === 'tree') {
         const s = prop._psxScale || 1;
         const tall = h * s > 130 ? 0.45 : 1;
-        const sway = swayAt(prop.x, 0.05 * tall) + Math.sin(AI.time * 0.9 + prop.wiggle) * 0.006;
+        const hitK = AI.Decor ? AI.Decor.shakeOf('p' + prop.tx + ',' + prop.ty) : 0; // (struck by an attack: 64-breakables.js)
+        const sway = swayAt(prop.x, 0.05 * tall) + Math.sin(AI.time * 0.9 + prop.wiggle) * 0.006 + (hitK ? Math.sin(AI.time * 46) * hitK * 0.09 : 0);
         const fade = behindCanopy(prop.x, prop.y, w * s, h * s);
         AI.Art.draw(ctx, name, prop.x, prop.y + 2, { flip, sway, scale: s, alpha: fade ? 0.5 : null });
+        if (prop.flash > 0) { ctx.save(); ctx.globalAlpha = Math.min(1, prop.flash * 5) * 0.45; ctx.globalCompositeOperation = 'lighter'; AI.Art.draw(ctx, name, prop.x, prop.y + 2, { flip, sway, scale: s }); ctx.restore(); }
         // ferns and saplings crowd around the roots of big old trees
         if (prop._psxStage === 'large' || prop._psxStage === 'ancient') {
           const n = prop._psxStage === 'ancient' ? 3 : 2;
@@ -143,9 +145,13 @@
         if (it.flat) continue;
         const pr = it._prop || (it._prop = { psxDecor: true, item: it, x: it.x, y: it.y, flat: false, type: 'psx', tx: 0, ty: 0, r: 0 });
         pr.x = it.x; pr.y = it.y;
+        // the mansion and its big pieces: kept in view for the game's culling (they're drawn at their
+        // own place); below the screen they still sort after everything on it
+        if (AI.Mansion && AI.Mansion.EXT[it.k]) { pr.x = U.clamp(it.x, cam.left() + 10, cam.left() + cam.w - 10); pr.y = Math.min(it.y, cam.top() + cam.h - 4); }
         list.push(pr);
       }
       if (AI.Mysteries) AI.Mysteries.addProps(list);
+      if (AI.Boats) AI.Boats.addProps(list, cam);
       return list;
     };
   }
@@ -155,6 +161,8 @@
     const D = AI.Decor;
     const t = AI.time;
     switch (it.k) {
+      case 'well': if (AI.Well) AI.Well.draw(ctx, it); break; // (86-well.js)
+      case 'ocean': if (AI.OceanDraw) AI.OceanDraw.drawItem(ctx, it); break; // (34-ocean-draw.js)
       case 'bush': case 'plant': case 'mush': {
         const k = D.shakeOf('d' + it.id);
         const sway = swayAt(it.x, it.k === 'mush' ? 0.02 : 0.1) + parting(it.x, it.y) * (it.k === 'mush' ? 0 : 1) + (k ? Math.sin(t * 42) * k * 0.35 : 0);
@@ -201,6 +209,7 @@
         break;
       }
       case 'cave': drawCave(ctx, it); break;
+      case 'mansion': case 'mgate': case 'fountain': case 'shed': case 'mcandle': if (AI.Mansion) AI.Mansion.drawItem(ctx, it); break; // (87-mansion.js)
       default:
         if (it.n) AI.Art.draw(ctx, it.n, it.x, it.y, { flip: it.f, scale: it.s });
     }
@@ -422,7 +431,7 @@
       sg.ellipse(e.x + lx, e.y + ly, (e.r || 14) * 0.85 + Math.abs(lx) * 0.6, (e.r || 14) * 0.38 + Math.abs(ly) * 0.5, Math.atan2(ly, lx || 0.001), 0, 6.283);
       sg.fill();
     };
-    for (const e of R.EnemyMgr.drawables(cam)) if (!e.dead && !(e.psx && e.psx.vis && e.psx.vis.alpha < 0.3)) ent(e, AI.Scale.top(e));
+    for (const e of R.EnemyMgr.drawables(cam)) if (!e.dead && !(e.psx && e.psx.vis && (e.psx.vis.alpha < 0.3 || e.psx.vis.subNow > 0.3))) ent(e, AI.Scale.top(e)); // (none for one down in the water)
     const pl = R.Game.player;
     if (pl && !pl.dead) ent(pl, pl.bodyH || 40);
     ctx.save();

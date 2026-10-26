@@ -317,8 +317,7 @@
         if (!l) continue;
         for (const p of l) {
           if (p.psxOwner === e || c.dodged.has(p)) continue;
-          // shots from allies aimed elsewhere aren't threats to react to (they might still hit!)
-          if (!p.friendly && p.psxTarget && p.psxTarget !== e) continue;
+          if (!p.friendly && p.psxTarget && p.psxTarget !== e) continue; // shots from allies aimed elsewhere aren't threats to react to (they might still hit!)
           const vx = p.vx || 0, vy = p.vy || 0;
           const v2 = vx * vx + vy * vy;
           if (v2 < 100) continue;
@@ -629,6 +628,6 @@
 
   AI.define('Combat', {
     CLOSE, init, engage, disengage, update, globalTick, attackersOf, chooseStrategy, hazardEscape, inDanger,
-    resolveNpcShots, resolveHazards, noteShotResult, aimAt, scoreMove, dodgeSkill, playerAuraR,
+    resolveNpcShots, resolveHazards, noteShotResult, aimAt, scoreMove, dodgeSkill, playerAuraR, scanThreats,
   });
 })();
