@@ -1,0 +1,203 @@
+/* PokéSurvivor+ — Living World AI · core
+ * Shared namespace, configuration, math helpers, seeded RNG and the world event bus.
+ * Every other js/ai/* file registers itself on window.PSXAI and is wired up by 99-install.js.
+ */
+(function () {
+  'use strict';
+  const AI = (window.PSXAI = window.PSXAI || {});
+  AI.version = '1.0.0';
+  AI.R = null; // game module registry (window.__PSX_REG__), set on install
+  AI.enabled = true;
+  AI.time = 0; // seconds of simulated play time (only advances while a run is playing)
+  AI.frame = 0;
+
+  // ---------------------------------------------------------------- configuration
+  const DEFAULTS = {
+    maxNpcs: 24, // global cap of roaming wild Pokémon (vanilla hard cap of 64 still applies)
+    maxResidents: 10, // tree-dwellers living in nearby trees (cocoons, caterpillars, perching birds), on their own budget
+    localCap: 5, // max wild Pokémon around a spawn point (prevents crowding)
+    localRadius: 420,
+    spawnInterval: 0.9, // seconds between ambient spawns (token bucket refill)
+    spawnBurst: 12, // tokens a horde/surge may spend at once
+    hostility: 1, // multiplier on aggressive/territorial/opportunistic temperament weights
+    hostilityRamp: 600, // seconds of run time for hostility pressure to double
+    nearLod: 640, // px from the player: full-rate AI
+    farLod: 1250, // px from the player: beyond this, simplified simulation
+    think: [0.2, 0.55, 1.4], // decision intervals per LOD (s)
+    maxCombatAI: 16, // simultaneous NPCs allowed to run the advanced combat controller
+    maxSocial: 6, // simultaneous NPC↔NPC social interactions
+    maxBubbles: 10, // emotion bubbles drawn per frame
+    bubbleScale: 1,
+    evolution: true,
+    evoRate: 1, // multiplier on dynamic evolution growth
+    autoAim: 'hostile', // 'hostile' (auto-attacks lock onto hostile Pokémon or your focus target) | 'prefer' (hostile first) | 'any' (vanilla)
+    friendlyFire: true,
+    debug: false,
+    // living environment
+    atmosphere: true, // day/night, lighting, living weather
+    dayLength: 600, // seconds for a full day
+    startHour: 6.5, // runs begin in the early morning
+    season: 'auto', // 'auto' (from the calendar) | 'spring' | 'summer' | 'autumn' | 'winter'
+    weatherFreq: 1, // how often the weather turns
+    lightQuality: 'auto', // 'low' | 'medium' | 'high' | 'auto'
+    newArt: true, // detailed trees, plants and forest decor
+    areaSpawns: true, // each area has its own Pokémon (curated rosters, habitats)
+    speech: true, // Pokémon speech bubbles (rumours, warnings)
+    lantern: 'manual', // the lantern you carry: 'manual' (L lights it) | 'on' (kept lit while it has oil) | 'off'
+    forestEvents: true, // the Shady Forest's events (a lost Pokémon, strange tracks, lights, a silence, a fallen tree, voices, a campsite) and its history (86-events.js)
+    totemTrials: true, // Totem shrines and their trials (89-totem.js)
+    powerRework: true, // Mega Evolution after Crystal Cave with the Pokémon's own Mega Stone (a held item); Z-Moves after the Tropical Ocean, through Totem Trials (92-power.js)
+    exploreExp: true, // EXP for exploring, treasure and kindness too (91-exp.js)
+    legendTrio: true, // Raikou, Suicune and Entei can be earned in the Shady Forest (82-trio.js)
+    oldWell: true, // an old well sometimes stands in the forest (86-well.js)
+    mansionMusic: true, // inside the haunted mansion the game's music gives way to its own theme, Old Chateau (97-music.js)
+    forestMusic: true, // the Shady Forest plays Viridian Forest instead of the level's track (bosses, rifts and the Judgment keep theirs; 97-music.js)
+    breakables: true, // your attacks can knock down trees (not the ancient giants) and break bushes, dead saplings, logs and stumps (64-breakables.js)
+    noGacha: true, // no gacha: Pokémon are earned by playing (each one you defeat may join you; 65-catch.js)
+    catchRate: 1, // multiplier on the chance a defeated Pokémon joins you (65-catch.js)
+    spiritomb: true, // the Odd Keystone, the Creepy Well and Spiritomb in the Shady Forest (86-spiritomb.js)
+    tropicalOcean: true, // Level 3 is the Tropical Ocean: islands, boats, tides, the guardians (34-ocean.js); off = the original Ash Volcano
+    birthIslandChance: 0.35, // the share of worlds in which Birth Island can be found (82-birth.js)
+    oceanTide: null, // null = tides follow the clock; a number from -1 (low) to 1 (high) holds the tide there
+    talkBoxes: true, // Mystery Dungeon dialogue boxes: you and the other players on the left, important NPCs on the right, Legendaries in their own box
+    nightVisibility: 0, // accessibility: 0 = nights as dark as intended … 1 = noticeably brighter nights (light sources still matter)
+    ambientVol: 0.7, // ambient sound volume (relative to the game's sound effects volume)
+    // world generation & forest
+    naturalTerrain: true, // forests: no rectangular wall blocks, measured tree density
+    treeDensity: 1, // multiplier on forest tree density
+    treeSizes: true, // sapling → young → mature → large → ancient trees, by space and rarity
+    // progression (special encounters are earned, not timed)
+    earnedEvents: true, // bosses and rifts unlock through Pokémon defeated, not a timer
+    hordes: false, // the game's timed "Pokémon surge" hordes
+    bossKills: [35, 90, 160, 250, 360], // Pokémon defeated before each boss can appear
+    riftKills: [50, 130, 230, 350, 480], // … before each normal rift opens
+    goldenRiftKills: [280, 650], // … before each golden rift opens (rare)
+    eventCooldown: 75, // seconds between major encounters (boss, rift)
+    // weather pacing & storms
+    weatherDuration: 1, // multiplier on how long each kind of weather lasts
+    fogSpawns: 1, // how strongly fog suppresses wild Pokémon (0 = not at all)
+    lightningRate: 1, // how often lightning strikes in storms (and heavy rain)
+    flashIntensity: 1, // lightning screen flash strength (0 = no flashes, for comfort/accessibility)
+    // Pokémon size
+    softTelegraphs: true, // gentler attack warnings instead of blinking red dashed outlines
+    speciesScale: true, // size Pokémon by species (Pokédex height), with subtle individual variation
+    enemyBars: false, // health bars over wild Pokémon (they still have HP)
+    announce: false, // banners for things that happen in the wild (evolutions, shinies, Meowth or Gholdengo appearing…); they still happen, quietly
+    gameWeather: false, // the game's own type-boosting weather & terrain events (Misty Terrain, Harsh Sunlight…); the living sky stays either way
+    forestTraps: false, // hidden poison/grass/fire floor traps in the Shady Forest
+    forestWorld: true, // the rebuilt Shady Forest: continuous ground, regions, the great lake (34-forest.js)
+    mysteries: true, // the Forest Mysteries: legendary sightings and the journal (82-mysteries.js)
+    mansion: true, // the haunted mansion at the end of the old path, its hauntings and its story
+    jumpscare: true, // the mirror's full-screen jumpscare (off: a gentler fade instead)
+    hauntRate: 1, // how often the mansion's hauntings happen
+  };
+  const CFG_KEY = 'psx.ai.cfg';
+  AI.DEFAULTS = DEFAULTS;
+  AI.cfg = Object.assign({}, DEFAULTS);
+  try {
+    const saved = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+    for (const k in saved) if (k in DEFAULTS && typeof saved[k] === typeof DEFAULTS[k]) AI.cfg[k] = saved[k];
+  } catch (e) { /* storage unavailable: defaults */ }
+  AI.setCfg = function (k, v) {
+    if (!(k in DEFAULTS)) return;
+    AI.cfg[k] = v;
+    try {
+      const out = {};
+      for (const key in AI.cfg) if (AI.cfg[key] !== DEFAULTS[key]) out[key] = AI.cfg[key];
+      localStorage.setItem(CFG_KEY, JSON.stringify(out));
+    } catch (e) { /* ignore */ }
+  };
+  AI.resetCfg = function () {
+    AI.cfg = Object.assign({}, DEFAULTS);
+    try { localStorage.removeItem(CFG_KEY); } catch (e) { /* ignore */ }
+  };
+
+  // ---------------------------------------------------------------- math helpers
+  const U = (AI.U = {
+    clamp: (v, a, b) => (v < a ? a : v > b ? b : v),
+    lerp: (a, b, t) => a + (b - a) * t,
+    rand: (a, b) => a + Math.random() * (b - a),
+    chance: (p) => Math.random() < p,
+    pick: (arr) => arr[(Math.random() * arr.length) | 0],
+    dist2: (ax, ay, bx, by) => { const dx = bx - ax, dy = by - ay; return dx * dx + dy * dy; },
+    dist: (ax, ay, bx, by) => Math.hypot(bx - ax, by - ay),
+    angDiff: (a, b) => { let d = (b - a) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; return d; },
+    norm(x, y) { const l = Math.hypot(x, y); return l > 1e-6 ? [x / l, y / l] : [0, 0]; },
+    // weighted choice over {key: weight}
+    wpick(weights, rnd = Math.random) {
+      let tot = 0;
+      for (const k in weights) tot += Math.max(0, weights[k]);
+      if (tot <= 0) return null;
+      let r = rnd() * tot;
+      for (const k in weights) { r -= Math.max(0, weights[k]); if (r <= 0) return k; }
+      return Object.keys(weights)[0];
+    },
+    hash(a, b = 0, c = 0) {
+      let h = Math.imul(a | 0, 0x165667b1) ^ Math.imul(b | 0, 0x27d4eb2f) ^ Math.imul(c | 0, 0x85ebca77);
+      h = Math.imul(h ^ (h >>> 15), 0x2c1b3c6d);
+      h = Math.imul(h ^ (h >>> 12), 0x297a2d39);
+      return ((h ^ (h >>> 15)) >>> 0) / 4294967296;
+    },
+    // small deterministic PRNG for per-individual personalities
+    rng(seed) {
+      let s = seed >>> 0 || 1;
+      return function () {
+        s = (s + 0x6d2b79f5) >>> 0;
+        let t = s;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    },
+  });
+
+  // ---------------------------------------------------------------- module registry
+  // Files define themselves in load order; 99-install.js calls init() on each once the game is ready.
+  AI.mods = [];
+  AI.define = function (name, mod) {
+    AI[name] = mod;
+    AI.mods.push({ name, mod });
+    return mod;
+  };
+
+  // ---------------------------------------------------------------- world event bus
+  // Events are short-lived world stimuli (hits, deaths, explosions, cries, legendary pulses…).
+  // NPCs only learn about the ones they can perceive (see 30-perception.js), so knowledge spreads
+  // through witnesses instead of being global.
+  const RING = 160;
+  const Bus = {
+    ring: new Array(RING),
+    head: 0, // total events ever emitted (monotonic id)
+    listeners: {},
+    emit(ev) {
+      ev.id = ++this.head;
+      ev.t = AI.time;
+      if (ev.loud == null) ev.loud = 200;
+      this.ring[ev.id % RING] = ev;
+      const ls = this.listeners[ev.type];
+      if (ls) for (const fn of ls) { try { fn(ev); } catch (e) { AI.warn('bus', e); } }
+      const any = this.listeners['*'];
+      if (any) for (const fn of any) { try { fn(ev); } catch (e) { AI.warn('bus', e); } }
+      return ev;
+    },
+    on(type, fn) { (this.listeners[type] || (this.listeners[type] = [])).push(fn); },
+    // iterate events with id > sinceId that are still in the ring and younger than maxAge seconds
+    since(sinceId, maxAge, fn) {
+      const from = Math.max(sinceId + 1, this.head - RING + 1);
+      for (let id = from; id <= this.head; id++) {
+        const ev = this.ring[id % RING];
+        if (!ev || ev.id !== id || AI.time - ev.t > maxAge) continue;
+        fn(ev);
+      }
+    },
+    clear() { this.ring = new Array(RING); },
+  };
+  AI.Bus = Bus;
+
+  // ---------------------------------------------------------------- diagnostics
+  let warned = 0;
+  AI.warn = function (where, e) {
+    if (warned++ < 20) console.warn('[PSXAI:' + where + ']', e && e.stack ? e.stack : e);
+  };
+  AI.stats = { aiMs: 0, thinkMs: [0, 0, 0], thinks: [0, 0, 0], npcs: 0, lod: [0, 0, 0], combat: 0, social: 0, bubbles: 0, spawnVetoed: 0 };
+})();

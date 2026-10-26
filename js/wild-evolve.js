@@ -30,7 +30,7 @@
   const baseOf = d => { const P = evoPrev(); let x = Number(d), n = 0; while (P[x] != null && n++ < 5) x = P[x]; return x; };
   const special = e => e.boss || e.legend || e.isLegend || e.__roamer || e.__maxRaid || e.__legendDen || e.__wave || e.__psCatch || e.remote || e.shiny;
   function nextForm(dex) {
-    const N = E(), L = (N.EVOS[dex] || []).map(x => Number(x[0])).filter(d => N.DEX_BY[d] && N.SPRITE_META[d]);
+    const N = E(), L = (N.EVOS[dex] || []).map(x => Number(x[0])).filter(d => N.DEX_BY[d] && N.SPRITE_META[d] && (!window.PS_WILD_LEVELS || window.PS_WILD_LEVELS.minimum(d) <= (Number(B()?.game?.player?.level)||1)));
     return L.length ? L[Math.floor(Math.random() * L.length)] : 0;
   }
   function allowed() {

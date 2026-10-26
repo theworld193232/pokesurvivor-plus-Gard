@@ -24,7 +24,7 @@
     const M = N.Maps, L = M.LIST, cave = L.find(m => m.n === 2), volc = L.find(m => m.n === 3);
     if (!cave || !volc || L.some(m => m.psLevel)) return;
     const lv4 = Object.assign({}, cave, { n: L.length + 1, psLevel: 4, name: 'Crystal Abyss', diff: 'Abyss', col: '#c47bff', k: 3, dk: 2, bonus: 0.75, coins: 45000, t10: 7, arceusMin: 2000000, legendMin: 200000, arceusK: 45, legendK: 2.5 });
-    const lv5 = Object.assign({}, volc, { n: L.length + 2, psLevel: 5, name: 'Volcanic Nightmare', diff: 'Nightmare', col: '#ff3d6d', k: 4.5, dk: 2.6, bonus: 1, coins: 60000, t10: 10, arceusMin: 3000000, legendMin: 300000, arceusK: 60, legendK: 3 });
+    const lv5 = Object.assign({}, volc, volc.psxOld||{}, { n: L.length + 2, psLevel: 5, name: 'Volcanic Nightmare', diff: 'Nightmare', col: '#ff3d6d', k: 4.5, dk: 2.6, bonus: 1, coins: 60000, t10: 10, arceusMin: 3000000, legendMin: 300000, arceusK: 60, legendK: 3 });
     L.push(lv4, lv5);
     const wins = () => (N.DB.save && N.DB.save.mapWins) || {};
     const tester = () => String(window.PS_MEGA_BRIDGE_V5?.user || '').trim().toLowerCase() === 'lovergare';   // LoverGare can always pick them (testing)
