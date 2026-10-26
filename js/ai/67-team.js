@@ -141,13 +141,16 @@
 
   // ---------------------------------------------------------------- the team bar (bottom left)
   const icons = new Map();
-  function icon(dex) {
-    let im = icons.get(dex);
-    if (!im) { im = new Image(); im.onload = () => { im.ok = true; }; im.src = 'assets/pokemon/' + dex + '/Idle.png'; icons.set(dex, im); }
+  function icon(dex, shiny) {
+    const key=dex+(shiny?':shiny':'');
+    let im = icons.get(key);
+    if (!im) { im = new Image(); im.onload = () => { im.ok = true; }; im.src = 'assets/pokemon/' + dex + (shiny?'/s':'') + '/Idle.png'; icons.set(key, im); }
     return im;
   }
-  function drawIcon(ctx, dex, x, y, s, alpha) {
-    const im = icon(dex), meta = R().SPRITE_META[dex], a = meta && meta.a && meta.a.Idle;
+  function drawIcon(ctx, dex, x, y, s, alpha, shiny = false) {
+    if(!shiny&&window.PS_PORTRAITS?.draw(ctx,dex,x+2,y+2,s-4,alpha))return;
+    shiny=shiny&&!!R().Sprites.hasShiny?.(dex);
+    const im = icon(dex,shiny), meta = R().SPRITE_META[dex], a = meta && ((shiny&&meta.sa?.Idle)||meta.a?.Idle);
     if (!im.ok || !a) return;
     const k = Math.min(s / a.w, s / a.h) * 1.25;
     ctx.save(); ctx.globalAlpha = alpha; ctx.imageSmoothingEnabled = false;
@@ -169,7 +172,7 @@
       ctx.fillRect(x, y, S, S);
       ctx.strokeStyle = out ? '#ffe680' : m.fainted ? '#6a3a3a' : 'rgba(200,210,230,0.5)'; ctx.lineWidth = out ? 2 : 1;
       ctx.strokeRect(x + 0.5, y + 0.5, S - 1, S - 1);
-      drawIcon(ctx, m.dex, x, y, S, m.fainted ? 0.3 : 1);
+      drawIcon(ctx, m.dex, x, y, S, m.fainted ? 0.3 : 1, m.shiny);
       // its HP
       const k = out ? (r.p.maxHp > 0 ? r.p.hp / r.p.maxHp : 0) : m.fainted ? 0 : m.hpK;
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x + 2, y + S + 3, S - 4, 4);
@@ -211,7 +214,8 @@
     const d = document.createElement('button');
     d.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;background:#1c2440;color:#e6ecff;border:1px solid #33406e;border-radius:8px;cursor:pointer;font:12px system-ui,sans-serif;min-height:92px';
     const cv = document.createElement('canvas'); cv.width = cv.height = 56;
-    const im = icon(dex), meta = R().SPRITE_META[dex], a = meta && meta.a && meta.a.Idle;
+    shiny=shiny&&!!R().Sprites.hasShiny?.(dex);
+    const im = icon(dex,shiny), meta = R().SPRITE_META[dex], a = meta && ((shiny&&meta.sa?.Idle)||meta.a?.Idle);
     const paint = () => { if (!a) return; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false; const k = Math.min(56 / a.w, 56 / a.h) * 1.25; g.clearRect(0, 0, 56, 56); g.drawImage(im, 0, 0, a.w, a.h, (56 - a.w * k) / 2, (56 - a.h * k) / 2, a.w * k, a.h * k); };
     if (im.ok) paint(); else im.addEventListener('load', paint, { once: true });
     const types = ((R().DEX_BY[dex] || {}).types || []).join(' / ');

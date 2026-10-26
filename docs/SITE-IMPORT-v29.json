@@ -1,0 +1,16 @@
+{
+  "portraits": 966,
+  "atlasSource": "https://pokehorde.com/assets/portraits.webp",
+  "sha256": "d5342529256c76e83c65c4ae9bf786274b05aa824e1fc994a413e9c03c581eb8",
+  "assetChanges": "none; original sheet copied intact",
+  "portraitLicense": "CC BY-NC 4.0",
+  "doofcraft": {
+    "site": "https://pokesurvivor.doofcraft.com/",
+    "publicSpriteRecords": 1021,
+    "access": "menu requires login; inspected public modules only",
+    "costumePackFound": false,
+    "codeCopied": false
+  },
+  "newCostumeSprites": 0,
+  "existingFormsPreserved": true
+}

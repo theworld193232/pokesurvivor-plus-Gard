@@ -272,3 +272,11 @@ licencia en `assets/fonts/OFL.txt`). El juego usa una versión modificada,
 
 Pokémon es propiedad de Nintendo, Creatures Inc. y GAME FREAK.
 Este es un proyecto de fan sin ánimo de lucro.
+
+## Portrait and presentation additions — v29
+
+Normal headshots: SpriteCollab and its contributing artists, CC BY-NC 4.0; unmodified atlas provided by [PokéHorde](https://pokehorde.com/). See `SOURCE_LICENSES/site-import-v29/PORTRAIT-CREDITS.md` for per-species portrait credits and included license texts.
+
+Required Notice: Copyright 2026 JPTER78 (https://github.com/JPTER78/pokesurvivor)
+
+Collection/move presentation references: PokéHorde and Doofcraft PokéSurvivor. The new elemental pixel generators and native-engine UI adapters are original additions; no Doofcraft client/server code is redistributed.

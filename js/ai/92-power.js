@@ -51,7 +51,7 @@
   };
   const P = { chest: 0.05, bigchest: 0.1, levelup: 0.01 }; // exact, no pity
 
-  function on() { return !!(AI.enabled && AI.cfg.powerRework !== false && AI.R && AI.R.Mega); }
+  function on() { return !!(AI.enabled && (AI.cfg.powerRework !== false || AI.cfg.megaRework === true) && AI.R && AI.R.Mega); }
   function player() { return AI.R.Game.player; }
   function save() { return (AI.R.DB && AI.R.DB.save) || {}; }
   // a stage beaten (wins are counted per map: 2 = Crystal Cave, 3 = Tropical Ocean)
@@ -126,7 +126,7 @@
   }
   // can it use its Z-Move right now?
   function zOk(p, def) {
-    if (!on()) return p.level >= 10;
+    if (!on() || AI.cfg.powerRework === false) return p.level >= 10;
     if (p !== player()) return p.level >= 10; // (other players' clients decide for themselves)
     return zStage() && !!def && hasCrystal(def.type);
   }
@@ -231,7 +231,7 @@
     if (!window.PSXGEN) return;
     window.PSXGEN.mega = (p) => megaOk(p);
     window.PSXGEN.zmove = (p, def) => zOk(p, def);
-    window.PSXGEN.noZslot = () => on(); // with this rework the bar never shows a locked Z slot
+    window.PSXGEN.noZslot = () => on() && AI.cfg.powerRework !== false; // with this rework the bar never shows a locked Z slot
   }
   install();
 
