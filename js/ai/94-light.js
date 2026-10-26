@@ -296,6 +296,8 @@
     if (p && !p.dead) {
       if (lanternOn()) { const [lx, ly] = lanternPos(p); out.push({ x: lx, y: ly, r: 175, c: [255, 214, 150], i: 0.9 + Math.sin(AI.time * 9) * 0.04, halo: 1 }); }
       bodyLight(p, out);
+      const companion = window.PS_COMPANION_ORB?.light();
+      if (companion) out.push(companion);
       sparks(p, out);
     }
     if (R.Coop && R.Coop.active) try { for (const q of R.Coop.puppets()) if (q && !q.dead) bodyLight(q, out); } catch (e) { /* ignore */ }

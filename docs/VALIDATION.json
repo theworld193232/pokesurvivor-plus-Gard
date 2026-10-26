@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 110,
+  "regressionsPassed": 118,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -412,5 +412,25 @@
     "baseGroudonWorldHeight": 112,
     "primalGroudonWorldHeight": 160,
     "source": "https://github.com/PokeAPI/pokeapi/blob/master/data/v2/csv/pokemon.csv"
+  },
+  "scenerySizeV25": {
+    "rule": "max(28,56*metres^0.55)",
+    "sharedPlayerAndWild": true,
+    "forestVisualCheck": "passed; muted background test",
+    "browserErrors": 0,
+    "tests": 111
+  },
+  "pinkCompanionV26": {
+    "owner": "LoverGare",
+    "species": [
+      280,
+      282
+    ],
+    "caveVisualCheck": true,
+    "smoothSafeRouting": true,
+    "obstacleClearance": true,
+    "avatarClearance": "all eight facings; 120-second bob sweep; base and Mega",
+    "browserErrors": 0,
+    "tests": 118
   }
 }
