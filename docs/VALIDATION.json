@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 86,
-  "regressionsPassed": 37,
+  "regressionsPassed": 91,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -72,25 +72,201 @@
     }
   },
   "act2CurrentRevision": {
-    "version": "reference-act2-21",
-    "generation": "endless Gard cave samples plus continuous noise, separate endless snow",
-    "rareEntrances": "independent 1% rolls per run seed; separate maps",
-    "giantCrystalHeight": 192,
-    "overlapChecks": "whole sprite bounds, grounded crystal footprints and reserved door approaches",
-    "nativeStream": {
-      "drySpeed": 105.6,
-      "wetSpeed": 63.36,
-      "wet": true
+    "version": "nearby-entrances-v18",
+    "testingSpecialChance": 0.5,
+    "normalSpecialChance": 0.01,
+    "collision": "smaller grounded footprints and first-contact motion sweep",
+    "ice": "winding channels, branching fixed fractures, static reflections, no liquid flow",
+    "grass": "native frosted grass with wind animation",
+    "habitat": {
+      "poolDefinitions": 36,
+      "sampledWild": 33,
+      "allAppropriate": true
     },
-    "reflections": {
-      "realCrystalSources": 12,
-      "pokemonSources": 1,
-      "allMatchedSceneObjects": true
+    "articuno": {
+      "dex": 144,
+      "scale": 2.2,
+      "controller": "existing PS_ROAMERS"
     },
-    "waterAnimationChangedPixels": 8455,
-    "runtimeWarnings": [],
-    "runtimeErrors": [],
-    "artworkEmbedded": true,
-    "soloTransitionsOnly": true
+    "terapagos": {
+      "dex": 1024,
+      "trigger": "walkable platform",
+      "nativeSpawnedCount": 1,
+      "duplicateTriggerReturnedSameEntity": true
+    },
+    "performance": {
+      "samples": 45,
+      "averageFrameMs": 16.5,
+      "p95FrameMs": 16.8,
+      "populatedMountain": true
+    },
+    "warnings": [],
+    "errors": [],
+    "areaTransitionsSoloOnly": true,
+    "returnEntranceChancePerRegion": 0.5,
+    "entranceSeparationWorldPixels": 210,
+    "nativeIceCoastAfterRelease": 16.99,
+    "nativeFootprintsObserved": 9,
+    "nativeBlizzard": {
+      "name": "blizzard",
+      "intensity": 1
+    },
+    "snowInteractions": [
+      "root-anchored canopy sway",
+      "periodic snow shedding",
+      "bounded fading footprints"
+    ],
+    "camps": [
+      "pixel tent",
+      "animated pixel campfire"
+    ],
+    "iceSlidingExceptions": [
+      "ice",
+      "flying"
+    ],
+    "regigigas": {
+      "entrance": "snowy peak only",
+      "interior": "separate ruined temple",
+      "art": "user supplied REGI.png, original bytes preserved",
+      "dormant": true,
+      "combatEntity": "only after awakening",
+      "solidBaseAndColumns": true,
+      "ownedPrerequisite": [
+        377,
+        378,
+        379
+      ],
+      "crackingSeconds": 4.2,
+      "nativeIncompleteTrioStayedDormant": true,
+      "nativeAwakenedCount": 1,
+      "nativeAwakenedDex": 486,
+      "reward": "defeat guardian after trio eligibility",
+      "parallelColumnRows": true,
+      "darkerInterior": true,
+      "snowCoveredSpecialEntrance": true
+    },
+    "levelGates": {
+      "Swinub": 1,
+      "Piloswine": 20,
+      "Mamoswine": 35,
+      "nativePoolsChecked": [
+        1,
+        10,
+        20,
+        35
+      ]
+    },
+    "nativeNestedReturn": {
+      "beforeEnemies": 33,
+      "restoredEnemies": 33,
+      "returnNearEntry": true
+    },
+    "habitats": {
+      "caveSpecies": 62,
+      "mountainSpecies": 57,
+      "nativeTypeCheck": true,
+      "levelGatesRetained": true,
+      "unavailableDefinitionsRemoved": [
+        558,
+        618,
+        837,
+        838,
+        839,
+        866
+      ]
+    },
+    "templeSilence": {
+      "nativeDenBlocked": true,
+      "nativePinkRiftBlocked": true,
+      "nativeToastHidden": true,
+      "ambientProgressSuspended": true,
+      "guardianMechanicsRetained": true
+    },
+    "pillars": "low-resolution bitmaps at integer 3x scale, two parallel matching rows",
+    "entranceArt": "reference-based four-column snowy facade",
+    "tentArt": "provided front-facing blue/green sprites",
+    "trees": "rounded snowy variants mixed with firs",
+    "tentAnimationChangedPixels": 4048,
+    "treeAnimationChangedPixels": 10215,
+    "visibleTreesInSample": 36,
+    "shedPilesObserved": 8,
+    "passageDistances": [
+      3833,
+      1924,
+      4690
+    ],
+    "allPassageArrivalsSafe": true,
+    "looseRockAndSceneryWaterClearance": "full grounded footprint sampling",
+    "modelPlaytestPerformance": {
+      "frames": 45,
+      "averageMs": 16.6,
+      "p95Ms": 17.6,
+      "ambientEnemiesFrozen": true
+    },
+    "treeTouch": {
+      "nativeContactTriggered": true,
+      "solidTrunk": true,
+      "playerSafe": true,
+      "noSidewaysPush": true,
+      "dampedSeconds": 0.75,
+      "sustainedContactDoesNotRestart": true
+    },
+    "entranceDistribution": {
+      "mountainExit": "one per 3x3 cave district plus nearby guaranteed start exit",
+      "terapagos": "50% test roll per cave district",
+      "regigigas": "50% test roll per mountain district",
+      "oneGatePerCell": false,
+      "minimumSpacing": 210,
+      "terapagosPairOffset": 260,
+      "regigigasCaveReturnOffset": 285
+    },
+    "nativeCaveEntrances": {
+      "mountain": 6,
+      "terapagos": 3,
+      "allApproachesClear": true,
+      "allDoorsDry": true,
+      "walkThroughSanctuaryVerified": true
+    },
+    "nearbyGatePairs": {
+      "cavePairVisuallyVerified": true,
+      "mountainPairVisuallyVerified": true,
+      "approachesClear": true
+    }
+  },
+  "friendUpdateV19": {
+    "revision": "76180a2196d2deff569f7f9712d7afba275e8bb4",
+    "automatedChecks": 91,
+    "preservedAccountConfig": true,
+    "nativeCombat": {
+      "moves": [
+        "ember",
+        "poison-sting",
+        "water-gun",
+        "ice-beam",
+        "bubble"
+      ],
+      "effects": [
+        "poisonT",
+        "burnT"
+      ]
+    },
+    "nativeOcean": {
+      "biome": 25,
+      "boardedBoat": "red",
+      "boats": 3,
+      "safeHarbor": true
+    },
+    "nativeLightning": {
+      "flash": 1,
+      "strikes": 1,
+      "thunders": 1
+    },
+    "nativeMountainLevelGates": {
+      "1": "Swinub",
+      "20": "Piloswine",
+      "35": "Mamoswine",
+      "overLevel": []
+    },
+    "legacyValidation": "Earlier top-level and act2CurrentRevision evidence predates this import; current import evidence is in this section."
   }
 }
