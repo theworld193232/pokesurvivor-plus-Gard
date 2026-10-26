@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 107,
+  "regressionsPassed": 110,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -398,5 +398,19 @@
     "megaGardevoirMultiplier": 1.35,
     "wildRelativeSizingRetained": true,
     "statsAndCollisionUnchanged": true
+  },
+  "canonSizeV24": {
+    "supersedes": "v23 player-only compression",
+    "pixelsPerMetre": 32,
+    "oneRuleForAllActors": true,
+    "opaqueSpritePixels": true,
+    "nativeAnimationScaleCompensated": true,
+    "formHeights": true,
+    "heightEntries": 1183,
+    "spriteEntries": 1124,
+    "normalAndMegaGardevoirWorldHeight": 51.2,
+    "baseGroudonWorldHeight": 112,
+    "primalGroudonWorldHeight": 160,
+    "source": "https://github.com/PokeAPI/pokeapi/blob/master/data/v2/csv/pokemon.csv"
   }
 }
