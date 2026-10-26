@@ -1,0 +1,132 @@
+{
+  "revision": "51d69dd6cf94a96019c0e5da484a05f6f2aff999",
+  "changes": [
+    {
+      "path": "README.md",
+      "new": false,
+      "bytes": 8502
+    },
+    {
+      "path": "docs/LIVING_ENVIRONMENT.md",
+      "new": false,
+      "bytes": 21709
+    },
+    {
+      "path": "docs/SHADY_FOREST.md",
+      "new": false,
+      "bytes": 23184
+    },
+    {
+      "path": "docs/TEAM_AND_TYPES.md",
+      "new": true,
+      "bytes": 2904
+    },
+    {
+      "path": "docs/TROPICAL_OCEAN.md",
+      "new": false,
+      "bytes": 19019
+    },
+    {
+      "path": "index.html",
+      "new": false,
+      "bytes": 50688
+    },
+    {
+      "path": "js/ai/00-core.js",
+      "new": false,
+      "bytes": 12252
+    },
+    {
+      "path": "js/ai/12-spriteh.js",
+      "new": true,
+      "bytes": 10616
+    },
+    {
+      "path": "js/ai/14-scale.js",
+      "new": false,
+      "bytes": 4668
+    },
+    {
+      "path": "js/ai/34-boats.js",
+      "new": false,
+      "bytes": 26480
+    },
+    {
+      "path": "js/ai/34-forest.js",
+      "new": false,
+      "bytes": 56399
+    },
+    {
+      "path": "js/ai/40-moves.js",
+      "new": false,
+      "bytes": 20100
+    },
+    {
+      "path": "js/ai/63-wildlife.js",
+      "new": false,
+      "bytes": 22101
+    },
+    {
+      "path": "js/ai/66-types.js",
+      "new": true,
+      "bytes": 3744
+    },
+    {
+      "path": "js/ai/67-team.js",
+      "new": true,
+      "bytes": 19001
+    },
+    {
+      "path": "js/ai/68-apparitions.js",
+      "new": true,
+      "bytes": 7923
+    },
+    {
+      "path": "js/ai/93-ground.js",
+      "new": false,
+      "bytes": 26889
+    },
+    {
+      "path": "js/ai/94-light.js",
+      "new": false,
+      "bytes": 39465
+    },
+    {
+      "path": "js/ai/99-install.js",
+      "new": false,
+      "bytes": 28381
+    },
+    {
+      "path": "tests/ai-scenarios.js",
+      "new": false,
+      "bytes": 219690
+    },
+    {
+      "path": "tools/sprite_heights.py",
+      "new": true,
+      "bytes": 1556
+    },
+    {
+      "path": "tools/sprite_idle_meta.json",
+      "new": true,
+      "bytes": 37652
+    },
+    {
+      "path": "version.json",
+      "new": false,
+      "bytes": 50
+    }
+  ],
+  "adapted": [
+    "67-team: levels, co-op, Mega cleanup, HUD placement",
+    "quiet temple apparitions"
+  ],
+  "preserved": [
+    "Gard progression/gacha",
+    "friend Mega obtainment and Gard presentation",
+    "Act 2",
+    "account config",
+    "no Story/trainers",
+    "owner testing"
+  ]
+}

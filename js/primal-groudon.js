@@ -263,6 +263,7 @@
  // Groudon burns obstacles in his path: trees, rocks and bushes crumble, wall tiles become scorched ground.
  const KEEP=new Set(['chest','bigchest','altar','spring','trap']);
  function burnThrough(p){
+   if(window.PS_CRYSTAL_PEAK?.active?.()){window.PS_CRYSTAL_PEAK.model.destroyNear(p.x,p.y,(Number(p.r)||16)+16);return;}
    const W=E().World,T=tileSize(),r=(Number(p.r)||16)+10,now=landClock;
    for(const q of propsNear(p.x,p.y,r)){
      if(KEEP.has(q.type)||q.burnt)continue;q.burnt=true;

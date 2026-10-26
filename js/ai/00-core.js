@@ -53,6 +53,9 @@
     mansionMusic: true, // inside the haunted mansion the game's music gives way to its own theme, Old Chateau (97-music.js)
     forestMusic: true, // the Shady Forest plays Viridian Forest instead of the level's track (bosses, rifts and the Judgment keep theirs; 97-music.js)
     breakables: true, // your attacks can knock down trees (not the ancient giants) and break bushes, dead saplings, logs and stumps (64-breakables.js)
+    apparitions: true, // ghost Pokémon that appear out of nowhere in the Shady Forest, and vanish (68-apparitions.js)
+    realTypes: true, // types matter as in the games: ×2, ×½, and immunities do nothing at all (66-types.js); off = the game's softer chart
+    team: true, // a team of six, switched in and out with Z / X (67-team.js)
     noGacha: true, // no gacha: Pokémon are earned by playing (each one you defeat may join you; 65-catch.js)
     catchRate: 1, // multiplier on the chance a defeated Pokémon joins you (65-catch.js)
     spiritomb: true, // the Odd Keystone, the Creepy Well and Spiritomb in the Shady Forest (86-spiritomb.js)
@@ -80,7 +83,7 @@
     flashIntensity: 1, // lightning screen flash strength (0 = no flashes, for comfort/accessibility)
     // Pokémon size
     softTelegraphs: true, // gentler attack warnings instead of blinking red dashed outlines
-    speciesScale: true, // size Pokémon by species (Pokédex height), with subtle individual variation
+    speciesScale: true, // draw Pokémon at their real Pokédex heights (true to scale up to 2 m; the tiniest lifted, giants capped), with subtle individual variation (14-scale.js)
     enemyBars: false, // health bars over wild Pokémon (they still have HP)
     announce: false, // banners for things that happen in the wild (evolutions, shinies, Meowth or Gholdengo appearing…); they still happen, quietly
     gameWeather: false, // the game's own type-boosting weather & terrain events (Misty Terrain, Harsh Sunlight…); the living sky stays either way

@@ -206,12 +206,14 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
      // Remove the bonus signature slot without altering the normal learned moves.
      const i=p.slots?.findIndex(slot=>Array.isArray(slot)&&slot.some(move=>move.id===def.id))??-1;
      if(i>=0){const slot=p.slots.splice(i,1)[0];for(const move of slot)p.moves=p.moves.filter(v=>v!==move);}
-     p.maxMoves=previousMax;
+     p.maxMoves=Math.max(previousMax,(Number(p.maxMoves)||previousMax+1)-1);
      if(typeof p.arrange==='function')p.arrange();
      if(p.slots?.length)p.active=Math.min(Number(p.active)||0,p.slots.length-1);
    };
  }
 
+ // Shared with native friend Mega activation: existing bonus moves and owner-only Echo variations.
+ window.PS_GARD_MEGA_MOVES={grant(p,form){if(!registerSignatureMoves())return null;const undo=grantSignature(p,form);if(MEGA_KITS[form])p.megaKit=form;return ()=>{undo?.();if(p.megaKit===form)delete p.megaKit;};}};
  // ---- Primal weather ----
  // Natural weather (rain, sun, sandstorm, snow, fields...) keeps happening normally for the world,
  // but it does NOT affect the Primal player:
@@ -446,6 +448,9 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
        // accretion disk (tilted, bright on one side)
        for(let j=0;j<3;j++){const rr=core*(2.1+j*0.55),a0=h.t*(4-j);const dg=ctx.createLinearGradient(X-rr,Y,X+rr,Y);dg.addColorStop(0,'rgba(255,230,255,0.95)');dg.addColorStop(0.5,'rgba(190,110,255,0.75)');dg.addColorStop(1,'rgba(90,40,200,0.35)');
          ctx.strokeStyle=dg;ctx.lineWidth=Math.max(2,(5-j*1.3)*k);ctx.beginPath();ctx.ellipse(X,Y,rr,rr*0.32,Math.sin(h.t)*0.15,a0,a0+TAU*0.85);ctx.stroke();}
+       for(let j=0;j<8;j++){const a=j*TAU/8-h.t*2.4+h.seed,rr=core*(2.5+.3*Math.sin(h.t*8+j)),px=X+Math.cos(a)*rr,py=Y+Math.sin(a)*rr*.38;
+         ctx.strokeStyle=j%2?'rgba(255,213,249,.82)':'rgba(168,204,255,.7)';ctx.lineWidth=Math.max(1,1.5*k);ctx.beginPath();ctx.moveTo(px,py-4*k);ctx.lineTo(px+2*k,py);ctx.lineTo(px,py+4*k);ctx.lineTo(px-2*k,py);ctx.closePath();ctx.stroke();}
+       ctx.strokeStyle='rgba(250,222,255,.85)';ctx.lineWidth=2*k;ctx.beginPath();ctx.ellipse(X,Y,core*1.1,core*.5,0,0,TAU);ctx.stroke();
        // infalling sparks
        for(const q of h.parts){const qx=X+Math.cos(q.a)*q.r*k,qy=Y+Math.sin(q.a)*q.r*k*0.62,sz=Math.max(2,2.4*k);ctx.fillStyle=q.c;ctx.fillRect(Math.round(qx),Math.round(qy),sz,sz);}
        // photon ring + event horizon
@@ -718,7 +723,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    if(!p.__jInt){p.__jInt=true;p.rerollBonus=(Number(p.rerollBonus)||0)*2+1;}   // J's Intuition: double rerolls (6 -> 12)
    if(p.megaForm==='282-mega'){const d=getBridge()?.moves?.BY_ID?.['true-moon-blast'];   // Echo's True Potential replaces True Moon Blast (her game only)
      const patch=o=>{if(!o||o.__echo)return;o.__echo=true;o.psCast='echoblast';o.name="Echo's True Potential";o.desc='A giant moon orb rolls forward leaving damaging glitter, then three moon meteors crash down where it stops.';o.fx=Object.assign({},o.fx||{},{size:54,speed:380,range:290,boom:165,boomMult:2.6,meteors:3,colors:['#ffffff','#ffc8f0','#b8a0ff']});};
-     patch(d);for(const inst of p.moves||[])if(inst&&inst.id==='true-moon-blast'){patch(inst);if(inst.def&&inst.def!==d)patch(inst.def);}}
+     for(const inst of p.moves||[])if(inst&&inst.id==='true-moon-blast'){if(inst.def===d)inst.def={...d};patch(inst);if(inst.def)patch(inst.def);}}
    const B2=ECHO.bond;if(p.megaForm!==B2.form)return;
    const hp=p.maxHp>0?p.hp/p.maxHp:1,bd=p.__echoBond;
    if(hp<B2.below&&!p.__echoLow&&(!bd||now-bd.at>B2.cooldown*1000)){

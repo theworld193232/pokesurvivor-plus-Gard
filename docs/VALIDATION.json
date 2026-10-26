@@ -1,6 +1,6 @@
 {
-  "syntaxCheckedScripts": 86,
-  "regressionsPassed": 97,
+  "syntaxCheckedScripts": 119,
+  "regressionsPassed": 107,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -335,5 +335,61 @@
     },
     "otherProgression": "Gard Z/Dynamax and level evolution retained",
     "networkCoopTested": false
+  },
+  "friend51d69V22": {
+    "revision": "51d69dd6cf94a96019c0e5da484a05f6f2aff999",
+    "upstreamChangedFiles": 23,
+    "engineUnchanged": true,
+    "accountConfigUnchanged": true,
+    "features": [
+      "team (solo)",
+      "real type matchups",
+      "apparitions",
+      "measured species sizing",
+      "colossal forest trees",
+      "explicit boat boarding"
+    ],
+    "nativePrimalRepair": {
+      "injectedBase": 383,
+      "after": "383_primal",
+      "nativeKeyStillActive": true,
+      "durationAfter": 23.433,
+      "restoredSignature": "precipice-blades"
+    },
+    "nativeDestruction": {
+      "caveCrystalBefore": 4,
+      "after": 4,
+      "mountainTreesBefore": 5,
+      "collisionCleared": true,
+      "entrancesProtected": true
+    },
+    "nativeTeam": {
+      "switch": true,
+      "faintedKyogreSentOutPikachu": true,
+      "gameStillPlaying": true,
+      "sharedLevelPreserved": true
+    },
+    "nativeApparition": 92,
+    "nativeImmunities": {
+      "groundFlying": 0,
+      "dragonFairy": 0,
+      "electricGround": 0
+    },
+    "nativeBoat": {
+      "doubleSpaceBoard": true,
+      "doubleSpaceDisembark": true
+    },
+    "ownerMegaMoves": [
+      "true-moon-blast (Echo\u2019s True Potential)",
+      "blackhole"
+    ],
+    "vfxReference": "https://unite.pokemon.com/en-us/pokemon/gardevoir/",
+    "checks": 107,
+    "limits": [
+      "cloud authentication not tested",
+      "network co-op not tested; Team is solo",
+      "all forms/quests not exhaustive",
+      "audio muted during QA"
+    ]
   }
 }

@@ -523,11 +523,14 @@
        for(let i=0;i<5;i++){const tw=0.5+0.5*Math.sin(c.t*9+g.seed+i*1.7),gx=X+Math.cos(g.seed+i*1.3)*20*k,gy=Y+Math.sin(g.seed*1.7+i)*9*k;star4(ctx,gx,gy,(2+3*tw)*k,a*tw,i%2?'#ffffff':(i%3?'#ffc8f0':'#c8dcff'));}}
      // the moon orb
      if(c.phase==='roll'){const X=v.sx(c.x),Y=v.sy(c.y)-c.R*0.6*k,R=c.R*k;ctx.globalCompositeOperation='lighter';
-       for(let i=1;i<=5;i++){const bx=X-Math.cos(c.aim)*i*R*0.45,by=Y-Math.sin(c.aim)*i*R*0.45;glow(ctx,bx,by,R*(1-i*0.12),'rgba(255,220,250,'+(0.22-i*0.035)+')','rgba(200,180,255,0)');}
-       glow(ctx,X,Y,R*1.9,'rgba(255,200,245,0.45)','rgba(140,170,255,0)');
-       ctx.globalCompositeOperation='source-over';const g=ctx.createRadialGradient(X-R*0.3,Y-R*0.35,R*0.1,X,Y,R);g.addColorStop(0,'#ffffff');g.addColorStop(0.7,'#fdf4ff');g.addColorStop(1,'#f0d8ff');ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y,R,0,TAU);ctx.fill();
+       for(let i=1;i<=3;i++){const bx=X-Math.cos(c.aim)*i*R*0.45,by=Y-Math.sin(c.aim)*i*R*0.45;glow(ctx,bx,by,R*(1-i*0.12),'rgba(255,220,250,'+(0.22-i*0.035)+')','rgba(200,180,255,0)');}
+       glow(ctx,X,Y,R*1.5,'rgba(255,200,245,0.32)','rgba(140,170,255,0)');
+       ctx.globalCompositeOperation='source-over';const g=ctx.createRadialGradient(X-R*0.3,Y-R*0.35,R*0.1,X,Y,R);g.addColorStop(0,'#ffffff');g.addColorStop(0.38,'#f9edff');g.addColorStop(0.78,'#c8b8ee');g.addColorStop(1,'#7966b5');ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y,R,0,TAU);ctx.fill();
        ctx.fillStyle='rgba(225,205,245,0.55)';[[0.3,-0.2,0.18],[-0.35,0.25,0.13],[0.1,0.42,0.1],[-0.1,-0.45,0.08]].forEach(([cx,cy,cr])=>{ctx.beginPath();ctx.arc(X+cx*R,Y+cy*R,cr*R,0,TAU);ctx.fill();});
        ctx.strokeStyle='rgba(255,150,220,0.9)';ctx.lineWidth=3*k;ctx.beginPath();ctx.arc(X,Y,R*1.06,c.t*3,c.t*3+2.2);ctx.stroke();ctx.strokeStyle='rgba(150,190,255,0.9)';ctx.beginPath();ctx.arc(X,Y,R*1.12,-c.t*2.4,-c.t*2.4+1.8);ctx.stroke();
+       // Lunar crescent and orbiting diamond glints, with a readable silhouette through bloom.
+       ctx.save();ctx.beginPath();ctx.arc(X,Y,R,0,TAU);ctx.clip();ctx.strokeStyle='rgba(255,252,255,.95)';ctx.lineWidth=Math.max(2,R*.1);ctx.beginPath();ctx.arc(X-R*.07,Y-R*.06,R*.78,-2.2,.5);ctx.stroke();ctx.restore();
+       ctx.globalCompositeOperation='lighter';for(let j=0;j<6;j++){const a=c.t*1.7+j*TAU/6,rr=R*(1.22+.08*Math.sin(c.t*4+j)),xx=X+Math.cos(a)*rr,yy=Y+Math.sin(a)*rr*.48;star4(ctx,xx,yy,(j%2?3:4)*k,.75,j%2?'#b9ddff':'#ffd0f2');}
        for(const q of c.parts){const a=1-q.t/0.6;star4(ctx,X+Math.cos(q.a)*q.r*k,Y+Math.sin(q.a)*q.r*0.7*k,q.s*k,a,'#ffffff');}}
      // the meteor falling onto the end point
      if(c.phase==='pop'||(c.phase==='fall'&&c.ft<0.3)){const u=c.phase==='pop'?c.pt:0.55+c.ft,X=v.sx(c.fx0),Y=v.sy(c.fy0),R0=c.R*k,W=(c.fx.wave||300)*k;
