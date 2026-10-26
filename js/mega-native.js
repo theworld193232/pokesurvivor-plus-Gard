@@ -9,6 +9,7 @@ const ROLL_CHANCE=0.50; // TESTING: 50%. For release, set to 0.01 (1%).
 let stoneOwned=false;
 let MEGA_CTL=null;   // set inside start(): trainer text box + forced Mega Evolution (used by Echo's Z-move line and J's Will)
 function allowMegaByLevel(player, forms){
+  if(window.PS_FRIEND_MEGA)return;
   const lv=Number(player?.level||1);
   if(player!==current){lastLevel=lv; rewardPending=false; return;}
   if(!player||used||!forms.length||lv<10||rewardPending||stoneOwned)return;
@@ -1022,7 +1023,9 @@ function start(){
  }
  function refresh(){
  registerSignatureMoves();
- const p=resetIfNew();const b=getBridge();const list=options(p);allowMegaByLevel(p,list);
+ const p=resetIfNew();const b=getBridge();const list=options(p);
+ if(window.PS_FRIEND_MEGA){mini.style.display=panel.style.display='none';return;}
+ allowMegaByLevel(p,list);
  const f0=formFor(p);
  const primal=!!f0&&!!WEATHER[f0.key];
  setText(title,primal?'PRIMAL REVERSION':'MEGA EVOLUTION');
@@ -1049,6 +1052,7 @@ function start(){
  hint.textContent=!p?'Start a run first.':used?'Mega Evolution active until the run ends.':!list.length?'No Mega form for this Pokémon.':(p.level||1)<10?'Available from level 10.':stoneOwned?'Mega Stone obtained! Finish your reward selection, then activate your Mega form.':rewardPending?'A Mega Stone reward card is available in the level-up rewards.':'50% Mega Stone test chance on each eligible level-up.';
  }
  btn.onclick=()=>{
+ if(window.PS_FRIEND_MEGA){window.__PSX_REG__?.Mega.start(getPlayer());return;}
  const p=resetIfNew();const list=options(p);const f=formFor(p);const b=getBridge();
  if(!p||!f||used||!b?.sprites||(p.level||1)<10||!stoneOwned){refresh();return;}
  if(b.game?.state!=='playing'){hint.textContent='Finish your current reward or menu first, then open Mega Stone Ready again.';return;}
@@ -1128,7 +1132,7 @@ function start(){
    "Unleash your true power, {n}!","Our bond is our strength, {n}!","Time to shine, {n}!","No holding back now, {n}!"];
  MEGA_CTL={line:(...a)=>trainerLine(...a),mega(dex,key){chosenForm[String(dex)]=key;stoneOwned=true;rewardPending=false;btn.onclick();}};
  window.PS_GARD_MEGA_TEST={forms:()=>options(getPlayer()).map(f=>({key:f.key,name:f.en||f.name})),
-  evolve(key){if(!window.PS_GARD_TEST_ACCESS?.())return false;const p=resetIfNew(),f=options(p).find(f=>f.key===key)||formFor(p);if(!p||!f||used)return false;chosenForm[String(p.dex)]=f.key;stoneOwned=true;rewardPending=false;btn.onclick();return p.megaForm===f.key;}};
+  evolve(key){if(!window.PS_GARD_TEST_ACCESS?.())return false;if(window.PS_FRIEND_MEGA)return window.__PSX_REG__.Mega.start(getPlayer());const p=resetIfNew(),f=options(p).find(f=>f.key===key)||formFor(p);if(!p||!f||used)return false;chosenForm[String(p.dex)]=f.key;stoneOwned=true;rewardPending=false;btn.onclick();return p.megaForm===f.key;}};
 
  function trainerLine(name,forced,tag){
    // Pokemon-game style text box: white panel, double border, name tag, typewriter text, blinking arrow
@@ -1177,6 +1181,7 @@ function start(){
  const levelMenu=document.getElementById('scr-levelup');
  const cards=document.getElementById('cards');
  function drawMegaReward(){
+   if(window.PS_FRIEND_MEGA){document.getElementById('ps-mega-level-card')?.remove();return;}
    if(!cards||!levelMenu)return;
    const showing=!levelMenu.classList.contains('hidden')&&getBridge()?.game?.player;
    const existing=document.getElementById('ps-mega-level-card');

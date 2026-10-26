@@ -58,7 +58,12 @@
     if (prev && prev.form === form && prev.shiny === shiny) return;
     if (!prev && !form) return;
     // Preserve the original animator so reversions are exact, even for shiny Pokémon.
-    const original = prev?.original || { anim:p.anim, form:p.megaForm, bodyH:p.bodyH };
+    const original = prev?.original || (window.PS_FRIEND_MEGA && p.megaKey ? {
+      // Native networking may have applied the form before this visual packet arrives.
+      // Keep a base animator, so ending a timed Mega cannot restore another Mega sprite.
+      anim:new B.sprites.Animator(p.preMega?.skin || p.dex,Number(p.scale)||1,shiny),
+      form:undefined,bodyH:B.sprites.bodyH?.(p.preMega?.skin || p.dex,Number(p.scale)||1) || p.bodyH,
+    } : { anim:p.anim, form:p.megaForm, bodyH:p.bodyH });
     if (!form) {
       p.anim = original.anim;
       p.megaForm = original.form;

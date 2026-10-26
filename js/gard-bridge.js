@@ -14,5 +14,5 @@
   try{return hurt.apply(this,args);}finally{window.PS_ATTACKER=prev;window.PS_CONTACT=contact;}
  };
  window.PS_GARD_TEST_ACCESS=()=>String(R.DB?.user||'').trim().toLowerCase()==='lovergare';
- window.PS_GARD_PORT={version:'friend-gard-v19',base:'76180a2196d2deff569f7f9712d7afba275e8bb4',story:false};
+ window.PS_GARD_PORT={version:'friend-gard-v21',base:'76180a2196d2deff569f7f9712d7afba275e8bb4',story:false};
 })();

@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 86,
-  "regressionsPassed": 93,
+  "regressionsPassed": 97,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -299,5 +299,41 @@
     },
     "newRuntimeErrors": [],
     "automatedChecks": 93
+  },
+  "megaSystemV21": {
+    "mechanics": "friend native Mega",
+    "obtainment": "Act 2 cleared, Act 3+, matching held species stone",
+    "rates": {
+      "levelup": 0.01,
+      "chest": 0.05,
+      "bigchest": 0.1
+    },
+    "presentation": "Gard orb/shatter, Mega symbol, cry, effects and top-priority gym-tera theme",
+    "nativeEligibility": {
+      "beforeCaveWin": false,
+      "inCave": false,
+      "noStone": false,
+      "wrongStone": false,
+      "correctStone": true,
+      "playerLevel": 1
+    },
+    "nativeChestStoneCollected": true,
+    "nativeSpaceActivation": true,
+    "nativeReveal": {
+      "orbBroke": true,
+      "revealed": true,
+      "customFx": 1,
+      "sceneTime": 1.6145,
+      "music": "gym-tera",
+      "context": "mega",
+      "validEventInterrupted": false
+    },
+    "nativeReversion": {
+      "key": null,
+      "form": null,
+      "cooldown": 180
+    },
+    "otherProgression": "Gard Z/Dynamax and level evolution retained",
+    "networkCoopTested": false
   }
 }

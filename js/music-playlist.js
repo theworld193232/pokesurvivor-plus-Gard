@@ -171,7 +171,7 @@
       if (id && TRACKS[id] && !out.includes(id)) out.unshift(id); } } catch (_) {}
     return out;
   }
-  const isMega = () => { const p = B()?.game?.player; return !!(p && p.megaForm && !/primal/.test(String(p.megaForm))); };   // Mega only, never Primal
+  const isMega = () => { const p = B()?.game?.player; return !!(p && /-mega(?:-|$)/.test(String(p.megaForm||''))); };   // Mega only, never Primal
   const menuish = c => c === 'menu' || c === 'safezone';
   const rule = ctx => ctx === 'menu' ? RULES.menu : ctx === 'safezone' ? (RULES.safezone || RULES.menu) : ctx === 'mega' ? RULES.mega : ctx.startsWith('lowhp:') ? lowRules()[Number(ctx.slice(6))] : ctx.startsWith('event:') ? (RULES.events || {})[ctx.slice(6)] : ctx === 'battle' ? battleRule() : ctx.startsWith('legend:') ? { songs: [ctx.slice(7)] } : ctx.startsWith('primal:') ? { songs: [ctx.slice(7)] } : (RULES.special || {})[ctx.slice(8)];
   const loops = ctx => ctx.startsWith('special:') || ctx.startsWith('legend:') || ctx.startsWith('primal:');
