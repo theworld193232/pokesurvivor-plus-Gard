@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 118,
+  "regressionsPassed": 115,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -432,5 +432,22 @@
     "avatarClearance": "all eight facings; 120-second bob sweep; base and Mega",
     "browserErrors": 0,
     "tests": 118
+  },
+  "fixedOrbSmallPokemonV27": {
+    "owner": "LoverGare",
+    "species": [
+      280,
+      282
+    ],
+    "caveVisualCheck": true,
+    "fixedPosition": true,
+    "orbVisualScale": 1.5,
+    "lightRadius": 260,
+    "smallPokemonLarger": true,
+    "legendarySizeUnchanged": true,
+    "obstacleClearance": true,
+    "avatarClearance": "fixed outside all-facing Idle/Walk silhouette; base and Mega",
+    "browserErrors": 0,
+    "tests": 115
   }
 }
