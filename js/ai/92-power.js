@@ -3,7 +3,7 @@
  * level 10 with a locked slot on the bar before that). Now:
  *
  * Mega Evolution
- *   - only after Level 2 (Crystal Cave) has been beaten, and only from Level 3 on (Tropical Ocean, Zona Cero)
+ *   - after Level 3 (Tropical Ocean) has been beaten; then usable on every map, including Acts 1 and 2
  *   - only with that Pokémon's own Mega Stone, which is a held item: it takes the one held-item
  *     slot like any other (Lucario holding Lucarionite holds no Assault Vest), and picking one up
  *     while holding something else asks which to keep
@@ -57,7 +57,7 @@
   // a stage beaten (wins are counted per map: 2 = Crystal Cave, 3 = Tropical Ocean)
   function beaten(n) { const s = save(); return !!((s.mapWins && s.mapWins[n]) || (s.ach && s.ach['arceus' + n])); }
   function stage() { try { return (AI.R.Maps.cur && AI.R.Maps.cur.n) || 1; } catch (e) { return 1; } }
-  function megaStage() { return beaten(2) && stage() >= 3; }
+  function megaStage() { return beaten(3); }
   function zStage() { return beaten(3) && stage() >= 4; }
 
   // ---------------------------------------------------------------- Mega Stones as held items

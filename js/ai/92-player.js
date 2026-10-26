@@ -135,6 +135,7 @@
   // rustling undergrowth, slippery footing, hidden berry patches
   function envStep(p, dt, x0, y0) {
     if (!dt || dt <= 0) return;
+    if(window.PS_LEGEND_FLIGHT?.active(p)){p._vx=(p.x-x0)/dt;p._vy=(p.y-y0)/dt;p._psxLastPrint=null;return;}
     const D = AI.Decor;
     let dx = p.x - x0, dy = p.y - y0;
     const jump = Math.hypot(dx, dy) > 200; // teleport / respawn

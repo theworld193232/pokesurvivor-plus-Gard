@@ -1,0 +1,10 @@
+/* Kyogre and Rayquaza hover above outdoor scenery; room walls and entrances stay solid. */
+(() => {
+ 'use strict';const R=window.__PSX_REG__,A=window.PSXAI,W=R.World;
+ function active(p){const C=window.PS_CRYSTAL_PEAK;return !!(A.enabled&&p&&p===R.Game.player&&!p.dead&&[382,384].includes(Number(p.dex))&&!p.psxBoat&&!A.Boats?.riding?.(p)&&!A.Mansion?.inside&&!A.Totem?.active?.()&&!R.Rift?.inArena&&!window.PS_SAFEZONE?.active&&!(C?.active?.()&&C.model.special()));}
+ function allowedAt(p,x,y){const r=Math.max(6,Math.min(24,Number(p.r)||12)),C=window.PS_CRYSTAL_PEAK;if(C?.active?.()){if(C.model.solidSceneryNear(x,y,r+80).some(q=>/entrance|temple|facade|post/.test(q.type||'')&&C.model.sceneryBlocks(q,x,y,r)))return false;for(let i=0;i<9;i++){const a=i*Math.PI/4,d=i===8?0:r;if(!C.model.floor(x+Math.cos(a)*d,y+Math.sin(a)*d))return false;}return true;}if(A.Mansion?.blockedExterior?.(x,y,r))return false;if(A.Ocean?.on?.())return true;for(let i=0;i<9;i++){const a=i*Math.PI/4,d=i===8?0:r;if(W.isWall(x+Math.cos(a)*d,y+Math.sin(a)*d))return false;}return true;}
+ function pathFree(p,x0,y0,x1,y1){const d=Math.hypot(x1-x0,y1-y0),steps=Math.max(1,Math.ceil(d/8));for(let i=1;i<=steps;i++){const t=i/steps;if(!allowedAt(p,x0+(x1-x0)*t,y0+(y1-y0)*t))return false;}return true;}
+ const collide=W.collide;W.collide=function(p,...args){if(!active(p))return collide.call(this,p,...args);const x=p.x,y=p.y,previous=p.__flightSafe,near=previous&&Math.hypot(x-previous[0],y-previous[1])<160;if(allowedAt(p,x,y)&&(!near||pathFree(p,...previous,x,y))){p.__flightSafe=[x,y];return false;}if(near){if(pathFree(p,...previous,x,previous[1]))p.y=previous[1];else if(pathFree(p,...previous,previous[0],y))p.x=previous[0];else [p.x,p.y]=previous;return true;}return collide.call(this,p,...args);};
+ const liquid=W.liquidEffect;if(liquid)W.liquidEffect=function(types,...args){return active(R.Game.player)&&types===R.Game.player.mon?.types?{}:liquid.call(this,types,...args);};
+ window.PS_LEGEND_FLIGHT={active,allowedAt};
+})();

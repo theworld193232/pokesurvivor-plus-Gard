@@ -923,6 +923,8 @@
      if(c.cracks&&t>=c.symT){const u=t-c.symT,grow=Math.min(1,u/.12),fade=u<1.3?1:Math.max(0,1-(u-1.3)/.5);if(fade>0)S.ascent.drawCracks(c,ctx,v,grow,fade);}
    }};
 
+ // Release temporary actor state even when a move is interrupted by switching or an error.
+ function dispose(c){if(!c)return;if(c.hidden){c.hidden=false;ascHide(c.player,false);}if(typeof c.style?.dispose==='function')try{c.style.dispose(c);}catch(e){console.warn('fx dispose',e);}}
  // ---------------------------------------------------------------- manager
  window.PS_FX={
    styles:S,
@@ -932,11 +934,11 @@
    has(name){return !!S[name];},
    cast(name,player,move,hit,ghost){const st=S[name];if(!st)return false;
      const c={style:st,player,move,hit:hit||window.__psHit||((pl,e,dmg,col,kx,ky,kn)=>e.hurt(dmg,col,kx,ky,kn)),ghost:!!ghost,fx:Object.assign({},move.fx||{}),t:0};
-     try{const r=st.cast(c);if(r)live.push(r);}catch(e){console.warn('fx cast',name,e);}return true;},
+     try{const r=st.cast(c);if(r)live.push(r);else dispose(c);}catch(e){dispose(c);console.warn('fx cast',name,e);}return true;},
    active(){if(live.length||shinySp.length||opSlowed.size)return true;const p=B()?.game?.player;if(shinyOf(p))return true;for(const e of enemies())if(e.shiny===true)return true;return false;},
-   update(dt){opSlowTick(dt);for(let i=live.length-1;i>=0;i--){let keep=false;try{keep=live[i].style.update(live[i],dt);}catch(e){console.warn('fx update',e);}if(!keep)live.splice(i,1);}},
+   update(dt){opSlowTick(dt);for(let i=live.length-1;i>=0;i--){let keep=false;try{keep=live[i].style.update(live[i],dt);}catch(e){console.warn('fx update',e);}if(!keep){dispose(live[i]);live.splice(i,1);}}},
    draw(ctx,view){try{ctx.save();drawShiny(ctx,view);ctx.restore();}catch(e){}for(const c of live){try{ctx.save();c.style.draw(c,ctx,view);ctx.restore();}catch(e){console.warn('fx draw',e);}}},
-   clearForPlayer(player){for(let i=live.length-1;i>=0;i--)if(live[i].player===player)live.splice(i,1);},
-   clear(){live.length=0;}
+   clearForPlayer(player){for(let i=live.length-1;i>=0;i--)if(live[i].player===player){dispose(live[i]);live.splice(i,1);}if(player)player.__ascHidden=0;},
+   clear(){for(const c of live)dispose(c);live.length=0;}
  };
 })();

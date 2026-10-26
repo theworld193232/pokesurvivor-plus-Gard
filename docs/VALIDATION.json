@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 137,
+  "regressionsPassed": 146,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "team-persistence-v32",
+  "currentVersion": "act3-shiny-fix-v33c",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -512,5 +512,18 @@
     "variantPortraitSourcesVerified": true,
     "deoxysFormHeadshots": 6,
     "onlineCoopStressTested": false
+  },
+  "act3ShinyFlightV33": {
+    "megaUnlock": "Act 3 beaten; usable on every act",
+    "shinyMovementSwitches": 30,
+    "persistentVisibilityFailures": 0,
+    "shinySheetGeometryFailures": 0,
+    "flightSpecies": [
+      382,
+      384
+    ],
+    "protectedEntranceVerified": true,
+    "ordinaryCollisionPreserved": true,
+    "onlineCoopTested": false
   }
 }

@@ -754,7 +754,7 @@
   function collideWater(ent) {
     if (!on() || !ent || ent.dex == null) return false;
     const dex = ent.dex;
-    const loco = locomotion(dex);
+    const loco=window.PS_LEGEND_FLIGHT?.active(ent)?'fly':locomotion(dex);
     const okAt = (x, y) => {
       const d = depthClass(x, y);
       if (d === 2 && loco === 'walk') return false;

@@ -99,6 +99,7 @@
     // Level-gate a fresh bench member once. Returning members keep the evolution they reached.
     const eligible=m.entered||window.PS_PARTNER?.owner?.()?m.dex:(window.PS_WILD_LEVELS?.ancestor(m.dex,p.level)||m.dex);
     p.evolveTo(eligible);
+    delete p.__flightSafe;delete p.__cpSafe;delete p._psxOk;delete p._psxWet;
     if (m.moves) { p.moves = m.moves; p.slots = m.slots; p.active = Math.min(m.active, Math.max(0, m.slots.length - 1)); }
     else {
       p.moves = []; p.slots = []; p.active = 0;

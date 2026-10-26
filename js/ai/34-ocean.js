@@ -492,6 +492,7 @@
   function isPlayerEnt(ent) { try { return !!ent && (ent === AI.R.Game.player || (AI.players && AI.players.includes(ent))); } catch (e) { return false; } }
   // the player: a Water type swims; everyone else wades the shallows and takes a boat beyond
   function playerLoco(p) {
+    if([382,384].includes(Number(p?.dex)))return 'fly';
     if(Number(p?.dex)===383)return 'amphi';
     const types = (p && p.mon && p.mon.types) || (p && p.types) || [];
     return types.includes('water') ? 'amphi' : 'walk';

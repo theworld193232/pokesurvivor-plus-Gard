@@ -1,0 +1,11 @@
+# Act 3 unlock, sprite visibility and flight — v33
+
+Apply the update over an existing v32 game folder, preserving paths and replacing matching files. The full ZIP is a complete game copy. Preview/test controls are excluded. Account storage keys and saved progress are unchanged.
+
+Mega/Primal access now unlocks when Act 3 / Tropical Ocean has been beaten, then works on every map, including Acts 1 and 2. Existing mapWins[3] or the arceus3 achievement supplies that account milestone. Matching held stones/orbs and ordinary Mega cooldowns remain required; Rayquaza keeps its item-free rule. Stone/orb drops use the same global milestone and can occur in earlier acts after it is unlocked. J’s Will still revives, but its Mega activation now also waits for the Act 3 milestone.
+
+Fixed disappearing team sprites. Dragon Ascent / Ad Astra temporarily hides its caster. Cancelling the effect on a team switch previously removed the animation without releasing that visibility counter, hiding the incoming Pokémon as well. Effect disposal now restores visibility on switching, global cleanup, failed casts, interrupted updates and ordinary completion. Legitimate ascent flight visibility remains unchanged.
+
+Kyogre and Rayquaza, including their transformed forms, hover over scenery objects and water. They do not leave ground footsteps or receive water drag/ice slide. Hard terrain boundaries, protected cave entrance solids, indoor temples, houses and maze rooms retain collision. Their attacks, types and damage rules are unchanged. Ground collision history resets when switching so ordinary Pokémon do not inherit an airborne position checkpoint. Wild and remote actor collision remains native.
+
+Validation: 146 automated checks, including form persistence, 1000-switch simulation, Act 3 unlock across early/later maps, cancellation visibility cleanup, flight boundaries and other-actor collision. Offline browser playtest: 30 moving/attacking switches between shiny Mega Gardevoir and shiny Mega Rayquaza completed without persistent hidden sprites or invalid draw rectangles. Inspected every shiny frame of both base/Mega species: no transparent cells or out-of-bounds sheet rectangles. In-game cave collision probe: Kyogre/Rayquaza crossed a solid crystal, Gardevoir was blocked, and the mountain entrance remained protected. Online co-op was not tested in this pass.
