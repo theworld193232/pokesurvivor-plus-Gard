@@ -1,7 +1,7 @@
 # The Haunted Mansion
 
 Somewhere north of where a run starts in the **Shady Forest** (Bosque Umbrío), a shady dirt path
-leaves the woods. Old lamp posts stand along it in neat pairs, and it ends at the iron gates of an
+leaves the woods. Small candles stand along it in pairs, and it ends at the tall iron gates of an
 old mansion. Everyone in the forest has heard a rumour about it, and they all tell a different one.
 
 The mansion is an atmospheric horror location with environmental scares, scripted events and
@@ -11,18 +11,38 @@ character-driven dialogue. It is also where something very old first takes an in
 
 ## Getting there (`39-decor.js`, `87-mansion.js`)
 
-- **The path.** The dirt path leaves the woods about 1450 px from where you start and curves north
-  for over a thousand pixels. Pairs of lamp posts line it at even intervals, one on each side, and
-  they light up at night. The old sign and the creaking hanging lantern (with its Hoothoot) still
-  mark where it begins. The woods thin and die off as you get closer.
-- **The gates.** Stone pillars with lanterns on top flank an iron fence. The fence wraps around the
-  grounds; only the gate is open.
-- **The grounds.** The path continues through a courtyard with a small family plot (graves,
-  candles, a skull) and a statue nobody remembers. A gallows-style frame holds two hanging
-  lanterns, and two gargoyles flank the front steps.
-- **The house.** It is a two-storey manor with end towers and a central gable. One warm candle
-  burns up in the gable, a few windows glow violet, the rest are dark, broken or boarded up, and
-  it is covered in ivy and cobwebs.
+- **When and where.** The mansion is the Shady Forest's end stage. It doesn't exist for the first
+  20 minutes of active play; then it is placed once, ahead of the party on ground nobody has seen
+  yet, and never moves again. Old lamp posts, broken fences and signs out in the woods point the
+  way, and the last stretch grows stranger. The details are in
+  [SHADY_FOREST.md](SHADY_FOREST.md#the-journey-to-the-mansion-84-journeyjs).
+- **The path.** A dirt path curves through the last of the woods to the gates. Small candles line
+  it in pairs, one on each side. Every so often one of them burns purple for a moment before
+  turning orange again. The old sign and the creaking hanging lantern (with its Hoothoot) mark
+  where it begins. The woods thin and die off as you get closer.
+- **The gates.** Tall stone pillars with lanterns on top, 320 px apart, under a wrought-iron arch
+  with a rusted crest. The gate leaves stand open against the fence. An iron fence runs all the way
+  round the grounds, backyard included.
+- **The grounds.** These are big: about 1200 px across and 2000 px from the back fence to the
+  gates.
+  - **Courtyard.** A long courtyard lined with dead trees. In its middle stands a fountain that
+    stopped working long ago: a dry, cracked basin, moss, dead leaves, and a broken stump where a
+    statue used to be. The path loops around it.
+  - **The shed.** On the far left stands an abandoned shed whose doors bang open and shut on
+    their own, sometimes twice in a row.
+  - **The door.** Two gargoyles flank the front steps.
+- **The backyard.** Walk round the side of the house to reach the fenced yard behind it. It holds
+  the family plot (graves, skulls, a few small candles), a statue nobody remembers, the old
+  gallows lamp, a crumbled wall, broken fences and what used to be a garden.
+- **Dead silence.** No wild Pokémon appear on or around the grounds, and any that wander in slip
+  away. Bosses still arrive when they're due. The forest's birds, insects and crickets fall silent
+  there, and the wind drops to almost nothing.
+- **The house.** A three-storey manor about 930 px wide.
+  - **Shape.** Four-storey corner towers, lower wings beyond them, and a central gable with a
+    balcony on every floor.
+  - **Windows.** A few glow violet or warm; the rest are dark, broken or boarded up, and the
+    whole front is covered in ivy and cobwebs.
+  - **How it's built.** `tools/mansion_art.py` assembles it from the supplied mansion sprite.
 - **Clearing.** The grounds, the path and the land around them are kept free of trees, rocks,
   chests and ponds at generation time (three one-expression hooks in `js/app.min.js` ask
   `PSXGEN.clear`). The house, the fence and the gates are solid.
@@ -30,16 +50,42 @@ character-driven dialogue. It is also where something very old first takes an in
 
 ## Inside (`87-mansion.js`)
 
-The interior is a separate space, drawn from the supplied mansion sheet:
+The interior is a separate space with three floors. The ground floor is drawn from the supplied
+mansion sheet, and upstairs and the attic are furnished from the Old Chateau sheet
+(`assets/mansion/src`).
+
+**Ground floor**
 
 | Room | What's there |
 |---|---|
-| **Foyer** | A barricaded staircase rising into the dark, a grandfather clock that ticks, candelabras, a torn rug, a chandelier, a portrait |
+| **Foyer** | The grand staircase going up, a grandfather clock that ticks, candelabras, a torn rug, a chandelier, a portrait |
 | **Gallery** | Portraits, suits of armour, crossed swords on a shield |
 | **Dining hall** | A long table with a stained cloth, tall chairs, a candelabra, moonlit windows, a chandelier |
 | **Ballroom** | Locked. Something knocks from the other side. |
 | **Study** | Bookshelves, a desk, scattered rubble |
 | **Hall** | A long, dark corridor with holes in the floorboards. At its far end stands a tall old mirror. |
+
+**Upstairs** (up the grand staircase)
+
+| Room | What's there |
+|---|---|
+| **Landing** | The top of the stairs, a carpet runner, a grandfather clock, a ghostly bust, a chandelier |
+| **Corridor** | Runs the width of the house. Pots and busts along the purple walls (one bust's eyes glow), candelabras, portraits, and the narrow attic stair at its east end |
+| **Library** | Bookshelves, a reading table with a candle, a torn rug |
+| **Upper gallery** | Ghostly busts, suits of armour, portraits |
+| **Guest room** | A canopy bed, an ottoman, dead plants |
+| **Master bedroom** | A big bed, a green sofa, a side table, a chandelier |
+| **Nursery** | A little bed, teddy bears, toys on the floor, a portrait of a child |
+
+**The attic** (up the narrow stair): dust, barrels, a covered sofa, a broken clock, holes in the
+floorboards, cobwebs, and one teddy bear sitting alone in the middle of the floor.
+
+- **Stairs.** Walk onto a staircase in its direction (up or down) and you're taken to the next
+  floor after a quick fade.
+- **Music.** Inside, the game's own music stops and the house's theme plays: *Old Chateau* from
+  Pokémon Diamond and Pearl (`assets/music/old-chateau.mp3`). It loops at your music volume, fades
+  in as you step through the door and out as you leave. Turn it off with `mansionMusic`
+  (`97-music.js`).
 
 - **No wild Pokémon, ever.** While you're inside, the Pokémon outside are set aside (the
   game's own stash, as rifts use) and come back when you leave. Nothing spawns indoors, and
@@ -78,6 +124,12 @@ bolder the longer you explore:
 - rattling armour and swords
 - the grandfather clock chiming at the wrong time
 - a Duskull that follows you down the hall but is never there when you turn around
+- every light in the room stuttering on and off, while a Gastly's grin hangs in the dark
+- a shadow (a black silhouette of Gengar, Haunter or Gastly) sprinting past right behind you,
+  much too fast
+- heavy blows on the wall beside you that shake the camera and make the portraits jump
+
+The ghost gang's pranks reach every floor until you meet them.
 
 The haunting frequency can be set in **F7 → The haunted mansion**.
 
@@ -98,8 +150,11 @@ flash setting.
 
 ## The story (`89-story.js`)
 
-Pokémon speak in proper dialogue, Mystery Dungeon style, never by repeating their names. A box
-shows their portrait, their name and a text that types out with a per-character voice.
+Pokémon speak in proper dialogue, Mystery Dungeon style, never by repeating their names. Each
+speaker gets a box with their PMD portrait, their name and a text that types out with a
+per-character voice: you and your party on the left, the residents on the right, at most two a
+side (see [NATURES_AND_DIALOGUE.md](NATURES_AND_DIALOGUE.md#dialogue-boxes-81-talkjs)). The narration keeps the box at the
+bottom.
 Advance with **Space**, **Enter**, **E**, **Z** or a click or tap. You can't move while a scene
 plays.
 
@@ -142,6 +197,15 @@ with a **Replay** button, and can reset the story.
 
 Story text is written in English and Spanish; French and Chinese fall back to English.
 
+## In the main menu (`96-menu.js`)
+
+The Shady Forest ends at the mansion, so its level banner shows the mansion at dusk (a shot from
+the game itself, `assets/ui/zone-1-mansion.webp`) and its status line reads **Mansion not explored
+yet** until you've seen the story through, then **Mansion explored**, instead of Arceus. The banner
+pans slowly down from the house, past the fountain, to the gates and back, with candlelight moving
+behind the windows and a distant flash of lightning. Level 2 and Area Zero, which open once Level 1
+is done, say **Complete Level 1 to unlock it**.
+
 ## Settings
 
 | Setting | Default | What it does |
@@ -149,12 +213,14 @@ Story text is written in English and Spanish; French and Chinese fall back to En
 | `mansion` | on | the mansion, its hauntings and its story |
 | `jumpscare` | on | the mirror's full-screen jumpscare (off: a gentler fade) |
 | `hauntRate` | 1 | how often hauntings happen |
+| `mansionMusic` | on | the Old Chateau theme plays inside (off: the game's own music carries on) |
 
 ### Console helpers
 
 ```js
 PSXAI.Mansion.geom()                 // where the path, gates and house are this run
 PSXAI.Mansion.enter() / .exit()      // step inside / out
+PSXAI.Mansion.floor()                // which floor you're on (0 ground, 1 upstairs, 2 attic)
 PSXAI.Haunt.run('knock')             // play one haunting (see PSXAI.Haunt.EVENTS)
 PSXAI.Story.stage()                  // unvisited, exploring, mirror, unlocked, revealed, warned, done
 PSXAI.Story.replay('reveal')         // replay a scene you've seen
