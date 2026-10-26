@@ -73,11 +73,23 @@
     a.x = x; a.y = y; a.on = true;
     return a;
   }
+  // Explicit footpaths preserve stair treads and wooden decking that the color mask
+  // mistook for cliff/building pixels. Coordinates are local to the harbor painting.
+  const HARBOR_WALKS = [
+    { id: 'beach-stairs', width: 18, path: [[1052, 806], [1052, 879], [1072, 914], [1085, 939], [1110, 953]] },
+    { id: 'pier-neck', width: 25, path: [[780, 870], [780, 1108]] },
+    { id: 'pier-deck', width: 19, path: [[660, 1125], [1020, 1125]] },
+    { id: 'west-stairs', width: 10, path: [[450, 375], [450, 464]] },
+    { id: 'north-stairs', width: 10, path: [[740, 197], [740, 265]] },
+    { id: 'east-stairs', width: 12, path: [[869, 278], [869, 320]] },
+  ];
+  function harborWalkAt(x, y) { return HARBOR_WALKS.some(w => lineDist(x, y, w.path) <= w.width); }
   // -1 outside every painted island, else 0 water, 1 walkable, 2 solid
   function artAt(x, y) {
     for (const k in art) {
       const a = art[k];
       if (!a.on || x < a.x || y < a.y || x >= a.x + a.w || y >= a.y + a.h) continue;
+      if (a.name === 'harbor' && harborWalkAt(x - a.x, y - a.y)) return 1;
       const gx = ((x - a.x) / a.cell) | 0, gy = ((y - a.y) / a.cell) | 0;
       return a.g[gy * a.gw + gx];
     }

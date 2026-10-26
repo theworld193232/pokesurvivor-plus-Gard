@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 86,
-  "regressionsPassed": 91,
+  "regressionsPassed": 93,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -268,5 +268,36 @@
       "overLevel": []
     },
     "legacyValidation": "Earlier top-level and act2CurrentRevision evidence predates this import; current import evidence is in this section."
+  },
+  "caveHarborV20": {
+    "cause": "Cave drawing read cleared player after quitting, throwing inside the render frame.",
+    "fix": "Player-dependent draw hooks fall back to native menu rendering while player is null. Direct custom ground and lighting functions also guard absent player.",
+    "nativeRestartCycles": [
+      {
+        "moved": 63.49,
+        "spritePixels": 1372
+      },
+      {
+        "moved": 54.33,
+        "spritePixels": 872
+      },
+      {
+        "moved": 52.81,
+        "spritePixels": 872
+      }
+    ],
+    "harbor": "Explicit local-image walking paths for beach stairs, pier neck and deck, and town stairs; neighboring collision mask unchanged.",
+    "nativeWalkRoutes": {
+      "stairs": {
+        "reached": true,
+        "frames": 84
+      },
+      "pier": {
+        "reached": true,
+        "frames": 181
+      }
+    },
+    "newRuntimeErrors": [],
+    "automatedChecks": 93
   }
 }
