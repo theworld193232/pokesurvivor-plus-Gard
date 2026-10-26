@@ -391,5 +391,12 @@
       "all forms/quests not exhaustive",
       "audio muted during QA"
     ]
+  },
+  "partnerSizeV23": {
+    "checks": 2,
+    "baseGardevoirMultiplier": 1.35,
+    "megaGardevoirMultiplier": 1.35,
+    "wildRelativeSizingRetained": true,
+    "statsAndCollisionUnchanged": true
   }
 }

@@ -11,7 +11,7 @@
  *     camera shows about 432 world px top to bottom): Lugia 5.2 m ≈ 163 px, Gyarados 6.5 m ≈ 175 px,
  *     and Onix, Steelix and Wailord top out at 180 px
  * Individuals vary a little (about ±6%), bosses are a touch larger, and your own Pokémon follows the
- * same rule (between 34 and 130 px, so it's always easy to see and never hides the field). Collision grows with the body, up
+ * relative size with a gentler player multiplier (0.8–1.35), so ordinary partners fit the terrain. Wild collision grows with the body, up
  * to a limit; sprites are drawn at whole-transform scale, so they stay crisp.
  */
 (function () {
@@ -80,13 +80,16 @@
     };
   }
   const wrapEnemyDraw = (orig) => scaledDraw(orig, of);
-  // your own Pokémon: the same rule, capped a little lower (only how it looks)
-  const wrapPlayerDraw = (orig) => scaledDraw(orig, (p) => {
-    if (!on() || !p.mon) return 1;
-    const dex = p.mon.dex != null ? p.mon.dex : p.dex;
-    if (dex == null) return 1;
-    return species(dex, PLAYER_MAX, PLAYER_MIN);
-  });
+  // Keep the partner readable against the map: relative species sizing is gentler
+  // than wild sizing. Use the current form's opaque height when transforming.
+  function playerScale(p) {
+    if (!on() || !p?.mon) return 1;
+    const dex=p.mon.dex!=null?p.mon.dex:p.dex;if(dex==null)return 1;
+    const skin=p.megaKey||p.mon.skin||dex,key=SH[skin]?skin:dex;
+    const relative=target(meters(dex),PLAYER_MAX,PLAYER_MIN)/spriteH(key);
+    return U.clamp(Math.pow(relative,.6),.8,1.35);
+  }
+  const wrapPlayerDraw = orig => scaledDraw(orig,playerScale);
 
-  AI.define('Scale', { metric, species, target, meters, spriteH, of, apply, top, wrapEnemyDraw, wrapPlayerDraw, cache, PPM, MAX_PX });
+  AI.define('Scale', { playerScale, metric, species, target, meters, spriteH, of, apply, top, wrapEnemyDraw, wrapPlayerDraw, cache, PPM, MAX_PX });
 })();
