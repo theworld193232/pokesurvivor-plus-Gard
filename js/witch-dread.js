@@ -11,7 +11,7 @@
   'use strict';
   if (window.PS_WITCH_DREAD) return;
   const R = () => window.__PSX_REG__ || window.PS_HOOPA_ENGINE, B = () => window.PS_MEGA_BRIDGE_V5;
-  const KEY = { n: '282-mega-witch', s: '282-mega-witch-s' }, BASE = '282-witch', FORM = '282-mega';
+  const KEY = { n: '282-mega-witch', s: '282-mega-witch-s' }, BASE = '282-witch', BASE_S = '282-witch-s', FORM = '282-mega';
   const META = { '282-mega-witch': { s: 1, a: {"Idle": {"w": 62, "h": 58, "n": 4, "r": 8, "d": [6, 12, 6, 12], "ax": 30.5, "ay": 37.5}, "Walk": {"w": 62, "h": 50, "n": 4, "r": 8, "d": [8, 12, 8, 12], "ax": 30.5, "ay": 33.5}, "Attack": {"w": 102, "h": 90, "n": 10, "r": 8, "d": [2, 4, 1, 1, 1, 2, 2, 2, 2, 2], "ax": 50.5, "ay": 52.5}, "Shoot": {"w": 62, "h": 58, "n": 10, "r": 8, "d": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "ax": 31.5, "ay": 37.5}, "Charge": {"w": 62, "h": 58, "n": 10, "r": 8, "d": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "ax": 31.5, "ay": 37.5}, "Hurt": {"w": 70, "h": 66, "n": 2, "r": 8, "d": [2, 8], "ax": 34.5, "ay": 40.5}, "Faint": {"w": 70, "h": 66, "n": 2, "r": 8, "d": [2, 8], "ax": 34.5, "ay": 40.5}, "Appeal": {"w": 70, "h": 58, "n": 8, "r": 8, "d": [1, 6, 1, 4, 5, 4, 5, 4], "ax": 34.5, "ay": 37.5}}, sh: 0 }, '282-mega-witch-s': { s: 1, a: {"Idle": {"w": 62, "h": 58, "n": 4, "r": 8, "d": [6, 12, 6, 12], "ax": 30.5, "ay": 37.5}, "Walk": {"w": 62, "h": 50, "n": 4, "r": 8, "d": [8, 12, 8, 12], "ax": 30.5, "ay": 33.5}, "Attack": {"w": 102, "h": 90, "n": 10, "r": 8, "d": [2, 4, 1, 1, 1, 2, 2, 2, 2, 2], "ax": 50.5, "ay": 52.5}, "Shoot": {"w": 62, "h": 58, "n": 10, "r": 8, "d": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "ax": 31.5, "ay": 37.5}, "Charge": {"w": 62, "h": 58, "n": 10, "r": 8, "d": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2], "ax": 31.5, "ay": 37.5}, "Hurt": {"w": 70, "h": 66, "n": 2, "r": 8, "d": [2, 8], "ax": 34.5, "ay": 40.5}, "Faint": {"w": 70, "h": 66, "n": 2, "r": 8, "d": [2, 8], "ax": 34.5, "ay": 40.5}, "Appeal": {"w": 70, "h": 58, "n": 8, "r": 8, "d": [1, 6, 1, 4, 5, 4, 5, 4], "ax": 34.5, "ay": 37.5}}, sh: 0 } };
   let installed = false;
   function install() {
@@ -20,14 +20,16 @@
     register(); wrapCast(); return true;
   }
   const witchOn = p => { try { return !!p && Number(p.dex) === 282 && window.PS_COSMETICS?.selected(282) === BASE; } catch (_) { return false; } };
-  const megaKey = p => p && (p.shiny || p.anim?.shiny) ? KEY.s : KEY.n;
+  const isShiny = p => !!p && (p.shiny || p.anim?.shiny || p.anim?.dex === BASE_S || p.anim?.dex === KEY.s);
+  const megaKey = p => isShiny(p) ? KEY.s : KEY.n;
+  const baseKey = p => isShiny(p) ? BASE_S : BASE;
   const anim = (key, p) => { const a = new (R().Sprites.Animator)(key, p.scale || p.anim?.scale || 1, false); try { a.dir = p.anim?.dir ?? 0; } catch (_) {} return a; };
   let dread = null;
   const session = p => { try { return window.PS_GARD_MEGA_PRESENTATION?.session(p) || null; } catch (_) { return null; } };   // the player in the middle of a Dreadful Evolution (its look is left alone meanwhile)
   // keep her looking the part: Giratina Mega while Mega, witch outfit otherwise (also when shiny)
   function keepLook() {
     const p = B()?.game?.player; if (!p || p === dread || !witchOn(p)) return;
-    const want = String(p.megaForm || '') === FORM ? megaKey(p) : (!p.megaForm ? BASE : null);
+    const want = String(p.megaForm || '') === FORM ? megaKey(p) : (!p.megaForm ? baseKey(p) : null);
     if (want && p.anim && p.anim.dex !== want) p.anim = anim(want, p);
     // the friend's Mega presentation re-applies its own Mega sprite every tick: hand it ours
     const ses = session(p); if (ses && want && String(p.megaForm || '') === FORM && ses.megaAnim !== p.anim) ses.megaAnim = p.anim;
@@ -37,7 +39,7 @@
     F.cast = function (name, player, move, ...rest) {
       if (name === 'megaevo' && witchOn(player) && F.styles.dreadevo) {
         const fx = Object.assign({}, (move && move.fx) || {}); fx.newAnim = anim(megaKey(player), player); fx.form = fx.form || FORM;
-        try { if (player.anim && player.anim.dex !== BASE) player.anim = anim(BASE, player); } catch (_) {}
+        try { const bk = baseKey(player); if (player.anim && player.anim.dex !== bk) player.anim = anim(bk, player); } catch (_) {}
         return cast.call(this, 'dreadevo', player, Object.assign({}, move, { id: 'dreadful-evolution', fx }), ...rest);
       }
       return cast.call(this, name, player, move, ...rest);
@@ -102,7 +104,6 @@
         c.t += dt; const p = c.player, t = c.t; if (!p) { dread = null; return false; }
         if (window.PS_WITCH_DREAD) window.PS_WITCH_DREAD.t = t;
         c.x = p.x; c.y = p.y;
-        try { if (p.anim && t < T.burst) p.anim.dir = 0; } catch (_) {}
         if (t > T.spirit && !c.rs) { c.rs = 1; kick(0.4); sfx('ghost'); }
         if (t > T.lean && t < T.merged) for (let i = 0; i < 2; i++) c.pour.push({ u: 0, sp: rnd(1.3, 2.0), off: rnd(-1, 1), red: Math.random() < 0.3 });
         for (const q of c.pour) q.u += q.sp * dt; c.pour = c.pour.filter(q => q.u < 1);
