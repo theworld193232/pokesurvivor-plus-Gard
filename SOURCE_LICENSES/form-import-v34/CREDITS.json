@@ -1,0 +1,40 @@
+{
+  "source": "https://github.com/PMDCollab/SpriteCollab",
+  "license": "CC BY-NC 4.0",
+  "creditNames": "../site-import-v29/spritecollab-credit_names.txt",
+  "assets": {
+    "assets/pokemon/6_gmax/Idle.png": {
+      "source": "https://github.com/PMDCollab/SpriteCollab/tree/master/sprite/0006/0003",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/pokemon/6_gmax/s/Idle.png": {
+      "source": "https://github.com/PMDCollab/SpriteCollab/tree/master/sprite/0006/0003/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/pokemon/869_gmax/Idle.png": {
+      "source": "https://github.com/PMDCollab/SpriteCollab/tree/master/sprite/0869/0063",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/pokemon/869_gmax/s/Idle.png": {
+      "source": "https://github.com/PMDCollab/SpriteCollab/tree/master/sprite/0869/0063/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    }
+  },
+  "note": "Original PNG sheets copied unchanged; only Idle is available for these G-Max entries."
+}

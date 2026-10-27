@@ -47,18 +47,19 @@
 
   // ---------------- DYNAMAX ----------------
   function animBase(a) { if (!a) return 1; if (!dyn.base.has(a)) dyn.base.set(a, Number(a.scale) || 1); return dyn.base.get(a); }
-  function applyScale() { const p = dyn.player; if (!p || !p.anim) return; p.anim.scale = animBase(p.anim) * dyn.f; }
-  function canDynamax(p) { return !!(p && !p.dead && playing() && !dyn.active && dyn.cd <= 0 && !!p.__dynBand); }
+  function applyScale() { const p = dyn.player;window.PS_GMAX?.sync(p,dyn.active); if (!p || !p.anim) return; p.anim.scale = animBase(p.anim) * dyn.f; }
+  function canDynamax(p) { return !!(p && !p.dead && playing() && !dyn.active && !p.megaKey && !p.megaForm && dyn.cd <= 0 && !!p.__dynBand); }
   function startDynamax() {
     const p = B()?.game?.player, b = B(); if (!canDynamax(p)) return false;
     dyn.active = true; dyn.t = DYN.dur; dyn.n = 0; dyn.pulse = 0.6; dyn.player = p;
+    window.PS_GMAX?.sync(p,true);
     dyn.type = String((p.mon && p.mon.types && p.mon.types[0]) || 'normal');
     dyn.bonus = Math.round((Number(p.maxHp) || 100) * DYN.hp); p.maxHp += dyn.bonus; p.hp += dyn.bonus;
     p.invuln = Math.max(Number(p.invuln) || 0, 1.2);
     // grows in steps (grow, shrink a little, grow more), like the giant mushroom
     const st = [[1.22, 0.14], [1.04, 0.10], [1.42, 0.16], [1.16, 0.10], [DYN.grow * 1.12, 0.22], [DYN.grow, 0.18]];
     let at = 0; dyn.steps = st.map(([f, d]) => { at += d; return { f, at }; }); dyn.stepT = 0; dyn.from = 1;
-    try { const col = (b.types && b.types.color && b.types.color(dyn.type)) || '#ff2a6d'; b.fx.ring(p.x, p.y, 10, 360, col, 0.7, 6); b.fx.ring(p.x, p.y, 10, 240, '#ffffff', 0.5, 4); b.fx.burst(p.x, p.y, col, 28, 260); ownKick(0.6); b.audio?.sfx?.('levelup'); b.fx.dmgText(p.x, p.y - (p.bodyH || 40) - 30, 'DYNAMAX!', '#ff3d6a'); } catch (_) {}
+    try { const col = (b.types && b.types.color && b.types.color(dyn.type)) || '#ff2a6d'; b.fx.ring(p.x, p.y, 10, 360, col, 0.7, 6); b.fx.ring(p.x, p.y, 10, 240, '#ffffff', 0.5, 4); b.fx.burst(p.x, p.y, col, 28, 260); ownKick(0.6); b.audio?.sfx?.('levelup'); b.fx.dmgText(p.x, p.y - (p.bodyH || 40) - 30, p.__gmaxForm?'GIGANTAMAX!':'DYNAMAX!', '#ff3d6a'); } catch (_) {}
     try { window.PS_FX && window.PS_FX.cast('dynaura', p, { id: 'dynamax', type: dyn.type, dmg: 0, fx: { life: DYN.dur + 0.4, scale: () => dyn.f, done: () => !dyn.active } }, null, true); } catch (_) {}
     try { window.PS_MUSIC && window.PS_MUSIC.event && window.PS_MUSIC.event('trainer'); } catch (_) {}
     render(); return true;
@@ -66,6 +67,7 @@
   function stopDynamax(silent) {
     if (!dyn.active) return; const p = dyn.player; dyn.active = false; dyn.cd = DYN.cooldown;
     if (p) { const mx = Number(p.maxHp) || 1, nm = Math.max(1, mx - dyn.bonus); if (p.hp > 0) p.hp = Math.max(1, Math.round(p.hp * nm / mx)); p.maxHp = nm; }
+    window.PS_GMAX?.sync(p,false);
     dyn.bonus = 0; dyn.shrink = 0.35; dyn.shrinkFrom = dyn.f;
     if (!silent) try { const b = B(); b.fx.ring(p.x, p.y, 10, 200, '#ff3d6a', 0.5, 4); b.fx.burst(p.x, p.y, '#ff3d6a', 14, 160); } catch (_) {}
     render();
@@ -133,11 +135,11 @@
     fpsEl.style.display = Q.fps ? 'block' : 'none';
     const p = B()?.game?.player, lvl = Number(p?.level) || 1;
     if (!battle || !p) { dynBtn.style.display = 'none'; return; }
-    dynBtn.style.display = 'block';
-    if (dyn.active) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX ' + Math.ceil(dyn.t) + 's'; }
-    else if (!p.__dynBand) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX · clear a Den'; }
-    else if (dyn.cd > 0) { dynBtn.className = 'wait'; dynBtn.textContent = 'DYNAMAX ' + Math.floor(dyn.cd / 60) + ':' + String(Math.ceil(dyn.cd % 60)).padStart(2, '0'); }
-    else { dynBtn.className = 'ready'; dynBtn.textContent = 'DYNAMAX (G)'; }
+    dynBtn.style.display = 'block';const dynName=p.__gmaxForm||window.PS_GMAX?.available(p)?'GIGANTAMAX':'DYNAMAX';
+    if (dyn.active) { dynBtn.className = 'wait'; dynBtn.textContent = dynName+' ' + Math.ceil(dyn.t) + 's'; }
+    else if (!p.__dynBand) { dynBtn.className = 'wait'; dynBtn.textContent = dynName+' · clear a Den'; }
+    else if (dyn.cd > 0) { dynBtn.className = 'wait'; dynBtn.textContent = dynName+' ' + Math.floor(dyn.cd / 60) + ':' + String(Math.ceil(dyn.cd % 60)).padStart(2, '0'); }
+    else { dynBtn.className = 'ready'; dynBtn.textContent = dynName+' (G)'; }
   }
 
   // ---------------- minimap ----------------
@@ -197,5 +199,5 @@
   }
   function init() { document.head.append(css); document.body.append(btn, panel, mm, fpsEl, dynBtn); render(); requestAnimationFrame(loop); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_QUALITY = { dynamax: startDynamax, dynRecharge() { if (!dyn.active) dyn.cd = 0; }, get dyn() { return { active: dyn.active, t: dyn.t, cd: dyn.cd, f: dyn.f }; }, settings: Q };
+  window.PS_QUALITY = { dynamax: startDynamax, cancelDynamax(){if(dyn.active)stopDynamax(true);dyn.shrink=0;dyn.f=1;applyScale();for(const k of ['g0','g2','g4'])delete dyn[k];dyn.player=null;}, dynRecharge() { if (!dyn.active) dyn.cd = 0; }, get dyn() { return { active: dyn.active, t: dyn.t, cd: dyn.cd, f: dyn.f }; }, settings: Q };
 })();

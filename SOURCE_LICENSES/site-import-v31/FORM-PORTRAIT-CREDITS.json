@@ -57,6 +57,22 @@
         "total": 2
       }
     },
+    "assets/ui/form-portraits/6_gmax.png": {
+      "sourcePath": "0006/0003",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/6_gmax-shiny.png": {
+      "sourcePath": "0006/0003/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
     "assets/ui/form-portraits/9_mega.png": {
       "sourcePath": "0009/0001",
       "credit": {
@@ -1249,6 +1265,42 @@
         "total": 1
       }
     },
+    "assets/ui/form-portraits/646_black.png": {
+      "sourcePath": "0646/0001",
+      "credit": {
+        "primary": "MUCRUSH",
+        "secondary": [
+          "<@!533406104256905257>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/646_black-shiny.png": {
+      "sourcePath": "0646/0001/0001",
+      "credit": {
+        "primary": "<@!533406104256905257>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/646_white.png": {
+      "sourcePath": "0646/0002",
+      "credit": {
+        "primary": "MUCRUSH",
+        "secondary": [
+          "<@!533406104256905257>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/646_white-shiny.png": {
+      "sourcePath": "0646/0002/0001",
+      "credit": {
+        "primary": "<@!533406104256905257>",
+        "secondary": [],
+        "total": 1
+      }
+    },
     "assets/ui/form-portraits/652_mega.png": {
       "sourcePath": "0652/0001",
       "credit": {
@@ -1401,6 +1453,40 @@
         "total": 1
       }
     },
+    "assets/ui/form-portraits/718_10.png": {
+      "sourcePath": "0718/0001",
+      "credit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/718_10-shiny.png": {
+      "sourcePath": "0718/0001/0001",
+      "credit": {
+        "primary": "<@!779213287576436746>",
+        "secondary": [
+          "<@!215638650434617345>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/718_complete.png": {
+      "sourcePath": "0718/0002",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/718_complete-shiny.png": {
+      "sourcePath": "0718/0002/0001",
+      "credit": {
+        "primary": "<@!276369635304275968>",
+        "secondary": [],
+        "total": 1
+      }
+    },
     "assets/ui/form-portraits/718_mega.png": {
       "sourcePath": "0718/0005",
       "credit": {
@@ -1421,6 +1507,24 @@
       "sourcePath": "0719/0001/0001",
       "credit": {
         "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/720_unbound.png": {
+      "sourcePath": "0720/0001",
+      "credit": {
+        "primary": "<@!655868413251551235>",
+        "secondary": [
+          "<@!350050109741858829>"
+        ],
+        "total": 2
+      }
+    },
+    "assets/ui/form-portraits/720_unbound-shiny.png": {
+      "sourcePath": "0720/0001/0001",
+      "credit": {
+        "primary": "<@!593113130213572610>",
         "secondary": [],
         "total": 1
       }
@@ -1497,6 +1601,22 @@
         "total": 1
       }
     },
+    "assets/ui/form-portraits/869_gmax.png": {
+      "sourcePath": "0869/0063",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/869_gmax-shiny.png": {
+      "sourcePath": "0869/0063/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
     "assets/ui/form-portraits/870_mega.png": {
       "sourcePath": "0870/0001",
       "credit": {
@@ -1509,6 +1629,38 @@
       "sourcePath": "0870/0001/0001",
       "credit": {
         "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/888_crowned.png": {
+      "sourcePath": "0888/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/888_crowned-shiny.png": {
+      "sourcePath": "0888/0001/0001",
+      "credit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/889_crowned.png": {
+      "sourcePath": "0889/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "assets/ui/form-portraits/889_crowned-shiny.png": {
+      "sourcePath": "0889/0001/0001",
+      "credit": {
+        "primary": "<@!350050109741858829>",
         "secondary": [],
         "total": 1
       }

@@ -1,0 +1,398 @@
+{
+  "otherFormSheets": {
+    "variants": 26,
+    "failures": [],
+    "rows": [
+      {
+        "key": 386,
+        "shiny": false,
+        "clips": {
+          "Idle": 8,
+          "Walk": 8,
+          "Attack": 10,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 386,
+        "shiny": true,
+        "clips": {
+          "Idle": 8,
+          "Walk": 8,
+          "Attack": 10,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "386_attack",
+        "shiny": false,
+        "clips": {
+          "Idle": 4,
+          "Walk": 10,
+          "Attack": 11,
+          "Shoot": 10,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "386_attack",
+        "shiny": true,
+        "clips": {
+          "Idle": 4,
+          "Walk": 10,
+          "Attack": 11,
+          "Shoot": 10,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "386_defense",
+        "shiny": false,
+        "clips": {
+          "Idle": 6,
+          "Walk": 6,
+          "Attack": 10,
+          "Shoot": 11,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "386_defense",
+        "shiny": true,
+        "clips": {
+          "Idle": 6,
+          "Walk": 6,
+          "Attack": 10,
+          "Shoot": 11,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "386_speed",
+        "shiny": false,
+        "clips": {
+          "Idle": 6,
+          "Walk": 8,
+          "Attack": 10,
+          "Shoot": 11,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "386_speed",
+        "shiny": true,
+        "clips": {
+          "Idle": 6,
+          "Walk": 8,
+          "Attack": 10,
+          "Shoot": 11,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 889,
+        "shiny": false,
+        "clips": {
+          "Idle": 8,
+          "Walk": 4,
+          "Attack": 13,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 889,
+        "shiny": true,
+        "clips": {
+          "Idle": 8,
+          "Walk": 4,
+          "Attack": 13,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "889_crowned",
+        "shiny": false,
+        "clips": {
+          "Idle": 8,
+          "Walk": 4,
+          "Attack": 13,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "889_crowned",
+        "shiny": true,
+        "clips": {
+          "Idle": 8,
+          "Walk": 4,
+          "Attack": 13,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 646,
+        "shiny": false,
+        "clips": {
+          "Idle": 2,
+          "Walk": 4,
+          "Attack": 15,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 646,
+        "shiny": true,
+        "clips": {
+          "Idle": 2,
+          "Walk": 4,
+          "Attack": 15,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "646_black",
+        "shiny": false,
+        "clips": {
+          "Idle": 14,
+          "Walk": 4,
+          "Attack": 16,
+          "Shoot": 16,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "646_black",
+        "shiny": true,
+        "clips": {
+          "Idle": 14,
+          "Walk": 4,
+          "Attack": 16,
+          "Shoot": 16,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "646_white",
+        "shiny": false,
+        "clips": {
+          "Idle": 2,
+          "Walk": 4,
+          "Attack": 17,
+          "Shoot": 17,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "646_white",
+        "shiny": true,
+        "clips": {
+          "Idle": 2,
+          "Walk": 4,
+          "Attack": 17,
+          "Shoot": 17,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 647,
+        "shiny": false,
+        "clips": {
+          "Idle": 14,
+          "Walk": 4,
+          "Attack": 10,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 647,
+        "shiny": true,
+        "clips": {
+          "Idle": 14,
+          "Walk": 4,
+          "Attack": 10,
+          "Shoot": 12,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 720,
+        "shiny": false,
+        "clips": {
+          "Idle": 16,
+          "Walk": 8,
+          "Attack": 15,
+          "Shoot": 10,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": 720,
+        "shiny": true,
+        "clips": {
+          "Idle": 16,
+          "Walk": 8,
+          "Attack": 15,
+          "Shoot": 10,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "720_unbound",
+        "shiny": false,
+        "clips": {
+          "Idle": 11,
+          "Walk": 11,
+          "Attack": 10,
+          "Shoot": 10,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "720_unbound",
+        "shiny": true,
+        "clips": {
+          "Idle": 11,
+          "Walk": 11,
+          "Attack": 10,
+          "Shoot": 10,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "718_complete",
+        "shiny": false,
+        "clips": {
+          "Idle": 8,
+          "Walk": 4,
+          "Attack": 14,
+          "Shoot": 11,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      },
+      {
+        "key": "718_complete",
+        "shiny": true,
+        "clips": {
+          "Idle": 8,
+          "Walk": 4,
+          "Attack": 14,
+          "Shoot": 11,
+          "Charge": 10,
+          "Hurt": 2,
+          "Faint": 2
+        },
+        "bad": [],
+        "empty": []
+      }
+    ]
+  }
+}

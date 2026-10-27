@@ -288,3 +288,7 @@ Additional unmodified Ralts/Gardevoir shiny portraits from SpriteCollab, CC BY-N
 ## v31 portrait and special-form additions
 
 Default shiny and Mega/Primal portrait artwork is from [SpriteCollab](https://github.com/PMDCollab/SpriteCollab), CC BY-NC 4.0. Per-image artist records and form-sheet credits are retained in `SOURCE_LICENSES/site-import-v31/`; full artist names and license text are in `SOURCE_LICENSES/site-import-v29/`. The Shadow Mewtwo, Shadow Lugia and Bloodmoon Ursaluna SpriteCollab-derived sheets were obtained from Doofcraft’s public sprite assets. No Doofcraft gameplay code was copied.
+
+## Form imports v34
+
+Gigantamax Charizard/Alcremie sprite sheets and additional form headshots: PMDCollab/SpriteCollab, CC BY-NC 4.0. Per-asset artist credits and original paths: SOURCE_LICENSES/form-import-v34/CREDITS.json and SOURCE_LICENSES/site-import-v31/FORM-PORTRAIT-CREDITS.json; artist name index: SOURCE_LICENSES/site-import-v29/spritecollab-credit_names.txt. Original PNGs are preserved.

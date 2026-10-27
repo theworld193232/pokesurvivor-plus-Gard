@@ -1,0 +1,107 @@
+{
+  "gmaxSwitchCleanup": {
+    "rows": [
+      {
+        "dex": 6,
+        "shiny": false,
+        "base": {
+          "hp": 78,
+          "max": 78,
+          "scale": 1
+        },
+        "active": {
+          "anim": "6_gmax",
+          "tag": "6_gmax",
+          "max": 101,
+          "scale": 0.3570272054596347
+        },
+        "bench": {
+          "anim": 4,
+          "dyn": false
+        },
+        "restored": {
+          "anim": 6,
+          "hp": 39,
+          "max": 78,
+          "scale": 1
+        }
+      },
+      {
+        "dex": 6,
+        "shiny": true,
+        "base": {
+          "hp": 78,
+          "max": 78,
+          "scale": 1
+        },
+        "active": {
+          "anim": "6_gmax",
+          "tag": "6_gmax",
+          "max": 101,
+          "scale": 0.35817422525980996
+        },
+        "bench": {
+          "anim": 4,
+          "dyn": false
+        },
+        "restored": {
+          "anim": 6,
+          "hp": 39,
+          "max": 78,
+          "scale": 1
+        }
+      },
+      {
+        "dex": 869,
+        "shiny": false,
+        "base": {
+          "hp": 65,
+          "max": 65,
+          "scale": 1
+        },
+        "active": {
+          "anim": "869_gmax",
+          "tag": "869_gmax",
+          "max": 85,
+          "scale": 0.29386428943211
+        },
+        "bench": {
+          "anim": 868,
+          "dyn": false
+        },
+        "restored": {
+          "anim": 869,
+          "hp": 33,
+          "max": 65,
+          "scale": 1
+        }
+      },
+      {
+        "dex": 869,
+        "shiny": true,
+        "base": {
+          "hp": 65,
+          "max": 65,
+          "scale": 1
+        },
+        "active": {
+          "anim": "869_gmax",
+          "tag": "869_gmax",
+          "max": 85,
+          "scale": 0.2823654659081561
+        },
+        "bench": {
+          "anim": 868,
+          "dyn": false
+        },
+        "restored": {
+          "anim": 869,
+          "hp": 33,
+          "max": 65,
+          "scale": 1
+        }
+      }
+    ],
+    "errors": []
+  }
+}

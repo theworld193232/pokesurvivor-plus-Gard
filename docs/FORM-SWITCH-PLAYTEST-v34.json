@@ -1,0 +1,496 @@
+{
+  "otherFormStress": {
+    "cases": 18,
+    "errors": [],
+    "rows": [
+      {
+        "dex": 386,
+        "form": "attack",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "386_attack",
+          "form": "attack",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50
+        },
+        "after": {
+          "anim": "386_attack",
+          "form": "attack",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50,
+          "hpRatio": 0.64,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 386,
+        "form": "defense",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "386_defense",
+          "form": "defense",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50
+        },
+        "after": {
+          "anim": "386_defense",
+          "form": "defense",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50,
+          "hpRatio": 0.64,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 386,
+        "form": "speed",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "386_speed",
+          "form": "speed",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50
+        },
+        "after": {
+          "anim": "386_speed",
+          "form": "speed",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50,
+          "hpRatio": 0.64,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 889,
+        "form": "crowned",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "889_crowned",
+          "mega": "889_crowned",
+          "types": [
+            "fighting",
+            "steel"
+          ],
+          "maxHp": 92
+        },
+        "after": {
+          "anim": "889_crowned",
+          "mega": "889_crowned",
+          "types": [
+            "fighting",
+            "steel"
+          ],
+          "maxHp": 92,
+          "hpRatio": 0.6304347826086957,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 646,
+        "form": "black",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "646_black",
+          "mega": "646_black",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125
+        },
+        "after": {
+          "anim": "646_black",
+          "mega": "646_black",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125,
+          "hpRatio": 0.632,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 646,
+        "form": "white",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "646_white",
+          "mega": "646_white",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125
+        },
+        "after": {
+          "anim": "646_white",
+          "mega": "646_white",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125,
+          "hpRatio": 0.632,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 720,
+        "form": "unbound",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "720_unbound",
+          "mega": "720_unbound",
+          "types": [
+            "psychic",
+            "dark"
+          ],
+          "maxHp": 80
+        },
+        "after": {
+          "anim": "720_unbound",
+          "mega": "720_unbound",
+          "types": [
+            "psychic",
+            "dark"
+          ],
+          "maxHp": 80,
+          "hpRatio": 0.625,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 718,
+        "form": "complete",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "718_complete",
+          "form": "complete",
+          "types": [
+            "dragon",
+            "ground"
+          ],
+          "maxHp": 216
+        },
+        "after": {
+          "anim": "718_complete",
+          "form": "complete",
+          "types": [
+            "dragon",
+            "ground"
+          ],
+          "maxHp": 216,
+          "hpRatio": 0.6296296296296297,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 647,
+        "form": "",
+        "shiny": false,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": 647,
+          "types": [
+            "water",
+            "fighting"
+          ],
+          "maxHp": 91
+        },
+        "after": {
+          "anim": 647,
+          "types": [
+            "water",
+            "fighting"
+          ],
+          "maxHp": 91,
+          "hpRatio": 0.6263736263736264,
+          "shiny": false
+        }
+      },
+      {
+        "dex": 386,
+        "form": "attack",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "386_attack",
+          "form": "attack",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50
+        },
+        "after": {
+          "anim": "386_attack",
+          "form": "attack",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50,
+          "hpRatio": 0.64,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 386,
+        "form": "defense",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "386_defense",
+          "form": "defense",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50
+        },
+        "after": {
+          "anim": "386_defense",
+          "form": "defense",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50,
+          "hpRatio": 0.64,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 386,
+        "form": "speed",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "386_speed",
+          "form": "speed",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50
+        },
+        "after": {
+          "anim": "386_speed",
+          "form": "speed",
+          "types": [
+            "psychic"
+          ],
+          "maxHp": 50,
+          "hpRatio": 0.64,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 889,
+        "form": "crowned",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "889_crowned",
+          "mega": "889_crowned",
+          "types": [
+            "fighting",
+            "steel"
+          ],
+          "maxHp": 92
+        },
+        "after": {
+          "anim": "889_crowned",
+          "mega": "889_crowned",
+          "types": [
+            "fighting",
+            "steel"
+          ],
+          "maxHp": 92,
+          "hpRatio": 0.6304347826086957,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 646,
+        "form": "black",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "646_black",
+          "mega": "646_black",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125
+        },
+        "after": {
+          "anim": "646_black",
+          "mega": "646_black",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125,
+          "hpRatio": 0.632,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 646,
+        "form": "white",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "646_white",
+          "mega": "646_white",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125
+        },
+        "after": {
+          "anim": "646_white",
+          "mega": "646_white",
+          "types": [
+            "dragon",
+            "ice"
+          ],
+          "maxHp": 125,
+          "hpRatio": 0.632,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 720,
+        "form": "unbound",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "720_unbound",
+          "mega": "720_unbound",
+          "types": [
+            "psychic",
+            "dark"
+          ],
+          "maxHp": 80
+        },
+        "after": {
+          "anim": "720_unbound",
+          "mega": "720_unbound",
+          "types": [
+            "psychic",
+            "dark"
+          ],
+          "maxHp": 80,
+          "hpRatio": 0.625,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 718,
+        "form": "complete",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": "718_complete",
+          "form": "complete",
+          "types": [
+            "dragon",
+            "ground"
+          ],
+          "maxHp": 216
+        },
+        "after": {
+          "anim": "718_complete",
+          "form": "complete",
+          "types": [
+            "dragon",
+            "ground"
+          ],
+          "maxHp": 216,
+          "hpRatio": 0.6296296296296297,
+          "shiny": true
+        }
+      },
+      {
+        "dex": 647,
+        "form": "",
+        "shiny": true,
+        "activated": true,
+        "away": true,
+        "back": true,
+        "before": {
+          "anim": 647,
+          "types": [
+            "water",
+            "fighting"
+          ],
+          "maxHp": 91
+        },
+        "after": {
+          "anim": 647,
+          "types": [
+            "water",
+            "fighting"
+          ],
+          "maxHp": 91,
+          "hpRatio": 0.6263736263736264,
+          "shiny": true
+        }
+      }
+    ]
+  }
+}

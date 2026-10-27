@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 146,
+  "regressionsPassed": 151,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "act3-shiny-fix-v33c",
+  "currentVersion": "imported-forms-v34",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -524,6 +524,18 @@
     ],
     "protectedEntranceVerified": true,
     "ordinaryCollisionPreserved": true,
+    "onlineCoopTested": false
+  },
+  "importedFormsV34": {
+    "gmaxSpecies": [
+      6,
+      869
+    ],
+    "gmaxAnimationLimit": "eight-direction Idle only",
+    "normalShinySwitchCases": 18,
+    "spriteVariantsAudited": 26,
+    "sheetFailures": 0,
+    "gmaxCleanupCases": 4,
     "onlineCoopTested": false
   }
 }

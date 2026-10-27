@@ -12,7 +12,7 @@
  function cleanup(p){const state=sessions.get(p);if(!state)return;state.undoMoves?.();if(p.anim===state.baseAnim&&p.megaKey===state.key)p.anim=state.megaAnim;if(p.megaForm===state.form)delete p.megaForm;delete p.__psBaseAnim;sessions.delete(p);}
  function quietNative(fn){const changed=[];for(const [obj,key]of [[R.FX,'ring'],[R.FX,'burst'],[R.FX,'dmgText'],[R.Camera,'kick'],[R.Audio,'sfx']]){if(typeof obj?.[key]!=='function')continue;changed.push([obj,key,obj[key]]);obj[key]=()=>{};}try{return fn();}finally{for(const [obj,key,old]of changed)obj[key]=old;}}
  M.start=function(p,...args){
-  if(!p)return false;
+  if(!p||window.PS_QUALITY?.dyn?.active)return false;
   const previous=p.anim,key=M.keyOf(p.dex),custom=isMega(key)&&window.PS_FX?.has('megaevo');
   const result=resuming?quietNative(()=>begin.call(this,p,...args)):custom?quietNative(()=>begin.call(this,p,...args)):begin.call(this,p,...args);
   if(!result||!p.megaKey)return result;
