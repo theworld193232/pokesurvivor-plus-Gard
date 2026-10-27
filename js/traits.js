@@ -14,6 +14,8 @@
 //    charge:{secs:8, mult:2, stun:1.0}             every N s your next hit is empowered (+ stun)
 // =====================================================================
 window.PS_TRAITS = {
+ '888-crowned':[{name:'Sovereign Edge',when:{hpAbove:0.7},deal:1.1},{name:'Swordmaster Stride',when:{moving:true},spd:1.08}],
+ '889-crowned':[{name:'Sovereign Guard',when:{hpAbove:0.7},take:0.9}],
  // ---------------- legendaries ----------------
  144:[{name:'Glacial Glide',when:{moving:true},spd:1.15},{name:'Winter\'s Herald',when:{weather:['snow','hail']},deal:1.3}],
  145:[{name:'Thunderbird',charge:{secs:6,mult:2,stun:0.8}}],

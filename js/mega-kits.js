@@ -17,6 +17,8 @@
 //    aerial-ace (dash).
 // =====================================================================
 window.PS_MEGA_KITS = {
+ '888-crowned':{passive:{ability:'intrepid-sword',deal:{steel:1.15,fairy:1.15}}},
+ '889-crowned':{passive:{ability:'dauntless-shield',deal:{steel:1.15,fighting:1.15}}},
  '3-mega':{passive:{ability:'thick-fat',deal:{grass:1.3,poison:1.2}},
    move:{from:'body-slam',id:'frenzy-plant',name:'Frenzy Plant',type:'grass',desc:'Giant roots burst out all around Venusaur.',dmg:60,radius:110,arc:6.28,knock:150,cd:1.1}},
  '6-mega-x':{passive:{ability:'tough-claws',deal:{dragon:1.4,fire:1.25}},

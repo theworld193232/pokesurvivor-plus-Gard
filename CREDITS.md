@@ -305,3 +305,7 @@ Additional Alternate/Cutscene/Mega normal and shiny expressions from PMDCollab S
 
 ## Crowned awakenings v39
 Original pixel/canvas effects referenced to the official Pokémon Evolutions episode The Champion; no video frames or soundtrack bundled. Zacian and Zamazenta cries sourced unchanged from PokeAPI/cries. See SOURCE_LICENSES/crowned-v39/PROVENANCE.md.
+
+V41: original Behemoth Blade / Royal Tempest procedural sword effects and reference-based leap animation; user-provided 3.gif used as a motion reference only. Crowned moves and passives use the native game damage and upgrade systems.
+
+V41 held-item locks: per-Pokémon preferences and Pause / Keep-and-lock controls integrated with the native item-choice cleanup.

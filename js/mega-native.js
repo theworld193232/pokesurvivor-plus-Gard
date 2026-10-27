@@ -137,6 +137,8 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
  // but only while the Pokemon is in its Primal form (instead of needing a passive like the game's evolutions).
  const ORIGIN_K='origin-pulse-k',PRECIPICE_G='precipice-blades-g';   // + 'dragon-ascent-r' (Rayquaza)
  const PRIMAL_EVOS={
+   'behemoth-blade':{form:'888-crowned',name:'Behemoth Blade: Royal Tempest',needName:'Crowned Zacian',autoGrant:false,
+     apply(inst){inst.behemothEvolved=true;inst.cd=(Number(inst.cd)||2.6)*1.2;}},
    [ORIGIN_K]:{form:'382-primal',name:'Origin Pulse (Primal)',needName:'Primal Kyogre',
      apply(inst){inst.count=Math.max(Number(inst.count)||0,14);inst.pierce=Math.max(Number(inst.pierce)||0,20);inst.dmg=(Number(inst.dmg)||0)*1.5;inst.primalPulse=true;}},
    [PRECIPICE_G]:{form:'383-primal',name:'Precipice Blades (Primal)',needName:'Primal Groudon',
@@ -156,7 +158,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    };
    m.evolve=function(inst){
      const pe=inst&&PRIMAL_EVOS[inst.id];if(!pe)return evolve.apply(this,arguments);
-     if(inst.evolved)return false;
+     if(inst.evolved||inst.lvl<(inst.def?.maxLvl||1)||getPlayer()?.megaForm!==pe.form)return false;
      pe.apply(inst);inst.baseName=inst.name;inst.name=pe.name;inst.evolved=true;
      return true;
    };
@@ -221,7 +223,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    const addedBonds=Math.max(0,(Number(p.bonds)||0)-previousBonds),addedSlot=!(snapshot),added=new Set((p.moves||[]).filter(v=>!before.has(v)));
    return ()=>{p.slots=(p.slots||[]).map(slot=>slot.filter(v=>!added.has(v))).filter(slot=>slot.length);p.moves=(p.moves||[]).filter(v=>!added.has(v));if(snapshot&&inst){for(const k of Object.keys(inst))if(!(k in snapshot))delete inst[k];Object.assign(inst,snapshot);}if(addedSlot)p.maxMoves=Math.max(previousMax,(Number(p.maxMoves)||previousMax+1)-1);p.bonds=Math.max(previousBonds,(Number(p.bonds)||0)-addedBonds);p.arrange?.();if(p.slots.length)p.active=Math.min(Number(p.active)||0,p.slots.length-1);};
  }
- window.PS_GARD_MEGA_MOVES={grant(p,form){if(!registerSignatureMoves())return null;const undo=Object.values(PRIMAL_EVOS).some(e=>e.form===form)?grantTransformationEvolution(p,form):grantSignature(p,form);if(MEGA_KITS[form])p.megaKit=form;return ()=>{undo?.();if(p.megaKit===form)delete p.megaKit;};}};
+ window.PS_GARD_MEGA_MOVES={grant(p,form){if(!registerSignatureMoves())return null;const undo=Object.values(PRIMAL_EVOS).some(e=>e.autoGrant!==false&&e.form===form)?grantTransformationEvolution(p,form):grantSignature(p,form);if(MEGA_KITS[form])p.megaKit=form;return ()=>{undo?.();if(p.megaKit===form)delete p.megaKit;};}};
  // ---- Primal weather ----
  // Natural weather (rain, sun, sandstorm, snow, fields...) keeps happening normally for the world,
  // but it does NOT affect the Primal player:

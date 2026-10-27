@@ -7,3 +7,5 @@ Official designs and form context: https://swordshield.pokemon.com/en-us/pokemon
 Species cries copied unchanged from PokeAPI/cries main, cries/pokemon/latest/888.ogg and 889.ogg: https://github.com/PokeAPI/cries . These are Pokémon audio assets, with underlying rights held by the Pokémon rights holders, used by this noncommercial fan project.
 
 User-provided zaciangif.gif and transformnation.gif were inspected as motion references for wrapping flames, swirling cocoons and the luminous reveal. Their frames are not bundled or used as game sprites.
+
+V41 Behemoth Blade leap/charge/cleave motion also references user-provided 3.gif. No video or GIF frames are bundled. The attack effect is original procedural pixel VFX using existing animated normal/shiny Zacian sprites.

@@ -1,0 +1,15 @@
+# Zacian and Crowned forms v41
+
+Crowned Zacian and Zamazenta no longer expire after 30 seconds. They stay active for the run, survive normal team switching, and still end on fainting, removing their relic, manual reversion or leaving the run. Activation still requires the matching relic and the existing Act 3 unlock. Other Mega durations are unchanged.
+
+Behemoth Blade is exclusive to Zacian's level-up move rewards. It begins with a raised glowing blade, a visible leap with afterimages and a sword-first cyan-white cleave and a short collision-checked burst dash and has five upgrades (damage, reach and cooldown). At move level 6, Crowned Zacian can choose its evolution, **Behemoth Blade: Royal Tempest**: six crossing slashes and a delayed local starburst. It keeps its earned move level and evolution through team switches. Outside Crowned form it safely uses the base cleave.
+
+Damage is bounded: the six cuts each use 32% of the move's damage, and the starburst uses 80%, for a maximum 2.72 times the upgraded base damage before native attack, defense and type modifiers. The evolved cooldown is 20% longer. Each slash hits a target at most once; no repeated damage per drawn animation frame. Walls block hits, distant enemies are excluded, ghost previews never damage, and switching/fainting/reverting cancels queued attacks. No invulnerability, global damage or boss execution is added.
+
+Crowned Zacian retains Intrepid Sword (+25% damage), gains Sovereign Edge (+10% damage above 70% HP) and Swordmaster Stride (+8% movement speed while walking). Crowned Zamazenta retains Dauntless Shield (20% less damage) and gains Sovereign Guard (another 10% reduction above 70% HP). Crowned type damage receives a modest 15% bonus. These use existing species/form-specific passive hooks and do not alter other team members. Zamazenta's existing Behemoth Bash remains; a custom evolved Bash presentation is not part of this Zacian-first update.
+
+The animation and combat presentation are original procedural game effects. No GIF frames are included. Existing normal/shiny Crowned art and cries are retained. This cumulative update can be installed over v37–v40 by merging the files beside index.html and replacing matching files. Browser test fixtures are excluded from release packages.
+
+Ordinary low-HP native enemy QA: the sword defeated its target, the native enemy manager removed it, and the player kill count increased by one. Earlier pinned/high-HP test targets are not normal encounters and are not included in release gameplay.
+
+Held-item lock: pause the run and click **Lock [held item]**, or choose **Keep and lock [held item]** in an item replacement prompt. The locked item stays equipped and future replacement prompts are skipped. Unlock it from Pause when you want to swap again. Each Pokémon has its own saved lock; changing team members does not lock their unrelated item. Empty slots still accept items normally, and locking an ordinary item does not grant it as permanent starting gear.

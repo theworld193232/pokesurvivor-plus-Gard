@@ -1,0 +1,31 @@
+{
+  "native": {
+    "locked": {
+      "item": "mstone_888_crowned",
+      "state": "playing",
+      "locked": true,
+      "prompt": false
+    },
+    "out": true,
+    "otherLocked": false,
+    "back": true,
+    "returnLocked": true,
+    "unlocked": {
+      "state": "choice",
+      "prompt": true
+    }
+  },
+  "afterKeepAndLock": {
+    "item": "mstone_888_crowned",
+    "locked": true,
+    "state": "playing",
+    "prompt": false
+  },
+  "pauseAfterUnlock": "🔓 Lock Rusted Sword",
+  "afterUnlock": {
+    "item": "mstone_888_crowned",
+    "locked": false,
+    "state": "choice",
+    "prompt": true
+  }
+}

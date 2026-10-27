@@ -1,6 +1,6 @@
 {
-  "syntaxCheckedScripts": 147,
-  "regressionsPassed": 195,
+  "syntaxCheckedScripts": 149,
+  "regressionsPassed": 212,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "crowned-bloom-v40",
+  "currentVersion": "zacian-items-v41",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -612,5 +612,31 @@
     "previousFullSuitePassed": 195,
     "pulseAndSwirl": true,
     "reviewClockFreezeRemoved": true
+  },
+  "zacianCrownedV41": {
+    "testsAdded": 11,
+    "crownedNoExpiry": true,
+    "simulatedCrownedSecondsPerSpecies": 600,
+    "nativeZacianSecondsAdvanced": 120,
+    "nativeSwitchRoundTrips": 6,
+    "signatureCopiesAfterSwitch": 1,
+    "evolutionGateVerified": true,
+    "ordinaryEnemyDeathRemoved": true,
+    "nativeKillCredit": true,
+    "leapPreviewLiveEnemiesAfter": 0,
+    "leapVisibilityRestored": true,
+    "evolvedDamageBudget": 2.72,
+    "nativeMultiplayerTested": false,
+    "steelDashNearbySweep": true
+  },
+  "itemLocksV41": {
+    "testsAdded": 6,
+    "perPokemonAndItem": true,
+    "nativeLockedPromptSuppressed": true,
+    "nativeUnlockRestoresPrompt": true,
+    "nativeKeepAndLockButton": true,
+    "nativePauseToggle": true,
+    "teamSwitchRoundTrip": true,
+    "locksDoNotGrantOrdinaryItems": true
   }
 }
