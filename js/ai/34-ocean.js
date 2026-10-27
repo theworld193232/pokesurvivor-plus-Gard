@@ -115,7 +115,146 @@
     const h = (i) => U.hash(s, i, id.length * 31 + 7);
     return Object.assign({ id, kind, x, y, R, s: 9000 + id.length * 13 + Math.round(h(0) * 900), amps: [0.12 + h(1) * 0.08, 0.08 + h(2) * 0.05, 0.05 + h(3) * 0.03, 0.025], ph: [h(4) * 6.28, h(5) * 6.28, h(6) * 6.28, h(7) * 6.28] }, extra || {});
   }
+  /* [Gard v80] The sea is laid out fresh every run. The friend's islands, their art, sizes and
+   * everything on them stay exactly as designed, but WHERE they are is rolled from the run's seed:
+   * the four guardian islands, the small islands, the Sealed Chamber, Whirl Islet with its whirlpool
+   * and shrine, the reefs, wrecks, currents, trench and (when it appears) Birth Island all move.
+   * On top of that the open sea gets extra islets, reefs and wrecks, so sailing off in any direction
+   * finds something. Nothing ever overlaps, nothing joins the mainland, and everything stays inside
+   * the charted sea (±9.6 km). AI.cfg.oceanFixedLayout = true brings back the old fixed map. */
+  const EXTRA_NAMES = ['Coral Key', 'Driftwood Isle', 'Pelican Point', 'Starfish Shoal', 'Sunken Bell Rock', 'Lantern Cay', 'Mossback Islet', 'Gale Spit', 'Pearl Atoll', 'Hermit Rock', 'Tidewhisper Isle', 'Saltcrown Islet', 'Kelpwood Cay', 'Moonshell Rock', 'Breaker Skerry', 'Sandpiper Isle', 'Old Beacon Rock', 'Seafoam Key', 'Barnacle Bluff', 'Corsola Cay'];
+  const EXTRA_KINDS = ['rock', 'beach', 'beach', 'rocky', 'pools', 'crag', 'rock', 'beach'];
   function makePlan(seed) {
+    if (AI.cfg.oceanFixedLayout) return makeFixedPlan(seed);
+    const h = (i) => U.hash(seed, i, 9100);
+    let k = 1000; const r = () => h(k++);
+    const isl = [];
+    const LIM = 9200;
+    const seaOk = (x, y) => !mainland(x, y) && Math.hypot(x - 1250, y - 420) > 520; // (not the mainland, not the harbour's sandbar)
+    const free = (x, y, R, gap) => {
+      if (Math.abs(x) + R * 1.7 > LIM || Math.abs(y) + R * 1.7 > LIM) return false;
+      for (let j = 0; j < 16; j++) { const a = j / 16 * 6.283; for (const f of [0, 1.45, 1.45 + 380 / R]) if (!seaOk(x + Math.cos(a) * R * f, y + Math.sin(a) * R * f)) return false; }
+      for (const o of isl) if (Math.hypot(x - o.x, y - o.y) < o.R * 1.25 + R * 1.25 + gap) return false;
+      for (const q of keep) if (Math.hypot(x - q.x, y - q.y) < q.R + R * 1.3 + gap) return false;
+      return true;
+    };
+    const keep = []; // round areas other things must stay clear of (whirlpool group, Birth Island)
+    const spot = (R, d0, d1, gap) => {
+      for (let t = 0; t < 600; t++) {
+        const g = t < 400 ? gap : gap * 0.5;
+        const a = r() * 6.283, d = d0 + r() * (d1 - d0), x = Math.cos(a) * d, y = Math.sin(a) * d;
+        if (free(x, y, R, g)) return [Math.round(x), Math.round(y)];
+      }
+      return null;
+    };
+    const add = (id, kind, R, d0, d1, gap, extra, fx, fy) => {
+      const at = spot(R, d0, d1, gap) || [fx, fy];
+      const o = blob(id, kind, at[0], at[1], R, seed, extra);
+      isl.push(o); return o;
+    };
+    // Birth Island first (when this world has it): far out, inside its own fog bank (82-birth.js)
+    let birth = null;
+    const miss = AI.Sea ? AI.Sea.save.birthMiss || 0 : 0;
+    if (h(60) < (AI.cfg.birthIslandChance == null ? 0.35 : AI.cfg.birthIslandChance) + miss * 0.2) {
+      const at = spot(700, 6000, 7700, 600);
+      if (at) { birth = { x: at[0] - 480, y: at[1] - 480 }; keep.push({ x: at[0], y: at[1], R: 900 }); }
+    }
+    // Whirl Islet, its two crags, the whirlpool and the low-tide shrine travel together
+    const wc = spot(900, 2600, 7200, 500) || [470, 3640];
+    keep.push({ x: wc[0], y: wc[1] + 300, R: 1050 });
+    // the four guardian islands
+    add('koko', 'thunder', 560, 2600, 7400, 1200, { name: 'Thundercrest Island', tapu: 785, arenaR: 190 }, -3300, 2750);
+    add('lele', 'blossom', 600, 2600, 7400, 1200, { name: 'Blossomveil Island', tapu: 786, arenaR: 200 }, 3500, 2450);
+    add('bulu', 'jungle', 680, 2600, 7400, 1200, { name: 'Verdant Crown Island', tapu: 787, arenaR: 210 }, -4300, 650);
+    add('fini', 'souls', 640, 3800, 7800, 1400, { name: 'Isle of Lost Souls', tapu: 788, arenaR: 200 }, 2650, 5350);
+    const kk = isl[0];
+    kk.ring = { r0: kk.arenaR + 4, r1: kk.arenaR + 34, gap: Math.atan2(-kk.y, -kk.x), gapW: 0.3 }; // (its ramp faces the harbour)
+    // the small islands with their own residents, and the Sealed Chamber (69-regi.js)
+    add('wingull', 'rock', 260, 1500, 6500, 500, { name: 'Gull Rock' }, -1750, 1050);
+    add('slowpoke', 'beach', 380, 1500, 6500, 500, { name: 'Slowpoke Cay' }, 2250, 650);
+    add('seel', 'rocky', 440, 1700, 6800, 500, { name: 'Seel Rocks' }, 4350, -650);
+    add('pools', 'pools', 300, 1500, 6200, 500, { name: 'Tide-Pool Flats' }, -900, 1750);
+    add('sealed', 'rocky', 350, 2000, 7000, 600, { name: 'Sealed Chamber', arenaR: 185 }, 1650, 3350);
+    // the whirlpool group (placed as one)
+    const whirl = { x: wc[0], y: wc[1], R: 190 };
+    isl.push(blob('lugia', 'shrine', wc[0] - 20, wc[1] + 710, 210, seed, { name: 'Whirl Islet' }));
+    isl.push(blob('whirlW', 'crag', wc[0] - 290, wc[1] - 20, 120, seed));
+    isl.push(blob('whirlE', 'crag', wc[0] + 290, wc[1], 120, seed));
+    // extra islets all over the open sea: something to find wherever you sail
+    const names = EXTRA_NAMES.slice();
+    for (let i = names.length - 1; i > 0; i--) { const j = (r() * (i + 1)) | 0; [names[i], names[j]] = [names[j], names[i]]; }
+    const extras = [];
+    for (let i = 0; i < 13; i++) {
+      const R = 130 + Math.round(r() * 170), kind = EXTRA_KINDS[(r() * EXTRA_KINDS.length) | 0];
+      const at = spot(R, 1900, 8700, 700);
+      if (!at) continue;
+      const o = blob('isle' + i, kind, at[0], at[1], R, seed, { name: names[i % names.length], extra: true });
+      isl.push(o); extras.push(o);
+    }
+    // the Seel colony's grotto, at the foot of its rocks (dry at low tide)
+    const seel = isl.find((o) => o.id === 'seel');
+    const grotto = { x: seel.x - seel.R * 0.75, y: seel.y + seel.R * 0.55, r: 70 };
+    grotto.cave = [grotto.x + 0.75 * 95, grotto.y - 0.55 * 95];
+    // reefs: shallow flats with coral heads, in open water
+    const reefs = [];
+    const reefSpot = (R, d0, d1) => {
+      for (let t = 0; t < 300; t++) {
+        const a = r() * 6.283, d = d0 + r() * (d1 - d0), x = Math.cos(a) * d, y = Math.sin(a) * d;
+        if (Math.abs(x) + R > LIM || Math.abs(y) + R > LIM || !seaOk(x, y)) continue;
+        if (isl.some((o) => Math.hypot(x - o.x, y - o.y) < o.R * 1.3 + R * 0.6)) continue;
+        if (reefs.some((q) => Math.hypot(x - q.x, y - q.y) < q.R + R + 200)) continue;
+        return [Math.round(x), Math.round(y)];
+      }
+      return null;
+    };
+    for (const [id, R, d0, d1] of [['reef', 430, 1600, 4200], ['reef2', 300, 2000, 6000], ['reef3', 260, 2000, 7000], ['reef4', 340, 3000, 8400], ['reef5', 280, 3000, 8400], ['reef6', 380, 4000, 8600], ['reef7', 240, 4000, 8600]]) {
+      const at = reefSpot(R, d0, d1); if (at) reefs.push({ id, x: at[0], y: at[1], R });
+    }
+    // lagoons: wide warm shallows (the harbour's east beach; Slowpoke Cay; the tide pools; Blossomveil; sandy islets)
+    const by = (id) => isl.find((o) => o.id === id);
+    const lagoons = [{ x: 520, y: -80, R: 420 }, { x: by('slowpoke').x, y: by('slowpoke').y, R: 470 }, { x: by('pools').x, y: by('pools').y, R: 380 }];
+    { const le = by('lele'), a = Math.atan2(-le.y, -le.x) + 0.6; lagoons.push({ x: le.x + Math.cos(a) * 560, y: le.y + Math.sin(a) * 560, R: 380 }); }
+    for (const o of extras) if (o.kind === 'beach' || o.kind === 'pools') lagoons.push({ x: o.x, y: o.y, R: o.R * 1.3 });
+    // the harbour's sandbar and tidal causeway stay with the harbour
+    const sandbar = { x: 1250 + J0(h, 27, 120), y: 420 + J0(h, 28, 100), rx: 260, ry: 95, ang: -0.3 + J0(h, 29, 0.25) };
+    const tidal = [
+      { id: 'causeway', w: 80, pts: [[560, -140], [760, 20], [960, 210], [sandbar.x - 120, sandbar.y - 20]] },
+      { id: 'grotto', w: 70, pts: [[grotto.x + 30, grotto.y - 50], [grotto.x - 20, grotto.y + 10], [grotto.x - 60, grotto.y + 40]] },
+    ];
+    const lugia = by('lugia');
+    const shrine = { x: lugia.x + 300, y: lugia.y + 150, r: 120 };
+    tidal.push({ id: 'shrine', w: 74, pts: [[lugia.x + lugia.R * 0.7, lugia.y + 40], [lugia.x + lugia.R + 60, lugia.y + 90], [shrine.x - 60, shrine.y - 10]] });
+    // wrecks: an old trader, the ghost ship in Fini's fog, and two more somewhere out there
+    const fini = by('fini');
+    const wreckAt = (d0, d1) => { for (let t = 0; t < 300; t++) { const a = r() * 6.283, d = d0 + r() * (d1 - d0), x = Math.cos(a) * d, y = Math.sin(a) * d; if (Math.abs(x) > LIM - 300 || Math.abs(y) > LIM - 300 || !seaOk(x, y) || isl.some((o) => Math.hypot(x - o.x, y - o.y) < o.R * 1.4 + 260)) continue; return [Math.round(x), Math.round(y)]; } return null; };
+    const wrecks = [];
+    { const at = wreckAt(2200, 7000) || [-1500, 3700]; wrecks.push({ id: 'wreck', x: at[0], y: at[1], ang: r() * 3.14 - 1.57, ghost: false }); }
+    {
+      let g = null;
+      for (let t = 0; t < 40 && !g; t++) { const a = r() * 6.283, d = fini.R + 380 + r() * 500, x = fini.x + Math.cos(a) * d, y = fini.y + Math.sin(a) * d; if (Math.abs(x) < LIM - 300 && Math.abs(y) < LIM - 300 && seaOk(x, y) && !isl.some((o) => Math.hypot(x - o.x, y - o.y) < o.R * 1.3 + 220)) g = [Math.round(x), Math.round(y)]; }
+      g = g || [fini.x - 1050, fini.y + 600];
+      wrecks.push({ id: 'ghost', x: g[0], y: g[1], ang: r() * 1.2 - 0.6, ghost: true });
+    }
+    for (let i = 2; i <= 3; i++) { const at = wreckAt(3000, 8600); if (at) wrecks.push({ id: 'wreck' + i, x: at[0], y: at[1], ang: r() * 3.14 - 1.57, ghost: false }); }
+    // currents and the trench: the friend's shapes, turned to a new heading every run
+    const rot = (pts, ang) => { const c = Math.cos(ang), sn = Math.sin(ang); return pts.map(([x, y]) => [Math.round(x * c - y * sn), Math.round(x * sn + y * c)]); };
+    const ca = (r() - 0.5) * 1.2;
+    const currents = [
+      { id: 'east', w: 260, k: 70, pts: rot([[-2800, 1900], [-1200, 2050], [400, 1700], [1900, 1950], [3300, 1650]], ca) },
+      { id: 'south', w: 220, k: 60, pts: rot([[4600, 300], [4300, 1400], [4500, 3200], [3900, 4400]], ca + (r() - 0.5) * 0.6) },
+    ];
+    const trench = { w: 520, pts: rot([[-2400, 4900], [-900, 4650], [450, 4950], [1700, 4700], [3300, 4500], [4800, 4800]], (r() - 0.5) * 1.4) };
+    const fogs = [
+      { id: 'fini', x: fini.x, y: fini.y, R: fini.R + 1300, k: 0.78 },
+      { id: 'ghost', x: wrecks[1].x, y: wrecks[1].y, R: 700, k: 0.9 },
+    ];
+    if (birth) fogs.push({ id: 'birth', x: birth.x + 480, y: birth.y + 480, R: 1200, k: 0.75 });
+    const storms = [{ id: 'koko', x: kk.x, y: kk.y, R: kk.R + 900 }];
+    return { seed, isl, reefs, lagoons, sandbar, tidal, shrine, grotto, wrecks, currents, whirl, trench, fogs, storms, birth, byId: Object.fromEntries(isl.map((o) => [o.id, o])) };
+  }
+  function J0(h, i, r) { return (h(i) - 0.5) * 2 * r; }
+  // the friend's original, fixed sea (AI.cfg.oceanFixedLayout = true)
+  function makeFixedPlan(seed) {
     const h = (i) => U.hash(seed, i, 9100);
     const J = (i, r) => (h(i) - 0.5) * 2 * r;
     const isl = [];
@@ -235,6 +374,7 @@
 
   // ---------------------------------------------------------------- the raster: land, water, distance to the coast
   const RC = 16, RN = 1200, R0 = -9600;
+  const EDGE = 9420; // [Gard v80] (the charted sea ends here, in fog: see sample() and localSky())
   let LAND = null, E = null;
   function buildRaster(p) {
     const t0 = performance.now();
@@ -396,6 +536,8 @@
       }
     }
     if (dv <= 0 && ringAt(x, y)) { o.solid = true; o.ring = true; }
+    // [Gard v80] the edge of the charted sea: a fog bank you can't sail or swim past (fliers still can)
+    if (Math.abs(x) > EDGE || Math.abs(y) > EDGE) o.solid = true;
     o.e = e; o.dv = dv;
     o.cls = dv <= 0 ? 0 : Math.min(4, 1 + Math.floor(dv));
     if(!o.solid&&window.PS_GROUDON_LAND?.has(x,y)){o.e=-1;o.dv=-.1;o.cls=0;o.tidal=null;}
@@ -458,6 +600,7 @@
     // (no snow in the tropics; winter only brings more wind)
     tgt.snow = 0;
     if (AI.Sky && AI.Sky.season() === 'winter') { tgt.rain = AI.Sky.PATTERNS[AI.Sky.st.pattern] ? AI.Sky.PATTERNS[AI.Sky.st.pattern].rain : tgt.rain; tgt.wind = Math.min(1, tgt.wind * 1.2); }
+    { const k = sm(8300, EDGE, Math.max(Math.abs(pl.x), Math.abs(pl.y))); if (k > 0) { tgt.fog = Math.max(tgt.fog, k * 0.95); tgt.cloud = Math.max(tgt.cloud, k * 0.6); } } // (the sea's edge)
     for (const f of p.fogs) {
       const d = Math.hypot(pl.x - f.x, pl.y - f.y);
       if (d > f.R) continue;

@@ -451,7 +451,7 @@
   const BIG_TREES = ['giant_vine_a', 'giant_vine_b', 'broad_a', 'tree_round_01', 'tree_round_02', 'puff_a', 'puff_b', 'ball_big_a', 'tree_tall_01'];
   function decor(cx, cy, ch, R, emit, ok) {
     const placed=[];
-    const push=it=>{const sh=solidOf(it),r=sh?.r||it.r||0;
+    const push=it=>{const sh=solidOf(it),r=sh?.r||(sh?.rect&&it.n!=='wreck'?(sh.rect[2]-sh.rect[0])/2:0)||it.r||0;
       if(!it.water&&r&&O().artAt(it.x,it.y)<0){
         const checks=[[0,0],[-r,0],[r,0],[0,-r*.5],[0,r*.5]];
         if(checks.some(([dx,dy])=>{const s=O().sample(it.x+dx,it.y+dy);return s.cls!==0||s.solid;}))return;
@@ -714,6 +714,9 @@
     }
     if(!it.r)return null;
     const scale=it.s||1,size=propSize(it.n),w=size[0]*scale;
+    // [Gard v80] boulders block like boulders: the lower half of the drawn rock, edge to edge (the old small
+    // circle at the base let you walk into most of the rock's body, e.g. on Thundercrest)
+    if(/^rock_/.test(it.n||'')&&size[0]>0){const h=size[1]*scale;return {rect:[it.x-w*.43,it.y-h*.5,it.x+w*.43,it.y+3]};}
     const footprint=/^(rock_|crate|barrel)/.test(it.n||'')?Math.max(it.r*scale,w*.32):it.n==='stack'?Math.max(it.r*scale,26*scale):it.r*scale;
     return {r:footprint};
   }
