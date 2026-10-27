@@ -1,0 +1,11 @@
+{
+  "targetedPortraitTestsPassed": 34,
+  "skinExpressionCrops": 40,
+  "nativePurpleWitchHudVerified": true,
+  "nativeBlendedMegaHudVerified": true,
+  "allFortyNativeCropsInspected": true,
+  "v81SpritePngsUnchanged": 25,
+  "changedScriptSyntaxChecked": true,
+  "wingPlacementChanged": false,
+  "artTool": "built-in image_gen"
+}

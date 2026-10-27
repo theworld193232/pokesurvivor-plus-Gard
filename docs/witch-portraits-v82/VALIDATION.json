@@ -1,0 +1,11 @@
+{
+  "portraitTestsPassed": 34,
+  "syntaxCheckedScripts": 152,
+  "v81CostumePngsUnchanged": 25,
+  "skinPortraits": 30,
+  "normalAndShinyMegaHudVerified": true,
+  "classicPortraitFallbackVerified": true,
+  "wingPlacementAdapterInstalled": false,
+  "generatedArtTool": "built-in image_gen",
+  "liveNetworkCoopTested": false
+}

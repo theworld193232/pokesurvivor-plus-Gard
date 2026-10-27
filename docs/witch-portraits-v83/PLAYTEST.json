@@ -1,0 +1,46 @@
+{
+  "purpleWitch": {
+    "anim": "282-witch",
+    "face": {
+      "src": "assets/ui/witch-portraits/witch-shiny-emotions-v83.png",
+      "rect": [
+        0,
+        0,
+        396.6,
+        396.5
+      ],
+      "grid": [
+        5,
+        2
+      ],
+      "cell": [
+        0,
+        0
+      ],
+      "skin": "witch-shiny",
+      "mood": "Normal"
+    }
+  },
+  "mega": {
+    "anim": "282-mega-witch-s",
+    "face": {
+      "src": "assets/ui/witch-portraits/mega-emotions-blend-v83.png",
+      "rect": [
+        0,
+        561,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        2
+      ],
+      "skin": "dread-shiny",
+      "mood": "Normal"
+    }
+  }
+}

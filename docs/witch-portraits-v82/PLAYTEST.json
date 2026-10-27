@@ -1,0 +1,68 @@
+{
+  "witch": {
+    "anim": "282-witch",
+    "face": {
+      "src": "assets/ui/witch-portraits/emotions-v82.png",
+      "rect": [
+        0,
+        0,
+        229,
+        229
+      ],
+      "grid": [
+        5,
+        6
+      ],
+      "cell": [
+        0,
+        0
+      ],
+      "skin": "witch",
+      "mood": "Normal"
+    }
+  },
+  "mega": {
+    "anim": "282-mega-witch",
+    "face": {
+      "src": "assets/ui/witch-portraits/mega-emotions-v82.png",
+      "rect": [
+        0,
+        0,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        0
+      ],
+      "skin": "dread-normal",
+      "mood": "Normal"
+    }
+  },
+  "shiny": {
+    "anim": "282-mega-witch-s",
+    "face": {
+      "src": "assets/ui/witch-portraits/mega-emotions-v82.png",
+      "rect": [
+        0,
+        561,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        2
+      ],
+      "skin": "dread-shiny",
+      "mood": "Normal"
+    }
+  }
+}
