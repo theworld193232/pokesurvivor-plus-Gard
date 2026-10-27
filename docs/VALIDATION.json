@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 151,
+  "regressionsPassed": 172,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "animated-dynamax-v35",
+  "currentVersion": "islands-regis-v36",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -547,5 +547,30 @@
     "targetedTestsPassed": 19,
     "cleanupCases": 4,
     "onlineCoopTested": false
+  },
+  "islandsRegisExpressionsV36": {
+    "sourceCommit": "fa6969548cf0d36233a15bb6a352185b0ed2ff19",
+    "steppedPuzzlePassed": true,
+    "islandPropProbes": 91,
+    "islandPhysicsFailures": 0,
+    "regiRewardSpecies": [
+      377,
+      379
+    ],
+    "forestRewardSpecies": [
+      888,
+      889
+    ],
+    "meteorFormsRoundTripped": 4,
+    "gardevoirVariantsTested": 4,
+    "gardevoirAppealFrames": 8,
+    "gardevoirPoseFrames": 3,
+    "onlineCoopTested": false,
+    "gardevoirPoseHotkey": "M; no button",
+    "gardevoirMegaRunDuration": true,
+    "privateAttractChance": 0.1,
+    "privateAttractFollowers": 2,
+    "privateAttractSeconds": 12,
+    "speciesItemCatalog": true
   }
 }

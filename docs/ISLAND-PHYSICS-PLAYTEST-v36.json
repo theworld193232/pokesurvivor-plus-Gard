@@ -1,0 +1,645 @@
+{
+  "islandPhysics": {
+    "count": 91,
+    "failures": [],
+    "rows": [
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 15.241012543380261,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 23.904299401044845,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 19.334517716914412,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 22.607318499237298,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "shard",
+        "baseRadius": 8.988848558906467,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 22.156336124628783,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 17.97698958903551,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 18.021435631603005,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 19.08032574570179,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 26.770062258392574,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 24.076437760591507,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "shard",
+        "baseRadius": 9.288191352877766,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 25.96702866733074,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 19.14501603573561,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "shard",
+        "baseRadius": 5.817592671327293,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "shard",
+        "baseRadius": 9.393067938042805,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 19.180873815894127,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 25.07873670190573,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_grey",
+        "baseRadius": 22.249954508811236,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "koko",
+        "name": "rock_red",
+        "baseRadius": 21.779215652793646,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_b",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "pink_a",
+        "baseRadius": 12,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "lele",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_b",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_b",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_b",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_b",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_b",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "tiki_b",
+        "baseRadius": 7,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "bulu",
+        "name": "palm_a",
+        "baseRadius": 9.2,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 16.370696385741233,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 18.857281047239898,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 25.28423816777766,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 22.93736438678205,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 18.24849009668827,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 16.444394551679494,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 17.584944860145452,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 22.094241586357356,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 15.738196145564318,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 17.770630406990648,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 21.129288179799914,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 19.45204690991342,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 22.801120820805433,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 23.6792477234602,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "seel",
+        "name": "rock_grey",
+        "baseRadius": 22.566468271002172,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_a",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "slowpoke",
+        "name": "palm_b",
+        "baseRadius": 8,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "sealed",
+        "name": "rock_grey",
+        "baseRadius": 16.056883725374938,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "sealed",
+        "name": "rock_grey",
+        "baseRadius": 25.726613279879093,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "sealed",
+        "name": "rock_grey",
+        "baseRadius": 22.063817168802025,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "sealed",
+        "name": "rock_grey",
+        "baseRadius": 25.452021594062444,
+        "blocked": true,
+        "resolved": true
+      },
+      {
+        "island": "sealed",
+        "name": "rock_grey",
+        "baseRadius": 18.689204025283455,
+        "blocked": true,
+        "resolved": true
+      }
+    ]
+  }
+}

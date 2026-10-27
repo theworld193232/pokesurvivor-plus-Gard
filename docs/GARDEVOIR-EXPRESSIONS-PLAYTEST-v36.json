@@ -1,0 +1,355 @@
+{
+  "gardevoirExpressions": {
+    "rows": [
+      {
+        "shiny": false,
+        "mega": false,
+        "anim": 282,
+        "moods": [
+          {
+            "ratio": 1,
+            "expected": "Normal",
+            "mood": "Normal",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-normal-normal.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.5,
+            "expected": "Worried",
+            "mood": "Worried",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-normal-worried.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.2,
+            "expected": "Pain",
+            "mood": "Pain",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-normal-pain.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "expected": "Happy",
+            "mood": "Happy",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-normal-happy.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          }
+        ],
+        "poses": [
+          {
+            "name": "Appeal",
+            "ok": true,
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "draws": 38,
+            "source": "http://127.0.0.1:8767/assets/pokemon/282/Idle.png",
+            "invalid": 0
+          },
+          {
+            "name": "Pose",
+            "ok": true,
+            "frames": [
+              0,
+              1,
+              2
+            ],
+            "draws": 40,
+            "source": "http://127.0.0.1:8767/assets/pokemon/282/Idle.png",
+            "invalid": 0
+          }
+        ]
+      },
+      {
+        "shiny": false,
+        "mega": true,
+        "anim": "282_mega",
+        "moods": [
+          {
+            "ratio": 1,
+            "expected": "Normal",
+            "mood": "Normal",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-normal-normal.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.5,
+            "expected": "Worried",
+            "mood": "Worried",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-normal-worried.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.2,
+            "expected": "Pain",
+            "mood": "Pain",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-normal-pain.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "expected": "Happy",
+            "mood": "Happy",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-normal-happy.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          }
+        ],
+        "poses": [
+          {
+            "name": "Appeal",
+            "ok": true,
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "draws": 42,
+            "source": "http://127.0.0.1:8767/assets/pokemon/282_mega/Idle.png",
+            "invalid": 0
+          }
+        ]
+      },
+      {
+        "shiny": true,
+        "mega": false,
+        "anim": 282,
+        "moods": [
+          {
+            "ratio": 1,
+            "expected": "Normal",
+            "mood": "Normal",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-shiny-sheet.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.5,
+            "expected": "Worried",
+            "mood": "Worried",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-shiny-sheet.png",
+              "rect": [
+                160,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.2,
+            "expected": "Pain",
+            "mood": "Pain",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-shiny-pain.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "expected": "Happy",
+            "mood": "Happy",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/base-shiny-sheet.png",
+              "rect": [
+                40,
+                0,
+                40,
+                40
+              ]
+            }
+          }
+        ],
+        "poses": [
+          {
+            "name": "Appeal",
+            "ok": true,
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "draws": 41,
+            "source": "http://127.0.0.1:8767/assets/pokemon/282/s/Idle.png",
+            "invalid": 0
+          },
+          {
+            "name": "Pose",
+            "ok": true,
+            "frames": [
+              0,
+              1,
+              2
+            ],
+            "draws": 40,
+            "source": "http://127.0.0.1:8767/assets/pokemon/282/s/Idle.png",
+            "invalid": 0
+          }
+        ]
+      },
+      {
+        "shiny": true,
+        "mega": true,
+        "anim": "282_mega",
+        "moods": [
+          {
+            "ratio": 1,
+            "expected": "Normal",
+            "mood": "Normal",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-shiny-sheet.png",
+              "rect": [
+                0,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.5,
+            "expected": "Worried",
+            "mood": "Worried",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-shiny-sheet.png",
+              "rect": [
+                160,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "ratio": 0.2,
+            "expected": "Pain",
+            "mood": "Pain",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-shiny-sheet.png",
+              "rect": [
+                80,
+                0,
+                40,
+                40
+              ]
+            }
+          },
+          {
+            "expected": "Happy",
+            "mood": "Happy",
+            "face": {
+              "src": "assets/ui/gardevoir-emotions/mega-shiny-sheet.png",
+              "rect": [
+                40,
+                0,
+                40,
+                40
+              ]
+            }
+          }
+        ],
+        "poses": [
+          {
+            "name": "Appeal",
+            "ok": true,
+            "frames": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "draws": 42,
+            "source": "http://127.0.0.1:8767/assets/pokemon/282_mega/s/Idle.png",
+            "invalid": 0
+          }
+        ]
+      }
+    ],
+    "passed": true
+  }
+}

@@ -75,7 +75,7 @@
   function cur() { return st.run && st.run.members[st.run.cur]; }
   // keep what's the member's own (its species, HP, moves) when it goes back to the bench
   function stash(p, m) {
-    m.dex = p.dex; m.shiny = p.shiny; m.skin=p.mon?.skin||null;m.nativeForm=p.mon?.form||null;m.entered=true;
+    m.dex = p.dex; m.shiny = p.shiny; m.skin=p.mon?.skin||null;m.nativeForm=p.mon?.form??'';m.entered=true;
     m.hpK = p.maxHp > 0 ? U.clamp(p.hp / p.maxHp, 0, 1) : 0;
     m.moves = p.moves; m.slots = p.slots; m.active = p.active;
   }
@@ -89,9 +89,12 @@
     if (!forced && (st.cd > 0 || p.dead || R().Game.state !== 'playing' || (p.evoAnim || p.evoTo))) return false;
     const out = r.members[r.cur], m = r.members[i];
     window.PS_QUALITY?.cancelDynamax?.();
+    window.PS_GARDEVOIR_ATTRACT?.clear?.();
+    out.item=p.item||null;
     const hpK=p.maxHp>0?U.clamp(p.hp/p.maxHp,0,1):0;
     out.form=!forced&&!p.dead?window.PS_GARD_MEGA_PRESENTATION?.suspend(p):null;
     if(p.megaKey) R().Mega.end(p);
+    if(p.equip)p.equip(null);else p.item=null;
     out.passive=window.PS_SPECIES_PASSIVES?.detach(p);
     stash(p, out);out.hpK=hpK;out.megaCd=Number(p.megaCd)||0;
     if (forced) out.fainted = true;
@@ -100,7 +103,8 @@
     // Level-gate a fresh bench member once. Returning members keep the evolution they reached.
     const eligible=m.entered||window.PS_PARTNER?.owner?.()?m.dex:(window.PS_WILD_LEVELS?.ancestor(m.dex,p.level)||m.dex);
     p.evolveTo(eligible);
-    if(m.nativeForm&&R().FORM_EVOS&&p.formEvolve){const evos=R().FORM_EVOS[p.dex],wasDead=p.dead;R().FORM_EVOS[p.dex]=[[p.mon?.form||'',m.nativeForm,0]];p.dead=false;try{p.formEvolve();}finally{p.dead=wasDead;if(evos)R().FORM_EVOS[p.dex]=evos;else delete R().FORM_EVOS[p.dex];}}else if(p.dex===718&&p.level>=40)p.formEvolve?.();
+    if(m.entered&&typeof m.nativeForm==='string'&&(m.nativeForm||R().NAMED_FORMS?.[p.dex])&&R().FORM_EVOS&&p.formEvolve){const evos=R().FORM_EVOS[p.dex],wasDead=p.dead;R().FORM_EVOS[p.dex]=[[p.mon?.form||'',m.nativeForm,0]];p.dead=false;try{p.formEvolve();}finally{p.dead=wasDead;if(evos)R().FORM_EVOS[p.dex]=evos;else delete R().FORM_EVOS[p.dex];}}else if(p.dex===718&&p.level>=40)p.formEvolve?.();
+    if(p.equip)p.equip(m.item||null);else p.item=m.item||null;
     delete p.__flightSafe;delete p.__cpSafe;delete p._psxOk;delete p._psxWet;
     if (m.moves) { p.moves = m.moves; p.slots = m.slots; p.active = Math.min(m.active, Math.max(0, m.slots.length - 1)); }
     else {
@@ -165,7 +169,8 @@
     if (!im) { im = new Image(); im.onload = () => { im.ok = true; }; im.src = 'assets/pokemon/' + dex + (shiny?'/s':'') + '/Idle.png'; icons.set(key, im); }
     return im;
   }
-  function drawIcon(ctx, dex, x, y, s, alpha, shiny = false) {
+  function drawIcon(ctx, dex, x, y, s, alpha, shiny = false, player = null) {
+    if(player&&window.PS_GARDEVOIR_EXPRESSIONS?.drawPortrait(ctx,player,x+2,y+2,s-4,alpha))return;
     if(window.PS_PORTRAITS?.draw(ctx,dex,x+2,y+2,s-4,alpha,{shiny}))return;
     shiny=shiny&&!!R().Sprites.hasShiny?.(dex);
     const im = icon(dex,shiny), meta = R().SPRITE_META[dex], a = meta && ((shiny&&meta.sa?.Idle)||meta.a?.Idle);
@@ -190,7 +195,7 @@
       ctx.fillRect(x, y, S, S);
       ctx.strokeStyle = out ? '#ffe680' : m.fainted ? '#6a3a3a' : 'rgba(200,210,230,0.5)'; ctx.lineWidth = out ? 2 : 1;
       ctx.strokeRect(x + 0.5, y + 0.5, S - 1, S - 1);
-      drawIcon(ctx, out?(r.p.megaKey||r.p.megaForm||r.p.mon?.skin||m.dex):(m.form?.key||m.skin||m.dex), x, y, S, m.fainted ? 0.3 : 1, m.shiny);
+      drawIcon(ctx, out?(r.p.megaKey||r.p.megaForm||r.p.mon?.skin||m.dex):(m.form?.key||m.skin||m.dex), x, y, S, m.fainted ? 0.3 : 1, m.shiny, out?r.p:null);
       // its HP
       const k = out ? (r.p.maxHp > 0 ? r.p.hp / r.p.maxHp : 0) : m.fainted ? 0 : m.hpK;
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x + 2, y + S + 3, S - 4, 4);
@@ -269,6 +274,7 @@
         lead.onclick = (e) => { e.stopPropagation(); setTeamLead([dex].concat(chosen().filter((d) => d !== dex))); };
         c.appendChild(lead);
       }
+      for(const [label,delta]of [['←',-1],['→',1]]){if(i+delta<0||i+delta>=team.length)continue;const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-label','Move '+nameOf(dex)+' '+(delta<0?'earlier':'later'));b.onclick=e=>{e.stopPropagation();const list=chosen(),j=list.indexOf(dex);[list[j],list[j+delta]]=[list[j+delta],list[j]];setTeamLead(list);};c.append(b);}
       tb.appendChild(c);
     }
     renderList();

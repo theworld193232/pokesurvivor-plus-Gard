@@ -29,7 +29,7 @@
   return result;
  };
  M.end=function(p,...args){const result=end.call(this,p,...args);if(p&&!p.megaKey)cleanup(p);return result;};
- M.tick=function(p,...args){const elapsed=Math.max(0,Number(args[0])||0);if(p&&!p.dead&&/_primal$/.test(String(p.megaKey||'')))p.megaT=(Number(p.megaT)||0)+elapsed;const result=tick.call(this,p,...args);const state=p&&sessions.get(p);
+ M.tick=function(p,...args){const elapsed=Math.max(0,Number(args[0])||0);if(p&&!p.dead&&(/_primal$/.test(String(p.megaKey||''))||Number(p.dex)===282&&p.megaKey==='282_mega'))p.megaT=(Number(p.megaT)||0)+elapsed;const result=tick.call(this,p,...args);const state=p&&sessions.get(p);
   if(p&&!p.megaKey)cleanup(p);
   else if(state&&p.megaKey===state.key&&p.dex===state.dex&&!p.dead){state.age+=Math.max(0,Number(args[0])||0);
    if(state.age>(/_primal$/.test(state.key)?3.6:1.3)&&p.anim?.dex!==state.megaAnim?.dex){state.megaAnim.dir=p.anim?.dir??state.megaAnim.dir;p.anim=state.megaAnim;}

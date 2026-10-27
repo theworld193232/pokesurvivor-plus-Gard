@@ -449,7 +449,16 @@
 
   // ---------------------------------------------------------------- decor: what grows and lies where
   const BIG_TREES = ['giant_vine_a', 'giant_vine_b', 'broad_a', 'tree_round_01', 'tree_round_02', 'puff_a', 'puff_b', 'ball_big_a', 'tree_tall_01'];
-  function decor(cx, cy, ch, R, push, ok) {
+  function decor(cx, cy, ch, R, emit, ok) {
+    const placed=[];
+    const push=it=>{const sh=solidOf(it),r=sh?.r||it.r||0;
+      if(!it.water&&r&&O().artAt(it.x,it.y)<0){
+        const checks=[[0,0],[-r,0],[r,0],[0,-r*.5],[0,r*.5]];
+        if(checks.some(([dx,dy])=>{const s=O().sample(it.x+dx,it.y+dy);return s.cls!==0||s.solid;}))return;
+        if(placed.some(q=>Math.hypot(q.x-it.x,q.y-it.y)<q.r+r+28))return;
+      }
+      if(r)placed.push({x:it.x,y:it.y,r});emit(it);
+    };
     const Oc = O();
     const p = Oc.plan();
     const x0 = cx * ch, y0 = cy * ch;
@@ -465,7 +474,7 @@
         // at sea: coral heads on the reefs, kelp at the edges of the shallows, the odd sea stack
         if (s.reef > 0.3 && r1 < 0.5) push({ k: 'ocean', n: 'coral', x, y, s: 0.8 + r2 * 0.6, f, water: true, r: s.cls === 1 ? 9 : 0, col: (r2 * 5) | 0 });
         else if (s.cls <= 2 && s.e > 30 && s.e < 200 && r1 < 0.12) push({ k: 'ocean', n: 'kelp', x, y, s: 0.8 + r2 * 0.5, f, water: true, flat: true });
-        else if (s.cls === 2 && r1 > 0.995) push({ k: 'ocean', n: 'stack', x, y, s: 1.2 + r2 * 0.6, f, r: 16 });
+        else if (s.cls === 2 && r1 > 0.995) push({ k: 'ocean', n: 'stack', water:true, x, y, s: 1.2 + r2 * 0.6, f, r: 16 });
         continue;
       }
       const z = Object.assign({}, Oc.zoneAt(x, y));
@@ -703,7 +712,10 @@
       const hw = Math.abs(c) * 80 + Math.abs(s) * 14, hh = Math.abs(s) * 80 + Math.abs(c) * 14;
       return { rect: [it.x - hw, it.y - hh - 6, it.x + hw, it.y + hh] };
     }
-    return it.r ? { r: it.r * (it.s || 1) } : null;
+    if(!it.r)return null;
+    const scale=it.s||1,size=propSize(it.n),w=size[0]*scale;
+    const footprint=/^(rock_|crate|barrel)/.test(it.n||'')?Math.max(it.r*scale,w*.32):it.n==='stack'?Math.max(it.r*scale,26*scale):it.r*scale;
+    return {r:footprint};
   }
 
   // ---------------------------------------------------------------- the air: petals over Blossomveil, sea spray in a storm

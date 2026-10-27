@@ -64,6 +64,7 @@
   const isStone = (id) => typeof id === 'string' && id.indexOf('mstone_') === 0;
   const formOf = (id) => (isStone(id) ? id.slice(7) : null);
   function stonesFor(dex) {
+    if(Number(dex)===386)return ['meteor-shard'];
     try { return AI.R.Mega.formsOf(dex).filter((k) => STONE[k] && !NO_ITEM.has(k)).map((k) => 'mstone_' + k); } catch (e) { return []; }
   }
   function registerItems() {
@@ -86,7 +87,7 @@
     const oRoll = R.Items.roll;
     R.Items.roll = function (ex) {
       if (!on()) { let id; for (let i = 0; i < 30; i++) { id = oRoll.apply(this, arguments); if (!isStone(id)) return id; } return id; }
-      const pool = R.Items.LIST.filter((i) => i.id !== ex && !i.psxStone);
+      const pool = R.Items.LIST.filter((i) => i.id !== ex && !i.psxStone && !i.psxForm);
       return U.pick(pool).id;
     };
     // stones are drawn from the game's own stone sheet

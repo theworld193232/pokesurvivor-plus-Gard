@@ -389,12 +389,14 @@
         break;
       }
       case 'stump': sh = { r: 11 * s }; break;
-      case 'stone': sh = { r: (it.r || 8) * s }; break;
+      case 'stone': {const width=AI.Art?.ready?AI.Art.size(it.n)[0]*s:0;
+        sh=AI.Ocean?.on()&&/wall|shrine/.test(it.n||'')?{rect:[it.x-Math.max(12,width*.38),it.y-18*s,it.x+Math.max(12,width*.38),it.y+2]}:{r:Math.max((it.r||8)*s,AI.Ocean?.on()&&/stone/.test(it.n||'')?width*.28:0)};break;}
       case 'ridge': { const w = AI.Art && AI.Art.ready ? AI.Art.size(it.n)[0] * s : 200; sh = { rect: [it.x - w * 0.45, it.y - 30, it.x + w * 0.45, it.y + 2] }; break; }
       case 'grave': case 'gargoyle': case 'gpillar': sh = it.r ? { r: Math.max(7, it.r) } : null; break;
       case 'cave': sh = { r: 30 }; break;
       case 'lamp': case 'sign': sh = { r: 6 }; break;
       case 'well': sh = { r: it.r || 30 }; break;
+      case 'regi': sh = it.part==='cave'?{rect:[it.x-112,it.y-35,it.x+112,it.y+8]}:it.solidR ? { r: it.solidR } : null; break; // (the altar and the caves; the stones are stepped on: 69-regi.js)
       default: sh = null;
     }
     if (sh && sh.r) sh.c = [it.x, it.y - 2];
@@ -404,10 +406,10 @@
   const solidBuf = [];
   function solidsIn(x0, y0, x1, y1) {
     solidBuf.length = 0;
-    for (const it of inRect(x0 - 60, y0 - 30, x1 + 60, y1 + 30, [])) { const sh = solidOf(it); if (sh) solidBuf.push(sh); }
+    for (const it of inRect(x0 - 180, y0 - 150, x1 + 180, y1 + 150, [])) { const sh = solidOf(it); if (sh) solidBuf.push(sh); }
     return solidBuf;
   }
-  function collide(ent) {
+  function collidePoint(ent) {
     if (!AI.cfg.newArt || !ent) return false;
     const r = ent.r || 12;
     let hit = false;
@@ -428,6 +430,19 @@
       }
     }
     return hit;
+  }
+  const checkpoints=new WeakMap();
+  function collide(ent){
+    if(!ent)return false;
+    if(!AI.Ocean?.on()||ent!==AI.R.Game.player||AI.Ocean.locoOf(ent)==='fly')return collidePoint(ent);
+    const previous=checkpoints.get(ent),target=[ent.x,ent.y];let hit=false;
+    if(previous){const dx=target[0]-previous[0],dy=target[1]-previous[1],distance=Math.hypot(dx,dy);
+      if(distance>8&&distance<400&&!blocked(previous[0],previous[1],ent.r||12)){
+        const count=Math.ceil(distance/8);ent.x=previous[0];ent.y=previous[1];
+        for(let i=0;i<count;i++){ent.x+=dx/count;ent.y+=dy/count;hit=collidePoint(ent)||hit;}
+      }else hit=collidePoint(ent);
+    }else hit=collidePoint(ent);
+    checkpoints.set(ent,[ent.x,ent.y]);return hit;
   }
   function blocked(x, y, r) {
     if (!AI.cfg.newArt) return false;

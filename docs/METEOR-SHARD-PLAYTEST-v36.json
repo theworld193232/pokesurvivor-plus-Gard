@@ -1,0 +1,43 @@
+{
+  "meteorShard": {
+    "rows": [
+      {
+        "ok": true,
+        "expected": "attack",
+        "form": "attack",
+        "anim": "386_attack",
+        "away": true,
+        "back": true,
+        "shiny": true
+      },
+      {
+        "ok": true,
+        "expected": "defense",
+        "form": "defense",
+        "anim": "386_defense",
+        "away": true,
+        "back": true,
+        "shiny": true
+      },
+      {
+        "ok": true,
+        "expected": "speed",
+        "form": "speed",
+        "anim": "386_speed",
+        "away": true,
+        "back": true,
+        "shiny": true
+      },
+      {
+        "ok": true,
+        "expected": "",
+        "form": "",
+        "anim": 386,
+        "away": true,
+        "back": true,
+        "shiny": true
+      }
+    ],
+    "passed": true
+  }
+}

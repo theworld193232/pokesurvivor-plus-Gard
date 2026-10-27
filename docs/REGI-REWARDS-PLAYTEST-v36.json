@@ -1,0 +1,18 @@
+{
+  "regiRewards": [
+    {
+      "dex": 379,
+      "owned": true,
+      "won": true,
+      "completed": true,
+      "stillLocked": false
+    },
+    {
+      "dex": 377,
+      "owned": true,
+      "won": true,
+      "completed": true,
+      "stillLocked": false
+    }
+  ]
+}

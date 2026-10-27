@@ -1,0 +1,97 @@
+{
+  "source": "https://github.com/PMDCollab/SpriteCollab",
+  "license": "CC BY-NC 4.0",
+  "licenseFile": "../site-import-v29/spritecollab-license.md",
+  "artistNames": "../site-import-v29/spritecollab-credit_names.txt",
+  "entries": {
+    "baseNormal": {
+      "path": "0282",
+      "spriteCredit": {
+        "primary": "CHUNSOFT",
+        "secondary": [],
+        "total": 1
+      },
+      "portraitCredit": {
+        "primary": "CHUNSOFT",
+        "secondary": [
+          "<@!356635814668664832>"
+        ],
+        "total": 2
+      }
+    },
+    "baseShiny": {
+      "path": "0282/0000/0001",
+      "spriteCredit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      },
+      "portraitCredit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "megaNormal": {
+      "path": "0282/0001",
+      "spriteCredit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      },
+      "portraitCredit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "megaShiny": {
+      "path": "0282/0001/0001",
+      "spriteCredit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      },
+      "portraitCredit": {
+        "primary": "<@!544245909639397378>",
+        "secondary": [],
+        "total": 1
+      }
+    },
+    "cutsceneNormal": {
+      "path": "0282/0002",
+      "spriteCredit": {
+        "primary": "CHUNSOFT",
+        "secondary": [],
+        "total": 1
+      },
+      "portraitCredit": {
+        "primary": "CHUNSOFT",
+        "secondary": [
+          "<@!356635814668664832>"
+        ],
+        "total": 2
+      }
+    },
+    "cutsceneShiny": {
+      "path": "0282/0002/0001",
+      "spriteCredit": {
+        "primary": "<@!593113130213572610>",
+        "secondary": [],
+        "total": 1
+      },
+      "portraitCredit": {
+        "primary": "<@!356635814668664832>",
+        "secondary": [],
+        "total": 1
+      }
+    }
+  },
+  "suppliedFiles": {
+    "sprite.zip": "shiny Mega Appeal animation + metadata",
+    "sprite (1).zip": "shiny Cutscene Appeal and Pose animations + metadata",
+    "emot.png": "shiny Mega portrait sheet, original PNG preserved",
+    "wai.png": "shiny base portrait sheet, original PNG preserved"
+  },
+  "changes": "No source PNGs were edited. Extra clips are registered alongside existing movement/attack clips. Portrait sheets are sampled at runtime."
+}

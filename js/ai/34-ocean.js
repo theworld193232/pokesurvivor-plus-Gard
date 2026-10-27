@@ -128,13 +128,15 @@
     const kk = isl[0];
     kk.ring = { r0: kk.arenaR + 4, r1: kk.arenaR + 34, gap: Math.atan2(-kk.y, -kk.x), gapW: 0.3 };
     // small islands, each with its own residents
-    isl.push(blob('wingull', 'rock', -1750 + J(9, 120), 1050 + J(10, 120), 170, seed, { name: 'Gull Rock' }));
-    isl.push(blob('slowpoke', 'beach', 2250 + J(11, 160), 650 + J(12, 140), 250, seed, { name: 'Slowpoke Cay' }));
-    isl.push(blob('seel', 'rocky', 4350 + J(13, 160), -650 + J(14, 160), 320, seed, { name: 'Seel Rocks' }));
-    isl.push(blob('pools', 'pools', -900 + J(15, 100), 1750 + J(16, 120), 210, seed, { name: 'Tide-Pool Flats' }));
+    isl.push(blob('wingull', 'rock', -1750 + J(9, 120), 1050 + J(10, 120), 260, seed, { name: 'Gull Rock' }));
+    isl.push(blob('slowpoke', 'beach', 2250 + J(11, 160), 650 + J(12, 140), 380, seed, { name: 'Slowpoke Cay' }));
+    isl.push(blob('seel', 'rocky', 4350 + J(13, 160), -650 + J(14, 160), 440, seed, { name: 'Seel Rocks' }));
+    isl.push(blob('pools', 'pools', -900 + J(15, 100), 1750 + J(16, 120), 300, seed, { name: 'Tide-Pool Flats' }));
     isl.push(blob('lugia', 'shrine', 450 + J(17, 160), 4350 + J(18, 120), 210, seed, { name: 'Whirl Islet' }));
     isl.push(blob('whirlW', 'crag', 180 + J(19, 40), 3620, 120, seed));
     isl.push(blob('whirlE', 'crag', 760 + J(20, 40), 3640, 120, seed));
+    // the Sealed Chamber: a lone rock with an ancient altar ringed by Braille stones (69-regi.js)
+    isl.push(blob('sealed', 'rocky', 1650 + J(70, 140), 3350 + J(71, 140), 350, seed, { name: 'Sealed Chamber', arenaR: 185 }));
     // the Seel colony's grotto, at the foot of its rocks (dry at low tide)
     const seel = isl.find((o) => o.id === 'seel');
     const grotto = { x: seel.x - seel.R * 0.75, y: seel.y + seel.R * 0.55, r: 70 };

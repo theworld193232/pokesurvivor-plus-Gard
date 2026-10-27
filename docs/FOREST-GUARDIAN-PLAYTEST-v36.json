@@ -1,0 +1,26 @@
+{
+  "forestGuardians": {
+    "rows": [
+      {
+        "dex": 888,
+        "started": true,
+        "won": true,
+        "owned": true
+      },
+      {
+        "dex": 889,
+        "started": true,
+        "won": true,
+        "owned": true
+      }
+    ],
+    "drops": [
+      "mstone_888_crowned",
+      "mstone_889_crowned"
+    ],
+    "site": {
+      "x": -1541.0136138702871,
+      "y": -1810.90810406721
+    }
+  }
+}

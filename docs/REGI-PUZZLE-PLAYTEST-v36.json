@@ -1,0 +1,18 @@
+{
+  "sealedChamber": {
+    "before": true,
+    "middle": true,
+    "away": true,
+    "back": true,
+    "team": [
+      369,
+      25,
+      321
+    ],
+    "solved": true,
+    "persisted": true,
+    "stones": 6,
+    "solidAltar": true,
+    "radius": 350
+  }
+}

@@ -292,3 +292,7 @@ Default shiny and Mega/Primal portrait artwork is from [SpriteCollab](https://gi
 ## Form imports v34
 
 Gigantamax Charizard/Alcremie sprite sheets and additional form headshots: PMDCollab/SpriteCollab, CC BY-NC 4.0. Per-asset artist credits and original paths: SOURCE_LICENSES/form-import-v34/CREDITS.json and SOURCE_LICENSES/site-import-v31/FORM-PORTRAIT-CREDITS.json; artist name index: SOURCE_LICENSES/site-import-v29/spritecollab-credit_names.txt. Original PNGs are preserved.
+
+## Islands, Regis and expressions v36
+
+Regi encounter code: DexterDamg/pokesurvivor-plus development branch fa6969548cf0d36233a15bb6a352185b0ed2ff19, adapted for Gard maps; provenance in SOURCE_LICENSES/friend-regis-v36. Gardevoir gesture sprites and emotional portraits: supplied by the user and PMDCollab/SpriteCollab (CC BY-NC 4.0), artist IDs and source paths in SOURCE_LICENSES/gardevoir-expressions-v36/CREDITS.json; original PNGs preserved. Sanctuary arch generated with the built-in image tool from the user's architectural reference; prompt in docs/FOREST-SANCTUARY-ART-v36.md.

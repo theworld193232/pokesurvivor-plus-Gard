@@ -1,0 +1,92 @@
+{
+  "state": "playing",
+  "time": 82.78323333333921,
+  "p": {
+    "dex": 282,
+    "hp": 68,
+    "level": 50,
+    "pos": [
+      -9.879499610043764,
+      152.4196684948426
+    ],
+    "moves": [
+      "confusion",
+      "true-moon-blast",
+      "blackhole"
+    ],
+    "active": [
+      {
+        "id": "confusion",
+        "kind": "projectile"
+      },
+      {
+        "id": "true-moon-blast",
+        "kind": "meteor",
+        "cast": "echoblast"
+      },
+      {
+        "id": "blackhole",
+        "kind": "meteor",
+        "cast": "blackhole"
+      }
+    ]
+  },
+  "alive": 4,
+  "AI": true,
+  "story": null,
+  "trainer": null,
+  "terrain": true,
+  "region": null,
+  "hooks": true,
+  "testMega": true,
+  "testForms": [
+    {
+      "key": "282-mega",
+      "name": "Mega Gardevoir"
+    }
+  ],
+  "megaForm": "282-mega",
+  "primal": false,
+  "balance": true,
+  "mega": true,
+  "hoopa": [],
+  "gacha": true,
+  "banners": 1,
+  "cards": 5,
+  "aiStats": {
+    "social": 0,
+    "npcs": 4,
+    "vetoes": 1
+  },
+  "dens": 0,
+  "raid": null,
+  "nativeForest": true,
+  "endless": false,
+  "weather": {
+    "kind": null,
+    "rain": 0,
+    "storm": 0,
+    "flash": 0,
+    "strikes": 0
+  },
+  "cabins": 0,
+  "battle": {
+    "used": [],
+    "effects": [],
+    "actors": []
+  },
+  "modules": 134,
+  "errors": [],
+  "specimens": [],
+  "result": {
+    "attractFollow": {
+      "ok": true,
+      "heart": "love",
+      "behavior": "follow-player",
+      "stance": "friendly",
+      "followed": 49.91687693386057,
+      "followers": 1,
+      "privateAccount": "LoverGare"
+    }
+  }
+}
