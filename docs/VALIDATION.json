@@ -1,6 +1,6 @@
 {
-  "syntaxCheckedScripts": 119,
-  "regressionsPassed": 177,
+  "syntaxCheckedScripts": 146,
+  "regressionsPassed": 189,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -580,5 +580,21 @@
     "effectTypes": 9,
     "unitRegressionsAdded": 5,
     "camp": "10% active HP, once per generated camp per run; damage/movement/hostiles/pause/co-op gates tested"
+  },
+  "teamPortraitsV38": {
+    "nativeTeamSwitches": 130,
+    "gardevoirSlot": 3,
+    "switchFailures": 0,
+    "transformationMusicCalls": 1,
+    "restoresWithoutMusic": 65,
+    "sanctuaryReservedSamples": 49,
+    "nativeTreeOverlaps": 0,
+    "solidDecorOverlaps": 0,
+    "blockedStoneFootprints": 7,
+    "emotionHoldSeconds": 10,
+    "emotionsPerPalette": 10,
+    "palettes": 4,
+    "shinySelection": "Collection card, detail and team; cross-menu choices verified",
+    "karma": "retired; no loader, commands or runtime hooks"
   }
 }

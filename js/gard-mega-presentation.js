@@ -19,7 +19,7 @@
   const form=formName(p.megaKey),next=p.anim,state={key:p.megaKey,form,dex:p.dex,age:0,baseAnim:previous,megaAnim:next};
   sessions.set(p,state);p.megaForm=form;p.__psBaseAnim=previous;state.undoMoves=window.PS_GARD_MEGA_MOVES?.grant(p,form);
   if(form==='383-primal')A.Sky?.set({hour:12});
-  if(resuming){p.anim=next;if(isMega(p.megaKey))window.PS_MUSIC?.mega?.();}
+  if(resuming){p.anim=next;window.PS_MUSIC?.restoreForm?.();}
   else if(isMega(p.megaKey)){
    // The sprite is revealed when Gard's orb shatters, not at activation.
    if(custom){p.anim=previous;p.invuln=Math.max(Number(p.invuln)||0,1.4);const ok=window.PS_FX.cast('megaevo',p,{id:'mega-evolution',type:'normal',dmg:0,fx:{newAnim:next,form,cry:cries[Number(p.dex)]||null}},null,true);if(!ok)p.anim=next;}

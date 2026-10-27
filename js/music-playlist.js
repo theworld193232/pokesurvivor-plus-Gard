@@ -352,5 +352,6 @@
     if (!S.on || !unlocked || STORY()) return; const id = pick(RULES.mega && RULES.mega.songs); if (!id) return;
     if (cur && cur.id === id) { cur.ctx = 'mega'; cur.lock = false; audio.loop = false; } else cut(() => start(id, 'mega')); render();
   }
-  window.PS_MUSIC = { mega: forceMega, skip, event, stop: hush, rules: RULES, tracks: TRACKS, _audio: audio, get playing() { return cur && { ...cur }; }, get gameTrack() { return gameTrack; } };
+  function restoreForm(){wasMega=isMega()&&!STORY();wasPrimal=primalSong();}
+  window.PS_MUSIC = { mega: forceMega, restoreForm, skip, event, stop: hush, rules: RULES, tracks: TRACKS, _audio: audio, get playing() { return cur && { ...cur }; }, get gameTrack() { return gameTrack; } };
 })();

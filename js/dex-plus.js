@@ -17,6 +17,7 @@
   const isFav = d => !!(S().favs && S().favs[d]);
   const setFav = (d, v) => { const s = S(); s.favs = s.favs || {}; if (v) s.favs[d] = 1; else delete s.favs[d]; try { E().DB.commit(); } catch (_) {} };
   const owns = d => !!(S().owned && S().owned[d]);
+  const variantOf=d=>ownsShiny(d)&&!!(window.PSXAI?.Team?.shinyFor(d)??(Number(S().partner)===Number(d)?S().partnerShiny:S().psxTeamShiny?.[d]));
   const ownsShiny = d => { try { return E().DB.ownsShiny(d); } catch (_) { return !!(S().shiny && S().shiny[d]); } };
   const ico = (k, n) => { try { return E().Icons.html(k, n); } catch (_) { return ''; } };
   const stars = (r, n) => { try { return E().UI.stars(r, n); } catch (_) { return ''; } };
@@ -62,6 +63,7 @@
   function open() {
     const s = S(), N = E(); if (!N || !N.DEX) return;
     if (sel == null) { sel = s.partner || 1; gen = (N.DEX_BY[sel] && N.DEX_BY[sel].gen) || 0; }
+    viewShiny=variantOf(sel);detail.last=sel;
     $('.tot').textContent = Object.keys(s.owned || {}).filter(d => N.DEX_BY[d]).length + ' / ' + N.DEX.length;
     const tabs = $('.gens'); tabs.innerHTML = '';
     ['All', ...GEN].forEach((name, g) => { const L = g ? N.DEX.filter(p => p.gen === g) : N.DEX, have = L.filter(p => owns(p.dex)).length;
@@ -117,12 +119,13 @@
     if (p.dex === s.partner) c.insertAdjacentHTML('beforeend', '<span class="br" title="Partner">' + ico('crown', 14) + '</span>');
     else if (isFav(p.dex)) c.insertAdjacentHTML('beforeend', '<span class="br" title="Favorite">' + ico('star', 12) + '</span>');
     else if (sh) c.insertAdjacentHTML('beforeend', '<span class="br" title="Shiny owned">' + ico('shiny', 12) + '</span>');
-    const portrait=portraitGrid&&window.PS_PORTRAITS?.element(p.dex,72,{silhouette:!own,name:own?p.name:'Unknown Pokémon',shiny:sh&&(F.shiny||p.dex===S().partner&&S().partnerShiny)});
+    const portrait=portraitGrid&&window.PS_PORTRAITS?.element(p.dex,72,{silhouette:!own,name:own?p.name:'Unknown Pokémon',shiny:variantOf(p.dex)});
     if(portrait){portrait.style.margin='16px auto 4px';c.appendChild(portrait);}else {
-    try { c.appendChild(E().UI.spriteCanvas(p.dex, 92, 74, { scale: 2, silhouette: !own, shadow: own, shiny: sh && p.dex === s.partner && s.partnerShiny })); } catch (_) {}
+    try { c.appendChild(E().UI.spriteCanvas(p.dex, 92, 74, { scale: 2, silhouette: !own, shadow: own, shiny:variantOf(p.dex) })); } catch (_) {}
     }
     c.insertAdjacentHTML('beforeend', '<b>' + (own ? p.name : '???') + '</b>' + stars(p.rarity, 9));
-    c.onclick = () => { sel = p.dex; $('.grid').querySelectorAll('.cell').forEach(x => x.classList.remove('on')); c.classList.add('on'); detail(p.dex); };
+    if(own){const select=document.createElement('select');select.className='field';select.style.cssText='width:100%;min-width:0;margin-top:5px;font-size:12px;padding:3px';select.setAttribute('aria-label',p.name+' Normal or Shiny');for(const [value,label]of [['normal','Normal'],['shiny',sh?'Shiny ✨':'Shiny · not owned']]){const option=document.createElement('option');option.value=value;option.textContent=label;option.disabled=value==='shiny'&&!sh;select.append(option);}select.value=variantOf(p.dex)?'shiny':'normal';select.onclick=e=>e.stopPropagation();select.onkeydown=e=>e.stopPropagation();select.onchange=e=>{e.stopPropagation();window.PSXAI?.Team?.setShiny(p.dex,select.value==='shiny');viewShiny=select.value==='shiny';sel=p.dex;detail.last=p.dex;grid(true);detail(p.dex);};c.append(select);}
+    c.onclick = () => { sel = p.dex;viewShiny=variantOf(p.dex); $('.grid').querySelectorAll('.cell').forEach(x => x.classList.remove('on')); c.classList.add('on'); detail(p.dex); };
     return c;
   }
   // partner button, following js/partner-rules.js (first-stage Pokemon only; evolved ones start as their first stage)
@@ -135,7 +138,7 @@
   function detail(dex) {
     const s = S(), N = E(), p = N.DEX_BY[dex]; if (!p) return;
     const own = owns(dex), hasSh = ownsShiny(dex), isP = dex === s.partner;
-    if (!hasSh) viewShiny = false; else if (isP && dex !== detail.last) viewShiny = !!s.partnerShiny; detail.last = dex;
+    if(!hasSh)viewShiny=false;else if(dex!==detail.last)viewShiny=variantOf(dex);detail.last=dex;
     const bar = (l, v, m, t) => '<div class="stat"><span>' + l + '</span><div class="bar"><i style="width:' + Math.min(100, v / m * 100) + '%"></i></div><span>' + t + '</span></div>';
     const using = isP && (!hasSh || !!s.partnerShiny === viewShiny);
     const tc = t => '<span class="ty" style="background:' + ((N.U.TYPE_COLOR || {})[t] || '#ccc') + '">' + tname(t) + '</span>';
@@ -143,7 +146,7 @@
     let start = ''; try { start = (N.Moves.BY_ID[N.startMoveOf(dex)] || {}).name || ''; } catch (_) {}
     const d = $('.det');
     d.innerHTML = '<canvas class="stage" width="220" height="190"></canvas>' +
-      (hasSh ? '<div class="seg"><button class="' + (viewShiny ? '' : 'on') + '" data-v="0">Normal</button><button class="' + (viewShiny ? 'on' : '') + '" data-v="1">' + ico('shiny', 12) + ' Shiny</button></div>' : '') +
+      ('<div class="seg" aria-label="Pokémon color selection"><button class="' + (viewShiny ? '' : 'on') + '" data-v="0">Normal</button><button '+(hasSh?'':'disabled title="Catch or summon this shiny first"')+' class="' + (viewShiny ? 'on' : '') + '" data-v="1">' + ico('shiny', 12) + ' Shiny'+(hasSh?'':' · locked')+'</button></div>') +
       '<div class="center"><div class="mut">Nº ' + String(p.dex).padStart(3, '0') + ' · ' + (GEN[p.gen - 1] || '') + '</div><h3>' + (own ? p.name : '???') + '</h3>' +
       (own ? '<button class="chip' + (isFav(dex) ? ' on' : '') + '" data-fav="1" style="margin:6px auto">' + ico('star', 12) + ' ' + (isFav(dex) ? 'Favorite' : 'Mark as favorite') + '</button>' : '') +
       '<div style="color:' + RCOL[p.rarity] + ';margin:4px 0">' + stars(p.rarity, 24) + ' ' + RAR[p.rarity] + '</div>' + (own ? '<div class="types">' + p.types.map(tc).join('') + '</div>' : '') + '</div>' +
@@ -160,7 +163,7 @@
     const info=document.createElement('div');info.className='sub';info.setAttribute('aria-live','polite');d.appendChild(info);
     d.querySelectorAll('[data-move-info]').forEach(b=>{b.onclick=()=>{const m=N.Moves.BY_ID[b.dataset.moveInfo];if(!m)return;const effects=[m.burn?'Burn':null,m.slow?'Slow':null,m.stun?'Stun':null,m.freeze?'Freeze':null,m.poison?'Poison':null].filter(Boolean);info.textContent=[m.name,tname(m.type),m.kind,'Damage: '+(m.dmg??'—'),'Cooldown: '+(m.cd??'—')+'s',...effects].join(' · ');};});
     if(own&&window.PSXAI?.Team){const team=document.createElement('button');team.className='btn';const list=window.PSXAI.Team.chosen();team.textContent=list.includes(dex)?'Manage team':'Add to team';team.onclick=()=>{const T=window.PSXAI.Team,chosen=T.chosen();if(chosen.includes(dex)){T.open();return;}if(chosen.length>=T.MAX){N.UI.toast('Your team is full. Remove a Pokémon in Manage team first.');T.open();return;}T.setShiny?.(dex,!!viewShiny);T.setTeam([...chosen,dex]);detail(dex);};d.appendChild(team);}
-    d.querySelectorAll('.seg button').forEach(b => { b.onclick = () => { viewShiny = b.dataset.v === '1'; detail(dex); }; });
+    d.querySelectorAll('.seg button').forEach(b => { b.onclick = () => { viewShiny = b.dataset.v === '1';window.PSXAI?.Team?.setShiny(dex,viewShiny);grid(true); detail(dex); }; });
     const fv = d.querySelector('[data-fav]'); if (fv) fv.onclick = () => { setFav(dex, !isFav(dex)); grid(true); detail(dex); };
     const pk = d.querySelector('[data-pick]'); if (pk) pk.onclick = () => {
       const R = window.PS_PARTNER; let nd = dex;
@@ -173,5 +176,6 @@
   document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-go="dex"],#menu-partner,#menu-partner-name'); if (!b || !E()) return; e.stopImmediatePropagation(); e.preventDefault(); try { E().Audio.sfx('click'); } catch (_) {} open(); }, true);
   function init() { document.head.append(css); document.body.append(scr); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_DEXPLUS = { open, close };
+  function refresh(){if(scr.style.display!=='flex')return;viewShiny=variantOf(sel);detail.last=sel;grid(true);detail(sel);}
+  window.PS_DEXPLUS = { open, close, refresh };
 })();

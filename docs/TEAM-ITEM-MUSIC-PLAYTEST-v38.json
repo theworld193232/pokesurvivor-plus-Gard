@@ -1,0 +1,1 @@
+{ "initial": [ { "dex": 383, "item": null }, { "dex": 384, "item": null }, { "dex": 282, "item": "mstone_282_mega" } ], "equipped": "mstone_282_mega", "began": true, "launches": 1, "restores": 65, "switches": 130, "failures": [], "final": { "dex": 282, "item": "mstone_282_mega", "form": "282_mega", "anim": "282_mega" }, "saved": { "282": "mstone_282_mega" } }

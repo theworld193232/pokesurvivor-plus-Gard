@@ -1,0 +1,16 @@
+# Team, portraits and sanctuary fixes v38
+
+- Species-specific artifact loadouts are stored per species in the existing account save. An acquired artifact recorded by an older save can migrate to its own species when unambiguous. A fresh bench member receives its own item, including Gardevoirite in slot two or three. Team transfer unequips are internal and do not erase the saved assignment. A deliberate unequip is respected. Evolution-line items cannot cross to unrelated species or the other evolution branch. Normal/shiny share the species artifact loadout. Ordinary shared items stay per-run and still travel with their teammate on the bench; they are not granted free in later runs. Artifacts collected by another species are saved for their proper owner without replacing the active Pokémon's item.
+- Resuming a benched Mega restores its form, sprite, kit and timer without replaying the evolution song or animation. The music player's automatic form-edge detector is latched too. Actual new transformations retain the full presentation and priority.
+- Gardevoir expressions hold for ten seconds of game time, rather than reassessing the visible face each frame. Level gains queue Inspired then Joyous; repeated damaging hits queue Angry; lost lives and fainting show Crying then Teary-Eyed; revival shows Sad then Pain. Death/revival can interrupt lower-priority expressions immediately. Other changes wait for the current face to finish. Existing idle/manual M poses remain.
+- Forty separately credited base/Mega, normal/shiny emotion images. Base defaults and supported moods use SpriteCollab's Alternate portraits; remaining moods use Cutscene art. Mega retains its matching palette. Collection/team/static default headshots also use the alternate base default.
+- Collection cards now have an explicit Normal/Shiny selector; the detail view always shows both options, with unowned shiny variants disabled. Choices persist per species. Team selectors cannot trigger the surrounding remove/add click handler.
+- The forest sanctuary reserves enough space for canopies and its approach, clears previously generated obstacles, filters future native tree/decor generation and invalidates cached ground shading. Stone bases have swept collision to prevent a fast movement step passing through them; stairs stay walkable.
+
+Playtest records are saved beside this guide. This is a solo/offline regression pass; live network co-op was not exercised.
+
+## Karma removed
+
+The kill-based morality system no longer loads. Its legacy file is replaced with an inert stub so patch merges cannot leave the old penalties running. Removed the private Karma commands and testing buttons too. Killing wildlife no longer reduces/empties the population, locks the mansion, or starts the twenty-minute Entei/Raikou/Suicune punishment. Normal legendary encounters, the Spiritomb/Odd Keystone encounter, AI personalities and mansion progression remain independent. No alternative Karma setting was introduced. Old stored Karma values are ignored.
+
+Apply this patch over v37 by merging folders beside `index.html`, replacing matching files. Reload the page after updating so an already-running old script is unloaded. Existing account/browser save storage is retained.

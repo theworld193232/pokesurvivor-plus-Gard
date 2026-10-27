@@ -65,7 +65,7 @@
     const team = chosen();
     if (!team.includes(p.dex)) {if(team.length)team[0]=p.dex;else team.push(p.dex);}
     const sv = R().DB.save || {};
-    st.run = { p, cur: 0, members: team.slice(0, MAX).map((dex) => ({ dex, shiny: dex === p.dex ? p.shiny : shinyFor(dex), hpK: 1, moves: null, slots: null, active: 0, fainted: false, entered: false })) };
+    st.run = { p, cur: 0, members: team.slice(0, MAX).map((dex) => ({ dex, shiny: dex === p.dex ? p.shiny : shinyFor(dex), hpK: 1, moves: null, slots: null, active: 0, item: window.PS_HELD_ITEMS?.forDex(dex)||null, fainted: false, entered: false })) };
     const lead = st.run.members.findIndex((m) => m.dex === p.dex);
     st.run.cur = Math.max(0, lead);
     st.run.members[st.run.cur].entered=true;
@@ -83,7 +83,8 @@
     const r = st.run;
     return !!r && i !== r.cur && i >= 0 && i < r.members.length && !r.members[i].fainted && !!R().DEX_BY[r.members[i].dex];
   }
-  function switchTo(i, forced) {
+  function switchTo(i, forced) { const go=()=>switchMember(i,forced);return window.PS_HELD_ITEMS?window.PS_HELD_ITEMS.transition(go):go(); }
+  function switchMember(i, forced) {
     const r = st.run, p = r && r.p;
     if (!on() || !p || p !== R().Game.player || !canSwitchTo(i)) return false;
     if (!forced && (st.cd > 0 || p.dead || R().Game.state !== 'playing' || (p.evoAnim || p.evoTo))) return false;
@@ -94,7 +95,7 @@
     const hpK=p.maxHp>0?U.clamp(p.hp/p.maxHp,0,1):0;
     out.form=!forced&&!p.dead?window.PS_GARD_MEGA_PRESENTATION?.suspend(p):null;
     if(p.megaKey) R().Mega.end(p);
-    if(p.equip)p.equip(null);else p.item=null;
+    if(p.equip){const clear=()=>p.equip(null);if(window.PS_HELD_ITEMS)window.PS_HELD_ITEMS.transition(clear);else clear();}else p.item=null;
     out.passive=window.PS_SPECIES_PASSIVES?.detach(p);
     stash(p, out);out.hpK=hpK;out.megaCd=Number(p.megaCd)||0;
     if (forced) out.fainted = true;
@@ -266,7 +267,7 @@
       if (!dex) { const e = document.createElement('div'); e.style.cssText = 'min-height:92px;border:1px dashed #33406e;border-radius:8px;display:flex;align-items:center;justify-content:center;opacity:.5;font-size:12px'; e.textContent = T('empty', 'vacío'); tb.appendChild(e); continue; }
       const c = card(dex, i === 0 ? T('Lead', 'Líder') : null);
       c.title = T('Click to take it out of the team', 'Haz clic para quitarlo del equipo');
-      c.onclick = () => setTeamLead(chosen().filter((d) => d !== dex));
+      c.querySelector('button').onclick = () => setTeamLead(chosen().filter((d) => d !== dex));
       if (i > 0) {
         const lead = document.createElement('button');lead.type='button';
         lead.textContent = T('Make lead', 'Hacer líder');
@@ -294,14 +295,14 @@
     const all = Object.keys(sv.owned || {}).map(Number).filter((d) => R().DEX_BY[d] && !team.includes(d)).filter((d) => !q || nameOf(d).toLowerCase().includes(q) || ((R().DEX_BY[d].types || []).join(' ').includes(q))).sort((a, b) => a - b);
     for (const dex of all.slice(0, 240)) {
       const c = card(dex);
-      c.onclick = () => { const t = chosen(); if (t.length >= MAX) { c.style.borderColor = '#ff6a6a'; return; } setTeam(t.concat([dex])); };
+      c.querySelector('button').onclick = () => { const t = chosen(); if (t.length >= MAX) { c.style.borderColor = '#ff6a6a'; return; } setTeam(t.concat([dex])); };
       list.appendChild(c);
     }
     if (all.length > 240) { const m = document.createElement('div'); m.style.cssText = 'grid-column:1/-1;opacity:.6;font-size:12px'; m.textContent = T('… type to search the rest (' + all.length + ' in all)', '… escribe para buscar el resto (' + all.length + ')'); list.appendChild(m); }
     if (!all.length) { const m = document.createElement('div'); m.style.cssText = 'grid-column:1/-1;opacity:.6;font-size:12px'; m.textContent = T('No other Pokémon yet: defeat wild ones to have them join you.', 'Aún no tienes más Pokémon: derrota a los salvajes para que se unan a ti.'); list.appendChild(m); }
   }
   function open() { if (!st.el) build(); st.el.style.display = 'flex'; render(); }
-  function close() { if (st.el) st.el.style.display = 'none'; try { if (R().MenuUI && R().MenuUI.refresh) R().MenuUI.refresh(); } catch (e) { /* ignore */ } }
+  function close() { if (st.el) st.el.style.display = 'none';window.PS_DEXPLUS?.refresh?.(); try { if (R().MenuUI && R().MenuUI.refresh) R().MenuUI.refresh(); } catch (e) { /* ignore */ } }
   function addMenuButton() {
     const list = document.querySelector('.menu-list');
     if (!list || document.getElementById('psx-team-btn')) return;
