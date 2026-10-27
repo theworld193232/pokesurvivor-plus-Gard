@@ -190,7 +190,7 @@
       ctx.fillRect(x, y, S, S);
       ctx.strokeStyle = out ? '#ffe680' : m.fainted ? '#6a3a3a' : 'rgba(200,210,230,0.5)'; ctx.lineWidth = out ? 2 : 1;
       ctx.strokeRect(x + 0.5, y + 0.5, S - 1, S - 1);
-      drawIcon(ctx, out?(r.p.__gmaxForm||r.p.megaKey||r.p.megaForm||r.p.mon?.skin||m.dex):(m.form?.key||m.skin||m.dex), x, y, S, m.fainted ? 0.3 : 1, m.shiny);
+      drawIcon(ctx, out?(r.p.megaKey||r.p.megaForm||r.p.mon?.skin||m.dex):(m.form?.key||m.skin||m.dex), x, y, S, m.fainted ? 0.3 : 1, m.shiny);
       // its HP
       const k = out ? (r.p.maxHp > 0 ? r.p.hp / r.p.maxHp : 0) : m.fainted ? 0 : m.hpK;
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(x + 2, y + S + 3, S - 4, 4);

@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "imported-forms-v34",
+  "currentVersion": "animated-dynamax-v35",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -536,6 +536,16 @@
     "spriteVariantsAudited": 26,
     "sheetFailures": 0,
     "gmaxCleanupCases": 4,
+    "onlineCoopTested": false
+  },
+  "animatedDynamaxV35": {
+    "removedGmax": [
+      6,
+      869
+    ],
+    "nativeDynamaxPreserved": true,
+    "targetedTestsPassed": 19,
+    "cleanupCases": 4,
     "onlineCoopTested": false
   }
 }

@@ -1,0 +1,43 @@
+{
+  "animatedDynamax": {
+    "rows": [
+      {
+        "dex": 6,
+        "anim": 6,
+        "dynamax": true,
+        "frames": [
+          "Walk:0",
+          "Walk:1",
+          "Walk:2",
+          "Walk:3"
+        ],
+        "walkFrames": 4,
+        "metaWalkFrames": 4
+      },
+      {
+        "dex": 869,
+        "anim": 869,
+        "dynamax": true,
+        "frames": [
+          "Attack:0",
+          "Attack:1",
+          "Attack:2",
+          "Attack:3",
+          "Attack:4",
+          "Attack:5",
+          "Attack:6",
+          "Attack:7",
+          "Attack:8",
+          "Attack:9",
+          "Walk:0",
+          "Walk:1",
+          "Walk:2",
+          "Walk:3"
+        ],
+        "walkFrames": 4,
+        "metaWalkFrames": 4
+      }
+    ],
+    "passed": true
+  }
+}
