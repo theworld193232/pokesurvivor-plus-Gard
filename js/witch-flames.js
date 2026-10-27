@@ -7,7 +7,8 @@
   const SKIN = { 280: '280-witch', 281: '281-witch' };
   const PAL = { n: ['#0b3a1c', '#128a3a', '#46e85a', '#b8ff9a', '#f0fff0'], s: ['#2a0f4a', '#6a2ac0', '#b05aff', '#e0b0ff', '#fbf0ff'] };
   const W = 14, H = 22, buf = document.createElement('canvas'); buf.width = W; buf.height = H;
-  const on = p => { try { const d = Number(p?.dex); return !!SKIN[d] && window.PS_COSMETICS?.selected(d) === SKIN[d] && !p.megaForm; } catch (_) { return false; } };
+  const activePlayer = () => B()?.game?.player || R()?.Game?.player || null;
+  const on = p => { try { const d = Number(p?.dex); return !!p && p === activePlayer() && !!SKIN[d] && window.PS_COSMETICS?.selected(d) === SKIN[d] && !p.megaForm; } catch (_) { return false; } };
   const shiny = p => !!(p && (p.shiny || /-s$/.test(String(p.anim?.dex || ''))));
   function flame(t, seed, pal) {
     const g = buf.getContext('2d'); g.clearRect(0, 0, W, H);
@@ -34,7 +35,15 @@
     const F = window.PS_FX; if (!F || !F.styles || F.styles.witchflame) return !!F?.styles?.witchflame;
     F.styles.witchflame = {
       cast(c) { seen = performance.now(); return c; },
-      update(c, dt) { const p = c.player; if (!on(p) || p.dead) return false; seen = performance.now(); c.t += dt; c.x = p.x; c.y = p.y; c.H = Number(p.bodyH) || 30; c.kir = Number(p.dex) === 281; c.sh = shiny(p); c.face = p.anim?.dir ?? 0; return true; },
+      update(c, dt) {
+        const p = c.player;
+        if (!on(p) || p.dead) return false;
+        const list = window.PS_FX?.list?.('witchflame');
+        if (Array.isArray(list) && list.length > 1 && list[0] !== c) return false;
+        seen = performance.now();
+        c.t += dt; c.x = p.x; c.y = p.y; c.H = Number(p.bodyH) || 30; c.kir = Number(p.dex) === 281; c.sh = shiny(p); c.face = p.anim?.dir ?? 0;
+        return true;
+      },
       draw(c, ctx, v) {
         const k = v.k, X = v.sx(c.x), Y = v.sy(c.y), pal = c.sh ? PAL.s : PAL.n, sc = Math.max(1, c.H * k * (c.kir ? 0.55 : 0.6) / H);
         const spots = c.kir ? [[-0.55, -0.42, 0], [0.58, -0.62, 1.7]] : [[-0.58, -0.3, 0]];
@@ -57,8 +66,15 @@
     requestAnimationFrame(loop);
     try {
       if (!register()) return;
-      const p = B()?.game?.player; if (!p || !on(p) || R()?.Game?.state !== 'playing') return;
-      if (performance.now() - seen > 400) { seen = performance.now(); window.PS_FX.cast('witchflame', p, { id: 'witch-flame', fx: {} }); }
+      const p = activePlayer();
+      if (!p || !on(p) || R()?.Game?.state !== 'playing') return;
+      const liveFlames = window.PS_FX?.list?.('witchflame') || [];
+      const hasCurrent = liveFlames.some(c => c.player === p);
+      if (!hasCurrent && performance.now() - seen > 150) {
+        for (const old of liveFlames) if (old.player && old.player !== p) window.PS_FX?.clearForPlayer?.(old.player);
+        seen = performance.now();
+        window.PS_FX.cast('witchflame', p, { id: 'witch-flame', fx: {} });
+      }
     } catch (_) {}
   })();
 })();
