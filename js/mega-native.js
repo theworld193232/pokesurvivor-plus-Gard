@@ -424,7 +424,7 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
          }
        }
        // infalling particles
-       if(h.parts.length<70)for(let k=0;k<4;k++){const a=Math.random()*6.283,r=h.R*(0.6+Math.random()*0.5);h.parts.push({a,r,w:2.2+Math.random()*2,c:Math.random()<0.35?'#d7b4ff':(Math.random()<0.5?'#7a3cff':'#2a0f4a')});}
+       if(h.parts.length<46)for(let k=0;k<3;k++){const a=Math.random()*6.283,r=h.R*(0.6+Math.random()*0.5);h.parts.push({a,r,w:2.2+Math.random()*2,c:Math.random()<0.35?'#d7b4ff':(Math.random()<0.5?'#7a3cff':'#2a0f4a')});}
      }else if(!h.boom){
        h.boom=true;
        if(!h.ghost&&typeof h.hit==='function')for(const en of all){
@@ -439,6 +439,43 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
      if(h.t>HOLE_LIFE)holes.splice(i,1);
    }
  }
+ // [Gard v86] Black Hole, redrawn (same timing and damage as before):
+ //  open   - space tears open along a bright seam
+ //  pull   - the battlefield around it really bends and twists into the hole (gravitational lensing, drawn from
+ //           the game canvas), a tilted pixel-art accretion disk spins (bright on the side turning toward you),
+ //           debris stretches into streaks as it falls in, a black event horizon with a thin photon ring
+ //  collapse - it implodes to a point, flashes, and bursts out in a dark shockwave with purple lightning and shards
+ const holeDisk=document.createElement('canvas'),HD=72;holeDisk.width=holeDisk.height=HD;
+ function drawDisk(t,seed){
+   const g=holeDisk.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,HD,HD);const c=HD/2,TAU=6.283;
+   for(let ring=0;ring<7;ring++){
+     const rr=11+ring*3.4,n=Math.round(rr*2.2);
+     for(let i=0;i<n;i++){
+       const a=i/n*TAU+t*(3.2-ring*0.32)+seed+ring*0.7,x=c+Math.cos(a)*rr,y=c+Math.sin(a)*rr*0.34;
+       const front=Math.sin(a)>0,beam=0.5+0.5*Math.cos(a-0.6);   // Doppler: the side turning toward you is brighter
+       if(((i+ring*3)%5)===0&&ring>1)continue;                   // gaps so it reads as spinning dust
+       const hot=ring<2,col=hot?(beam>0.55?'#fff4ff':'#ffc8f4'):beam>0.7?'#ffd6ff':beam>0.4?'#c084ff':ring>4?'#4a1f8a':'#7a3cff';
+       g.globalAlpha=(front?1:0.55)*(0.55+0.45*beam);g.fillStyle=col;g.fillRect(Math.round(x),Math.round(y),ring>4?1:2,1);
+     }
+   }
+   g.globalAlpha=1;return holeDisk;
+ }
+ function lens(ctx,g,X,Y,core,R,t,grow){
+   if(!g||!g.c||g.c===ctx.canvas)return;   // never sample our own overlay (that would feed back into itself)
+   // twist the real battlefield around the hole: annuli of the game canvas, rotated and pulled inward more the closer they are
+   const sx=g.c.width/g.r.width,sy=g.c.height/g.r.height,src=R*1.15,TAU=6.283;
+   const gx=(X-g.r.left)*sx,gy=(Y-g.r.top)*sy;
+   const steps=9;
+   for(let i=steps-1;i>=0;i--){
+     const r0=core*1.2+(R*0.95-core*1.2)*i/steps,r1=core*1.2+(R*0.95-core*1.2)*(i+1)/steps,f=1-(r0+r1)/2/(R*0.95);
+     const rot=(f*f*2.4+f*0.4)*grow*(1+0.15*Math.sin(t*3)),pull=1+0.55*f*f*grow;
+     ctx.save();ctx.beginPath();ctx.ellipse(X,Y,r1,r1*0.7,0,0,TAU);ctx.ellipse(X,Y,r0,r0*0.7,0,0,TAU,true);ctx.clip('evenodd');
+     ctx.translate(X,Y);ctx.rotate(rot);ctx.scale(pull,pull);
+     try{ctx.drawImage(g.c,gx-src*sx,gy-src*sy,src*2*sx,src*2*sy,-src,-src,src*2,src*2);}catch(e){}
+     ctx.restore();
+     ctx.fillStyle='rgba(30,0,60,'+(0.015+0.07*f*grow)+')';ctx.beginPath();ctx.ellipse(X,Y,r1,r1*0.7,0,0,TAU);ctx.ellipse(X,Y,r0,r0*0.7,0,0,TAU,true);ctx.fill('evenodd');
+   }
+ }
  function drawHoles(ctx,box){
    if(!holes.length)return;
    const cam=getBridge()?.camera,g=gameCanvas();if(!cam||!g||typeof cam.left!=='function')return;
@@ -447,38 +484,49 @@ const getBridge=()=>window.PS_MEGA_BRIDGE_V5;
    for(const h of holes){
      const X=g.r.left+(h.x-cam.left())*k,Y=g.r.top+(h.y-cam.top())*k-14*k,R=h.R*k;
      if(h.t<HOLE_PULL_T){
-       const grow=Math.min(1,h.t/0.22),pulse=1+0.06*Math.sin(h.t*14),core=(20*k+8*k*Math.sin(h.t*7))*grow*pulse;
-       // gravity well: darkened, warped ground
-       let gr=ctx.createRadialGradient(X,Y,core,X,Y,R*grow);gr.addColorStop(0,'rgba(8,0,18,0.72)');gr.addColorStop(0.4,'rgba(40,8,80,0.38)');gr.addColorStop(1,'rgba(40,8,80,0)');
+       const open=Math.min(1,h.t/0.25),grow=open*open*(3-2*open),pulse=1+0.05*Math.sin(h.t*14),core=(18*k+6*k*Math.sin(h.t*7))*grow*pulse;
+       // 1) the tear: a bright seam that splits open into the hole
+       if(h.t<0.3){const u=h.t/0.3,w=R*0.9*Math.min(1,u*1.6);ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,230,255,'+(1-u)+')';ctx.lineWidth=Math.max(1.5,3*k*(1-u));
+         ctx.beginPath();ctx.moveTo(X-w,Y);for(let s2=1;s2<=10;s2++){const f=s2/10;ctx.lineTo(X-w+2*w*f,Y+Math.sin(f*9+h.seed)*4*k*(1-u));}ctx.stroke();ctx.globalCompositeOperation='source-over';}
+       // 2) gravitational lensing of the real scene + a dark gravity well
+       lens(ctx,g,X,Y,core,R*grow,h.t,grow);
+       let gr=ctx.createRadialGradient(X,Y,core,X,Y,R*grow);gr.addColorStop(0,'rgba(6,0,14,0.45)');gr.addColorStop(0.45,'rgba(36,6,70,0.1)');gr.addColorStop(1,'rgba(36,6,70,0)');
        ctx.fillStyle=gr;ctx.beginPath();ctx.ellipse(X,Y,R*grow,R*grow*0.7,0,0,TAU);ctx.fill();
-       // spiralling streams of light being sucked in
+       // 3) debris spaghettified into streaks as it falls in
        ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
-       for(let j=0;j<6;j++){ctx.strokeStyle=j%2?'rgba(200,160,255,0.55)':'rgba(255,120,220,0.45)';ctx.lineWidth=Math.max(1.5,2.5*k);ctx.beginPath();
-         for(let s2=0;s2<=24;s2++){const f=s2/24,rr=(R*0.95*grow)*(1-f)+core*f,a=h.seed+j*TAU/6+f*4.2-h.t*3;const px=X+Math.cos(a)*rr,py=Y+Math.sin(a)*rr*0.62;s2?ctx.lineTo(px,py):ctx.moveTo(px,py);}ctx.stroke();}
-       // accretion disk (tilted, bright on one side)
-       for(let j=0;j<3;j++){const rr=core*(2.1+j*0.55),a0=h.t*(4-j);const dg=ctx.createLinearGradient(X-rr,Y,X+rr,Y);dg.addColorStop(0,'rgba(255,230,255,0.95)');dg.addColorStop(0.5,'rgba(190,110,255,0.75)');dg.addColorStop(1,'rgba(90,40,200,0.35)');
-         ctx.strokeStyle=dg;ctx.lineWidth=Math.max(2,(5-j*1.3)*k);ctx.beginPath();ctx.ellipse(X,Y,rr,rr*0.32,Math.sin(h.t)*0.15,a0,a0+TAU*0.85);ctx.stroke();}
-       for(let j=0;j<8;j++){const a=j*TAU/8-h.t*2.4+h.seed,rr=core*(2.5+.3*Math.sin(h.t*8+j)),px=X+Math.cos(a)*rr,py=Y+Math.sin(a)*rr*.38;
-         ctx.strokeStyle=j%2?'rgba(255,213,249,.82)':'rgba(168,204,255,.7)';ctx.lineWidth=Math.max(1,1.5*k);ctx.beginPath();ctx.moveTo(px,py-4*k);ctx.lineTo(px+2*k,py);ctx.lineTo(px,py+4*k);ctx.lineTo(px-2*k,py);ctx.closePath();ctx.stroke();}
-       ctx.strokeStyle='rgba(250,222,255,.85)';ctx.lineWidth=2*k;ctx.beginPath();ctx.ellipse(X,Y,core*1.1,core*.5,0,0,TAU);ctx.stroke();
-       // infalling sparks
-       for(const q of h.parts){const qx=X+Math.cos(q.a)*q.r*k,qy=Y+Math.sin(q.a)*q.r*k*0.62,sz=Math.max(2,2.4*k);ctx.fillStyle=q.c;ctx.fillRect(Math.round(qx),Math.round(qy),sz,sz);}
-       // photon ring + event horizon
-       ctx.globalCompositeOperation='source-over';const hg=ctx.createRadialGradient(X,Y,core*0.6,X,Y,core*1.25);hg.addColorStop(0,'#000');hg.addColorStop(0.75,'#05000a');hg.addColorStop(1,'rgba(5,0,10,0)');
-       ctx.fillStyle=hg;ctx.beginPath();ctx.arc(X,Y,core*1.25,0,TAU);ctx.fill();
-       ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,220,255,0.95)';ctx.lineWidth=Math.max(1.5,2.2*k);ctx.beginPath();ctx.arc(X,Y,core*1.02,0,TAU);ctx.stroke();
-       ctx.strokeStyle='rgba(255,120,230,0.5)';ctx.lineWidth=Math.max(3,6*k);ctx.beginPath();ctx.arc(X,Y,core*1.12,0,TAU);ctx.stroke();
+       for(const q of h.parts){const qx=X+Math.cos(q.a)*q.r*k,qy=Y+Math.sin(q.a)*q.r*k*0.62,tail=Math.min(26*k,(q.r*k)*0.22),ta=q.a-0.18;
+         ctx.strokeStyle=q.c;ctx.globalAlpha=Math.min(1,q.r/40);ctx.lineWidth=Math.max(1.2,2*k);ctx.beginPath();ctx.moveTo(qx,qy);ctx.lineTo(X+Math.cos(ta)*(q.r*k+tail),Y+Math.sin(ta)*(q.r*k+tail)*0.62);ctx.stroke();}
+       ctx.globalAlpha=1;
+       // 4) the pixel accretion disk: back half, event horizon, front half
+       const disk=drawDisk(h.t,h.seed),dw=core*3.3;
+       ctx.imageSmoothingEnabled=false;
+       ctx.save();ctx.beginPath();ctx.rect(X-dw,Y-dw,dw*2,dw);ctx.clip();ctx.globalAlpha=0.85;ctx.drawImage(disk,X-dw/2,Y-dw/2,dw,dw);ctx.restore();   // back half (behind the hole)
+       ctx.globalCompositeOperation='source-over';
+       const hg=ctx.createRadialGradient(X,Y,core*0.55,X,Y,core*1.3);hg.addColorStop(0,'#000');hg.addColorStop(0.72,'#030006');hg.addColorStop(1,'rgba(3,0,6,0)');
+       ctx.fillStyle=hg;ctx.beginPath();ctx.arc(X,Y,core*1.3,0,TAU);ctx.fill();
+       ctx.globalCompositeOperation='lighter';
+       ctx.strokeStyle='rgba(255,235,255,0.95)';ctx.lineWidth=Math.max(1,1.6*k);ctx.beginPath();ctx.arc(X,Y,core*1.0,0,TAU);ctx.stroke();       // photon ring
+       ctx.strokeStyle='rgba(200,110,255,0.45)';ctx.lineWidth=Math.max(2,4*k);ctx.beginPath();ctx.arc(X,Y,core*1.12,0,TAU);ctx.stroke();
+       ctx.save();ctx.beginPath();ctx.rect(X-dw,Y,dw*2,dw);ctx.clip();ctx.drawImage(disk,X-dw/2,Y-dw/2,dw,dw);ctx.restore();                         // front half (over the hole)
+       ctx.imageSmoothingEnabled=true;
+       // a few four-point glints riding the disk
+       for(let j=0;j<5;j++){const a=j*TAU/5-h.t*2.6+h.seed,rr=core*2.05,px=X+Math.cos(a)*rr,py=Y+Math.sin(a)*rr*0.34,z=(2.5+1.5*Math.sin(h.t*9+j))*k;
+         ctx.fillStyle=j%2?'rgba(255,220,250,0.9)':'rgba(190,210,255,0.85)';ctx.beginPath();ctx.moveTo(px,py-z);ctx.lineTo(px+z*0.3,py);ctx.lineTo(px,py+z);ctx.lineTo(px-z*0.3,py);ctx.closePath();ctx.fill();ctx.fillRect(px-z,py-0.5,z*2,1);}
        ctx.globalCompositeOperation='source-over';
      }else{
-       // collapse: implosion flash, then a dark blast with purple lightning
-       const u=Math.min(1,(h.t-HOLE_PULL_T)/(HOLE_LIFE-HOLE_PULL_T)),rr=R*(0.12+1.05*u);
+       // collapse: implode to a point, flash, dark shockwave with shards and lightning
+       const u=Math.min(1,(h.t-HOLE_PULL_T)/(HOLE_LIFE-HOLE_PULL_T)),rr=R*(0.1+1.1*u);
+       if(u<0.12){const c2=18*k*(1-u/0.12);ctx.fillStyle='#000';ctx.beginPath();ctx.arc(X,Y,c2,0,TAU);ctx.fill();}
        ctx.globalCompositeOperation='lighter';
-       if(u<0.2){const f=1-u/0.2;let fg=ctx.createRadialGradient(X,Y,0,X,Y,R*0.6);fg.addColorStop(0,'rgba(255,255,255,'+f+')');fg.addColorStop(1,'rgba(200,120,255,0)');ctx.fillStyle=fg;ctx.beginPath();ctx.arc(X,Y,R*0.6,0,TAU);ctx.fill();}
-       let gr=ctx.createRadialGradient(X,Y,0,X,Y,rr);gr.addColorStop(0,'rgba(255,230,255,'+(0.8*(1-u))+')');gr.addColorStop(0.35,'rgba(170,90,255,'+(0.65*(1-u))+')');gr.addColorStop(1,'rgba(40,0,90,0)');
-       ctx.fillStyle=gr;ctx.beginPath();ctx.ellipse(X,Y,rr,rr*0.7,0,0,TAU);ctx.fill();
-       ctx.strokeStyle='rgba(230,190,255,'+(1-u)+')';ctx.lineWidth=Math.max(2,7*k*(1-u));ctx.beginPath();ctx.ellipse(X,Y,rr,rr*0.7,0,0,TAU);ctx.stroke();
-       ctx.strokeStyle='rgba(255,130,230,'+(0.8*(1-u))+')';ctx.lineWidth=Math.max(1,3*k*(1-u));ctx.beginPath();ctx.ellipse(X,Y,rr*0.7,rr*0.49,0,0,TAU);ctx.stroke();
-       if(u<0.6){ctx.strokeStyle='rgba(210,170,255,'+(1-u/0.6)+')';ctx.lineWidth=Math.max(1.5,2*k);for(let j=0;j<7;j++){let a=h.seed+j*0.9,px=X,py=Y;ctx.beginPath();ctx.moveTo(px,py);for(let s2=0;s2<5;s2++){a+=(Math.random()-0.5)*0.8;const L=rr*0.22;px+=Math.cos(a)*L;py+=Math.sin(a)*L*0.7;ctx.lineTo(px,py);}ctx.stroke();}}
+       if(u<0.25){const f=1-u/0.25;let fg=ctx.createRadialGradient(X,Y,0,X,Y,R*0.7);fg.addColorStop(0,'rgba(255,255,255,'+f+')');fg.addColorStop(0.3,'rgba(230,170,255,'+0.8*f+')');fg.addColorStop(1,'rgba(120,40,220,0)');ctx.fillStyle=fg;ctx.beginPath();ctx.arc(X,Y,R*0.7,0,TAU);ctx.fill();}
+       ctx.globalCompositeOperation='source-over';
+       ctx.fillStyle='rgba(10,0,20,'+0.45*(1-u)+')';ctx.beginPath();ctx.ellipse(X,Y,rr,rr*0.7,0,0,TAU);ctx.ellipse(X,Y,rr*0.82,rr*0.82*0.7,0,0,TAU,true);ctx.fill('evenodd');   // the dark wave
+       ctx.globalCompositeOperation='lighter';
+       ctx.strokeStyle='rgba(235,200,255,'+(1-u)+')';ctx.lineWidth=Math.max(2,6*k*(1-u));ctx.beginPath();ctx.ellipse(X,Y,rr,rr*0.7,0,0,TAU);ctx.stroke();
+       ctx.strokeStyle='rgba(255,120,230,'+0.75*(1-u)+')';ctx.lineWidth=Math.max(1,2.5*k*(1-u));ctx.beginPath();ctx.ellipse(X,Y,rr*0.86,rr*0.6,0,0,TAU);ctx.stroke();
+       for(let j=0;j<14;j++){const a=h.seed+j*TAU/14,d=rr*(0.7+0.25*((j*37)%10)/10),px=X+Math.cos(a)*d,py=Y+Math.sin(a)*d*0.7,z=(5-3*u)*k;   // shards
+         ctx.save();ctx.translate(px,py);ctx.rotate(a+u*4);ctx.fillStyle=j%3?'rgba(170,110,255,'+(1-u)+')':'rgba(255,230,255,'+(1-u)+')';ctx.fillRect(-z,-z*0.35,z*2,z*0.7);ctx.restore();}
+       if(u<0.55){ctx.strokeStyle='rgba(210,170,255,'+(1-u/0.55)+')';ctx.lineWidth=Math.max(1.5,2*k);for(let j=0;j<7;j++){let a=h.seed+j*0.9,px=X,py=Y;ctx.beginPath();ctx.moveTo(px,py);for(let s2=0;s2<5;s2++){a+=(Math.random()-0.5)*0.8;const L=rr*0.2;px+=Math.cos(a)*L;py+=Math.sin(a)*L*0.7;ctx.lineTo(px,py);}ctx.stroke();}}
        ctx.globalCompositeOperation='source-over';
      }
    }

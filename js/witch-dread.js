@@ -33,6 +33,7 @@
     if (want && p.anim && p.anim.dex !== want) p.anim = anim(want, p);
     // the friend's Mega presentation re-applies its own Mega sprite every tick: hand it ours
     const ses = session(p); if (ses && want && String(p.megaForm || '') === FORM && ses.megaAnim !== p.anim) ses.megaAnim = p.anim;
+    if (megaOn(p) && performance.now() - auraSeen > 400) { auraSeen = performance.now(); try { window.PS_FX.cast('witchaura', p, { id: 'witch-aura', fx: {} }); } catch (_) {} }
   }
   function wrapCast() {
     const F = window.PS_FX, cast = F.cast;
@@ -42,6 +43,7 @@
         try { const bk = baseKey(player); if (player.anim && player.anim.dex !== bk) player.anim = anim(bk, player); } catch (_) {}
         return cast.call(this, 'dreadevo', player, Object.assign({}, move, { id: 'dreadful-evolution', fx }), ...rest);
       }
+      if (name === 'megaevo' && player && Number(player.dex) === 282) { try { player.invuln = Math.max(Number(player.invuln) || 0, 3.6); } catch (_) {} }
       return cast.call(this, name, player, move, ...rest);
     };
   }
@@ -87,7 +89,39 @@
     ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,120,90,' + 0.6 * a + ')'; ctx.lineWidth = Math.max(1, w * 0.08); ctx.beginPath(); ctx.moveTo(-w * 1.9, -hh * 0.2); ctx.lineTo(w * 1.9, hh * 0.25); ctx.stroke();   // a thin lens streak
     ctx.restore();
   }
+  // ---------------------------------------------------------------- the Mega costume's sparkles
+  // four-point sparkles twinkling around her while she's Mega (Giratina) Gardevoir: black, gold and red; white and blue when shiny
+  const SPARK = { n: ['#d01f2a', '#ffd23f', '#140c18', '#ff5a3a', '#ffd23f'], s: ['#ffffff', '#7fd4ff', '#2a7cff', '#d8f4ff', '#ffffff'] };
+  let auraSeen = 0;
+  function star(ctx, x, y, z, col, dark) {
+    ctx.beginPath(); ctx.moveTo(x, y - z); ctx.quadraticCurveTo(x + z * 0.12, y - z * 0.12, x + z, y); ctx.quadraticCurveTo(x + z * 0.12, y + z * 0.12, x, y + z);
+    ctx.quadraticCurveTo(x - z * 0.12, y + z * 0.12, x - z, y); ctx.quadraticCurveTo(x - z * 0.12, y - z * 0.12, x, y - z); ctx.closePath();
+    if (dark) { ctx.shadowColor = 'rgba(208,31,42,0.9)'; ctx.shadowBlur = z * 0.9; }
+    ctx.fillStyle = col; ctx.fill(); ctx.shadowBlur = 0;
+    ctx.lineWidth = Math.max(1, z * 0.12); ctx.strokeStyle = dark ? 'rgba(255,90,60,0.85)' : 'rgba(255,255,255,0.55)'; ctx.stroke();
+  }
+  const megaOn = p => p && witchOn(p) && String(p.megaForm || '') === FORM && /282-mega-witch/.test(String(p.anim?.dex || ''));
   function register() {
+    window.PS_FX.styles.witchaura = {
+      cast(c) { c.parts = []; c.acc = 0; auraSeen = performance.now(); return c; },
+      update(c, dt) {
+        const p = c.player; if (!megaOn(p) || p.dead) return false;
+        auraSeen = performance.now(); c.t += dt; c.x = p.x; c.y = p.y; c.H = Number(p.bodyH) || 40; c.shiny = isShiny(p);
+        c.acc += dt * 9; while (c.acc >= 1) { c.acc--; const a = rnd(0, TAU), r = rnd(0.55, 1.15); c.parts.push({ x: Math.cos(a) * c.H * 0.8 * r, y: -c.H * 0.55 + Math.sin(a) * c.H * 0.7 * r, vy: rnd(-14, -4), life: rnd(0.7, 1.3), t: 0, s: rnd(5, 10) * (Math.random() < 0.2 ? 1.5 : 1), col: Math.floor(Math.random() * 5) }); }
+        for (const q of c.parts) { q.t += dt; q.y += q.vy * dt; }
+        c.parts = c.parts.filter(q => q.t < q.life);
+        return true;
+      },
+      draw(c, ctx, v) {
+        const k = v.k, X = v.sx(c.x), Y = v.sy(c.y), pal = c.shiny ? SPARK.s : SPARK.n;
+        for (const q of c.parts) {
+          const u = q.t / q.life, pop = u < 0.3 ? u / 0.3 : 1 - (u - 0.3) / 0.7, z = q.s * k * (0.35 + 0.65 * pop) * (0.85 + 0.15 * Math.sin(q.t * 18));
+          const col = pal[q.col], dark = col === '#140c18';
+          ctx.globalAlpha = Math.min(1, pop * 1.4); star(ctx, X + q.x * k, Y + q.y * k, z, col, dark);
+        }
+        ctx.globalAlpha = 1;
+      }
+    };
     window.PS_FX.styles.dreadevo = {
       cast(c) {
         const p = c.player; dread = p; c.H = Number(p.bodyH) || 40; c.RB = Math.max(28, c.H * 0.8);
@@ -97,7 +131,7 @@
         c.cracks = []; for (let i = 0; i < 7; i++) { const a0 = i / 7 * TAU + rnd(-0.3, 0.3), pts = [[0, 0]]; let r = 0, a = a0; for (let j = 0; j < 5; j++) { r += rnd(0.17, 0.25); a += rnd(-0.45, 0.45); pts.push([Math.cos(a) * r, Math.sin(a) * r]); } c.cracks.push({ pts, at: T.crack + i * 0.12, a0 }); }
         sfx('ghost'); kick(0.3);
         c.ses = session(p); if (c.ses) c.ses.megaAnim = p.anim;   // she keeps the witch look until the orb breaks
-        try { p.invuln = Math.max(Number(p.invuln) || 0, T.burst); } catch (_) {}
+        try { p.invuln = Math.max(Number(p.invuln) || 0, T.burst + 0.8); } catch (_) {}
         return c;
       },
       update(c, dt) {

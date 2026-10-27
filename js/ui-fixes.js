@@ -28,6 +28,19 @@
     try { const b = (R().BASE_STATS || {})[p.dex]; if (!b) return null; const atk = +b[1], spa = +b[3]; if (spa >= atk * 1.4) return 'special'; if (atk >= spa * 1.4) return 'physical'; } catch (_) {}
     return null;
   }
+  // 4. A legendary's own signature move (js/legend-moves.js) is in its new-move pool, but the final four cards are a
+  //    weighted draw against all the stat cards, so it could take ages to show up (Zacian's Behemoth Blade). While it's
+  //    unlearned and a move slot is free, half the level-up screens now include it.
+  function signature(p, cards) {
+    const list = (window.PS_LEGEND_MOVES || {})[Number(p?.dex)]; if (!list || !Array.isArray(cards) || Number(p.level) < 2) return;
+    if ((p.slots?.length ?? 0) >= (p.maxMoves || 4)) return;
+    const want = list.map(m => m && m.id).filter(id => id && !(typeof p.hasMove === 'function' && p.hasMove(id)));
+    if (!want.length || cards.some(c => c && want.some(id => c.key === 'new:' + id)) || Math.random() > 0.5) return;
+    const r = R(), id = want[0], def = r.Moves?.BY_ID?.[id]; if (!def) return;
+    const card = { w: 10, type: 'new', key: 'new:' + id, icon: 'move:' + id, color: r.U?.TYPE_COLOR?.[def.type] || '#ffd23f', tag: r.U?.TYPE_NAME?.[def.type] || def.type, title: def.name, desc: def.desc, apply: pl => pl.addMove(id) };
+    let k = cards.length - 1; while (k > 0 && cards[k] && cards[k].type === 'new') k--;
+    cards[k] = card;
+  }
   function install() {
     const r = R(); if (!r || !r.LevelUp || !r.LevelUp.offer || r.LevelUp.__gardFit) return false;
     const offer = r.LevelUp.offer;
@@ -36,6 +49,8 @@
       try {
         const lean = leaning(p); if (!lean || !Array.isArray(cards)) return cards;
         const bad = lean === 'special' ? 'stat:atk' : 'stat:spa';
+        // never hide a stat that one of your moves needs to evolve (Ember -> Fire Blast needs Attack, even on special attackers)
+        try { const M = R().Moves; for (const inst of p.moves || []) { const info = M.evoInfo(inst, p.statsTaken); if (info && 'stat:' + info.needs === bad) return cards; } } catch (_) {}
         if (!cards.some(c => c && c.key === bad)) return cards;
         const keys = new Set(cards.map(c => c && c.key));
         for (let i = 0; i < cards.length; i++) {
@@ -45,6 +60,7 @@
           if (swap) { cards[i] = swap; keys.add(swap.key); }
         }
       } catch (_) {}
+      try { signature(p, cards); } catch (_) {}
       return cards;
     };
     r.LevelUp.__gardFit = true; return true;
