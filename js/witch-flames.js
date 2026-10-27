@@ -1,13 +1,15 @@
-/* [Gard v87] Witch Ralts / Witch Kirlia: green spirit flames flicker beside them (purple when shiny).
-   Ralts holds one flame at her side; Kirlia has two. Pixel art drawn small and scaled up with nearest-neighbour.
+/* [Gard v87+] Witch Ralts / Kirlia / Gardevoir: green spirit flames flicker beside/around them (purple when shiny).
+   Ralts holds one flame at her side; Kirlia has two; Gardevoir has three slowly orbiting around her.
+   Pixel art drawn small and scaled up with nearest-neighbour.
    Only for the appearance's owner (PS_COSMETICS.selected already checks the account). */
 (() => {
   'use strict';
   const R = () => window.__PSX_REG__, B = () => window.PS_MEGA_BRIDGE_V5, TAU = Math.PI * 2;
-  const SKIN = { 280: '280-witch', 281: '281-witch' };
+  const SKIN = { 280: '280-witch', 281: '281-witch', 282: '282-witch' };
   const PAL = { n: ['#0b3a1c', '#128a3a', '#46e85a', '#b8ff9a', '#f0fff0'], s: ['#2a0f4a', '#6a2ac0', '#b05aff', '#e0b0ff', '#fbf0ff'] };
   const W = 14, H = 22, buf = document.createElement('canvas'); buf.width = W; buf.height = H;
-  const on = p => { try { const d = Number(p?.dex); return !!SKIN[d] && window.PS_COSMETICS?.selected(d) === SKIN[d] && !p.megaForm; } catch (_) { return false; } };
+  const activePlayer = () => B()?.game?.player || R()?.Game?.player || null;
+  const on = p => { try { const d = Number(p?.dex); return !!p && p === activePlayer() && !!SKIN[d] && window.PS_COSMETICS?.selected(d) === SKIN[d] && !p.megaForm; } catch (_) { return false; } };
   const shiny = p => !!(p && (p.shiny || /-s$/.test(String(p.anim?.dex || ''))));
   function flame(t, seed, pal) {
     const g = buf.getContext('2d'); g.clearRect(0, 0, W, H);
@@ -34,10 +36,37 @@
     const F = window.PS_FX; if (!F || !F.styles || F.styles.witchflame) return !!F?.styles?.witchflame;
     F.styles.witchflame = {
       cast(c) { seen = performance.now(); return c; },
-      update(c, dt) { const p = c.player; if (!on(p) || p.dead) return false; seen = performance.now(); c.t += dt; c.x = p.x; c.y = p.y; c.H = Number(p.bodyH) || 30; c.kir = Number(p.dex) === 281; c.sh = shiny(p); c.face = p.anim?.dir ?? 0; return true; },
+      update(c, dt) {
+        const p = c.player;
+        if (!on(p) || p.dead) return false;
+        const list = window.PS_FX?.list?.('witchflame');
+        if (Array.isArray(list) && list.length > 1 && list[0] !== c) return false;
+        seen = performance.now();
+        c.t += dt; c.x = p.x; c.y = p.y; c.H = Number(p.bodyH) || 30;
+        const d = Number(p.dex);
+        c.kir = d === 281; c.gard = d === 282;
+        c.sh = shiny(p); c.face = p.anim?.dir ?? 0;
+        return true;
+      },
       draw(c, ctx, v) {
-        const k = v.k, X = v.sx(c.x), Y = v.sy(c.y), pal = c.sh ? PAL.s : PAL.n, sc = Math.max(1, c.H * k * (c.kir ? 0.55 : 0.6) / H);
-        const spots = c.kir ? [[-0.55, -0.42, 0], [0.58, -0.62, 1.7]] : [[-0.58, -0.3, 0]];
+        const k = v.k, X = v.sx(c.x), Y = v.sy(c.y), pal = c.sh ? PAL.s : PAL.n;
+        const sc = Math.max(1, c.H * k * (c.gard ? 0.52 : c.kir ? 0.55 : 0.6) / H);
+        let spots;
+        if (c.gard) {
+          // 3 wisps evenly spaced (120 deg apart), orbiting slowly in an ellipse centered on Gardevoir's torso
+          const rotSpeed = 0.85; // slow, graceful radians/sec
+          const rx = 0.72, ry = 0.28, centerY = -0.48;
+          spots = [0, 1, 2].map(i => {
+            const ang = c.t * rotSpeed + (i * TAU / 3);
+            return [Math.cos(ang) * rx, centerY + Math.sin(ang) * ry, i * 2.1, Math.sin(ang)];
+          });
+          // Sort back-to-front by vertical orbit depth so wisps pass cleanly behind/in front of each other
+          spots.sort((a, b) => a[3] - b[3]);
+        } else if (c.kir) {
+          spots = [[-0.55, -0.42, 0, 0], [0.58, -0.62, 1.7, 0]];
+        } else {
+          spots = [[-0.58, -0.3, 0, 0]];
+        }
         ctx.save(); ctx.imageSmoothingEnabled = false;
         for (const [ox, oy, seed] of spots) {
           const fx = X + ox * c.H * k, fy = Y + oy * c.H * k + Math.sin(c.t * 2.2 + seed) * 2 * k;
@@ -57,8 +86,15 @@
     requestAnimationFrame(loop);
     try {
       if (!register()) return;
-      const p = B()?.game?.player; if (!p || !on(p) || R()?.Game?.state !== 'playing') return;
-      if (performance.now() - seen > 400) { seen = performance.now(); window.PS_FX.cast('witchflame', p, { id: 'witch-flame', fx: {} }); }
+      const p = activePlayer();
+      if (!p || !on(p) || R()?.Game?.state !== 'playing') return;
+      const liveFlames = window.PS_FX?.list?.('witchflame') || [];
+      const hasCurrent = liveFlames.some(c => c.player === p);
+      if (!hasCurrent && performance.now() - seen > 150) {
+        for (const old of liveFlames) if (old.player && old.player !== p) window.PS_FX?.clearForPlayer?.(old.player);
+        seen = performance.now();
+        window.PS_FX.cast('witchflame', p, { id: 'witch-flame', fx: {} });
+      }
     } catch (_) {}
   })();
 })();
