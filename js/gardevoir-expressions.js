@@ -25,7 +25,7 @@
  }
  const update=R.Player.prototype.update;R.Player.prototype.update=function(dt,...a){const result=update.call(this,dt,...a);tick(this,dt);return result;};
  const faces=window.PS_GARDEVOIR_FACES||{};
- function face(p,expression=emotion(p)){const shiny=!!(p.shiny||p.anim?.shiny),kind=(mega(p)?'mega':'base')+(shiny?'-shiny':'-normal');return {src:faces[kind]?.[expression]||faces[kind]?.Normal||'assets/ui/gardevoir-emotions/'+kind+'-normal.png',rect:[0,0,40,40]};}
+ function face(p,expression=emotion(p)){const skin=window.PS_WITCH_PORTRAITS?.face(p,expression);if(skin)return skin;const shiny=!!(p.shiny||p.anim?.shiny),kind=(mega(p)?'mega':'base')+(shiny?'-shiny':'-normal');return {src:faces[kind]?.[expression]||faces[kind]?.Normal||'assets/ui/gardevoir-emotions/'+kind+'-normal.png',rect:[0,0,40,40]};}
  function image(src){let im=images.get(src);if(!im){im=new Image();im.src=src;images.set(src,im);}return im;}
  function drawPortrait(ctx,p,x,y,size,alpha=1){if(!valid(p))return false;const f=face(p),im=image(f.src);if(!im.complete||!im.naturalWidth)return false;ctx.save();ctx.globalAlpha*=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(im,...f.rect,Math.round(x),Math.round(y),size,size);ctx.restore();return true;}
  for(const group of Object.values(faces))for(const src of Object.values(group))image(src);
@@ -37,6 +37,6 @@
  const portraits=window.PS_PORTRAITS,draw=portraits.draw,element=portraits.element;
  function sample(dex,shiny){return {dex:282,shiny,megaKey:/mega/.test(String(dex))?'282_mega':null};}
  if(draw)portraits.draw=function(ctx,dex,x,y,size,alpha=1,options={}){if(Number(String(dex).split(/[_-]/)[0])!==282)return draw.apply(this,arguments);const p=sample(dex,!!options.shiny),f=face(p,'Normal'),im=image(f.src);if(!im.complete||!im.naturalWidth)return draw.apply(this,arguments);ctx.save();ctx.globalAlpha*=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(im,...f.rect,Math.round(x),Math.round(y),size,size);ctx.restore();return true;};
- if(element)portraits.element=function(dex,size=80,options={}){const el=element.apply(this,arguments);if(!el||Number(String(dex).split(/[_-]/)[0])!==282||options.silhouette)return el;const f=face(sample(dex,!!options.shiny),'Normal');el.style.backgroundImage='url("'+f.src+'")';el.style.backgroundSize='100% 100%';el.style.backgroundPosition='0 0';return el;};
+ if(element)portraits.element=function(dex,size=80,options={}){const el=element.apply(this,arguments);if(!el||Number(String(dex).split(/[_-]/)[0])!==282||options.silhouette)return el;const f=face(sample(dex,!!options.shiny),'Normal');el.style.backgroundImage='url("'+f.src+'")';el.style.backgroundSize=f.grid?f.grid[0]*100+'% '+f.grid[1]*100+'%':'100% 100%';el.style.backgroundPosition=f.grid?f.cell[0]/(f.grid[0]-1)*100+'% '+f.cell[1]/(f.grid[1]-1)*100+'%':'0 0';return el;};
  window.PS_GARDEVOIR_EXPRESSIONS={emotion,face,drawPortrait,gesture,manualPose,tick,state,valid,notify,holdSeconds:HOLD};
 })();
