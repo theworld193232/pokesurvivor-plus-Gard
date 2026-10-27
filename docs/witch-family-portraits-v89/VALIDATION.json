@@ -1,0 +1,24 @@
+{
+  "base": "gard-v88 supplied ZIP",
+  "version": "gard-v89-witch-family-portraits",
+  "tests": {
+    "passed": 29,
+    "failed": 0
+  },
+  "native_cases": [
+    "Ralts normal",
+    "Ralts shiny",
+    "Kirlia normal",
+    "Kirlia shiny",
+    "Ralts \u2192 Kirlia \u2192 Gardevoir \u2192 Ralts"
+  ],
+  "new_portraits": 40,
+  "modified_existing_files": [
+    "CREDITS.md",
+    "index.html",
+    "js/gardevoir-expressions.js",
+    "js/witch-portraits.js",
+    "version.json"
+  ],
+  "original_sprite_files_unchanged": true
+}

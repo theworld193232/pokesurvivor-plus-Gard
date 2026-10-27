@@ -1,0 +1,194 @@
+{
+  "raltsNormal": {
+    "dex": 280,
+    "shiny": false,
+    "anim": "280-witch",
+    "face": {
+      "src": "assets/ui/witch-portraits/ralts-emotions-v89.png",
+      "rect": [
+        0,
+        0,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        0
+      ],
+      "skin": "ralts-witch",
+      "mood": "Normal"
+    }
+  },
+  "raltsShiny": {
+    "dex": 280,
+    "shiny": true,
+    "anim": "280-witch-s",
+    "face": {
+      "src": "assets/ui/witch-portraits/ralts-emotions-v89.png",
+      "rect": [
+        0,
+        561,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        2
+      ],
+      "skin": "ralts-witch-shiny",
+      "mood": "Normal"
+    }
+  },
+  "kirliaNormal": {
+    "dex": 281,
+    "shiny": false,
+    "anim": "281-witch",
+    "face": {
+      "src": "assets/ui/witch-portraits/kirlia-emotions-v89.png",
+      "rect": [
+        0,
+        0,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        0
+      ],
+      "skin": "kirlia-witch",
+      "mood": "Normal"
+    }
+  },
+  "kirliaShiny": {
+    "dex": 281,
+    "shiny": true,
+    "anim": "281-witch-s",
+    "face": {
+      "src": "assets/ui/witch-portraits/kirlia-emotions-v89.png",
+      "rect": [
+        0,
+        561,
+        280.4,
+        280.5
+      ],
+      "grid": [
+        5,
+        4
+      ],
+      "cell": [
+        0,
+        2
+      ],
+      "skin": "kirlia-witch-shiny",
+      "mood": "Normal"
+    }
+  },
+  "transitions": {
+    "rows": [
+      {
+        "dex": 280,
+        "anim": "280-witch-s",
+        "face": {
+          "src": "assets/ui/witch-portraits/ralts-emotions-v89.png",
+          "rect": [
+            0,
+            561,
+            280.4,
+            280.5
+          ],
+          "grid": [
+            5,
+            4
+          ],
+          "cell": [
+            0,
+            2
+          ],
+          "skin": "ralts-witch-shiny",
+          "mood": "Normal"
+        }
+      },
+      {
+        "dex": 281,
+        "anim": "281-witch-s",
+        "face": {
+          "src": "assets/ui/witch-portraits/kirlia-emotions-v89.png",
+          "rect": [
+            0,
+            561,
+            280.4,
+            280.5
+          ],
+          "grid": [
+            5,
+            4
+          ],
+          "cell": [
+            0,
+            2
+          ],
+          "skin": "kirlia-witch-shiny",
+          "mood": "Normal"
+        }
+      },
+      {
+        "dex": 282,
+        "anim": "282-witch-s",
+        "face": {
+          "src": "assets/ui/witch-shiny-emotions-v83.png",
+          "rect": [
+            0,
+            0,
+            396.6,
+            396.5
+          ],
+          "grid": [
+            5,
+            2
+          ],
+          "cell": [
+            0,
+            0
+          ],
+          "skin": "witch-shiny",
+          "mood": "Normal"
+        }
+      },
+      {
+        "dex": 280,
+        "anim": "280-witch-s",
+        "face": {
+          "src": "assets/ui/witch-portraits/ralts-emotions-v89.png",
+          "rect": [
+            0,
+            561,
+            280.4,
+            280.5
+          ],
+          "grid": [
+            5,
+            4
+          ],
+          "cell": [
+            0,
+            2
+          ],
+          "skin": "ralts-witch-shiny",
+          "mood": "Normal"
+        }
+      }
+    ]
+  }
+}
