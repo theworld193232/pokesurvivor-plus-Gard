@@ -1,6 +1,6 @@
 {
-  "syntaxCheckedScripts": 146,
-  "regressionsPassed": 189,
+  "syntaxCheckedScripts": 147,
+  "regressionsPassed": 195,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -450,7 +450,7 @@
     "browserErrors": 0,
     "tests": 115
   },
-  "currentVersion": "islands-regis-v36",
+  "currentVersion": "crowned-bloom-v40",
   "legendaryOnlyV28": {
     "ordinaryNativeSize": true,
     "legendarySizesRetained": true,
@@ -596,5 +596,21 @@
     "palettes": 4,
     "shinySelection": "Collection card, detail and team; cross-menu choices verified",
     "karma": "retired; no loader, commands or runtime hooks"
+  },
+  "selectionCrownedV39": {
+    "normalAndShinyNativeCases": 4,
+    "cryRequestsPerReveal": 1,
+    "benchRestoreWithoutReplay": true,
+    "effectCleanupVerified": true,
+    "gridVariantDropdowns": 0,
+    "rightPanelVariantButtons": 2,
+    "visualReference": "User-provided zaciangif.gif and transformnation.gif; original pixel flame-cocoon VFX",
+    "onlineCoopTested": false
+  },
+  "crownedBloomV40": {
+    "targetedTestsPassed": 6,
+    "previousFullSuitePassed": 195,
+    "pulseAndSwirl": true,
+    "reviewClockFreezeRemoved": true
   }
 }

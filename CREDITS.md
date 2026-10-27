@@ -299,3 +299,9 @@ Regi encounter code: DexterDamg/pokesurvivor-plus development branch fa6969548cf
 
 ## Browser game imports v37
 Tutners promo costumes based on PMDCollab SpriteCollab (CC BY-NC 4.0), with original artist records preserved. Selected Pokémon Ranger 3 Guardian Signs effects via Shadows of Almia Showdown / The Spriters Resource. Two Sunnyside World mushroom strips by Daniel Diggle (https://danieldiggle.itch.io/sunnyside). See SOURCE_LICENSES/browser-games-v37/PROVENANCE.md for sources and exclusions. Camp resting was independently implemented from the general concept observed in PokéDive.
+
+## Gardevoir alternate portraits v38
+Additional Alternate/Cutscene/Mega normal and shiny expressions from PMDCollab SpriteCollab, with per-folder artist records and provenance in SOURCE_LICENSES/gardevoir-faces-v38/.
+
+## Crowned awakenings v39
+Original pixel/canvas effects referenced to the official Pokémon Evolutions episode The Champion; no video frames or soundtrack bundled. Zacian and Zamazenta cries sourced unchanged from PokeAPI/cries. See SOURCE_LICENSES/crowned-v39/PROVENANCE.md.

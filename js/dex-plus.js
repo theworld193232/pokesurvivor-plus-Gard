@@ -124,7 +124,6 @@
     try { c.appendChild(E().UI.spriteCanvas(p.dex, 92, 74, { scale: 2, silhouette: !own, shadow: own, shiny:variantOf(p.dex) })); } catch (_) {}
     }
     c.insertAdjacentHTML('beforeend', '<b>' + (own ? p.name : '???') + '</b>' + stars(p.rarity, 9));
-    if(own){const select=document.createElement('select');select.className='field';select.style.cssText='width:100%;min-width:0;margin-top:5px;font-size:12px;padding:3px';select.setAttribute('aria-label',p.name+' Normal or Shiny');for(const [value,label]of [['normal','Normal'],['shiny',sh?'Shiny ✨':'Shiny · not owned']]){const option=document.createElement('option');option.value=value;option.textContent=label;option.disabled=value==='shiny'&&!sh;select.append(option);}select.value=variantOf(p.dex)?'shiny':'normal';select.onclick=e=>e.stopPropagation();select.onkeydown=e=>e.stopPropagation();select.onchange=e=>{e.stopPropagation();window.PSXAI?.Team?.setShiny(p.dex,select.value==='shiny');viewShiny=select.value==='shiny';sel=p.dex;detail.last=p.dex;grid(true);detail(p.dex);};c.append(select);}
     c.onclick = () => { sel = p.dex;viewShiny=variantOf(p.dex); $('.grid').querySelectorAll('.cell').forEach(x => x.classList.remove('on')); c.classList.add('on'); detail(p.dex); };
     return c;
   }
@@ -141,19 +140,19 @@
     if(!hasSh)viewShiny=false;else if(dex!==detail.last)viewShiny=variantOf(dex);detail.last=dex;
     const bar = (l, v, m, t) => '<div class="stat"><span>' + l + '</span><div class="bar"><i style="width:' + Math.min(100, v / m * 100) + '%"></i></div><span>' + t + '</span></div>';
     const using = isP && (!hasSh || !!s.partnerShiny === viewShiny);
+    const colorChoice = ('<div class="seg" aria-label="Pokémon color selection"><button class="' + (viewShiny ? '' : 'on') + '" data-v="0">Normal</button><button '+(hasSh?'':'disabled title="Catch or summon this shiny first"')+' class="' + (viewShiny ? 'on' : '') + '" data-v="1">' + ico('shiny', 12) + ' Shiny'+(hasSh?'':' · locked')+'</button></div>');
     const tc = t => '<span class="ty" style="background:' + ((N.U.TYPE_COLOR || {})[t] || '#ccc') + '">' + tname(t) + '</span>';
     let moves = ''; try { moves = N.Moves.poolFor(p).map(id => '<button class="chip" data-move-info="'+id+'" title="' + (N.Moves.BY_ID[id] || {}).name + '">' + ico('move:' + id, 16) + '</button>').join(''); } catch (_) {}
     let start = ''; try { start = (N.Moves.BY_ID[N.startMoveOf(dex)] || {}).name || ''; } catch (_) {}
     const d = $('.det');
     d.innerHTML = '<canvas class="stage" width="220" height="190"></canvas>' +
-      ('<div class="seg" aria-label="Pokémon color selection"><button class="' + (viewShiny ? '' : 'on') + '" data-v="0">Normal</button><button '+(hasSh?'':'disabled title="Catch or summon this shiny first"')+' class="' + (viewShiny ? 'on' : '') + '" data-v="1">' + ico('shiny', 12) + ' Shiny'+(hasSh?'':' · locked')+'</button></div>') +
       '<div class="center"><div class="mut">Nº ' + String(p.dex).padStart(3, '0') + ' · ' + (GEN[p.gen - 1] || '') + '</div><h3>' + (own ? p.name : '???') + '</h3>' +
       (own ? '<button class="chip' + (isFav(dex) ? ' on' : '') + '" data-fav="1" style="margin:6px auto">' + ico('star', 12) + ' ' + (isFav(dex) ? 'Favorite' : 'Mark as favorite') + '</button>' : '') +
       '<div style="color:' + RCOL[p.rarity] + ';margin:4px 0">' + stars(p.rarity, 24) + ' ' + RAR[p.rarity] + '</div>' + (own ? '<div class="types">' + p.types.map(tc).join('') + '</div>' : '') + '</div>' +
       (own ? bar('HP', p.hp, 183, p.hp) + bar('Attack', p.atk, 1.55, '×' + Number(p.atk).toFixed(2)) + bar('Speed', p.spd, 137, p.spd) +
         (p.types.length === 1 ? '<p class="sub center" style="margin:4px 0 0">Single type: +20% damage with its ' + tname(p.types[0]) + ' moves</p>' : '') +
         (start ? '<p class="center" style="margin:6px 0 2px;font-size:14px">Starts with <b class="gold">' + start + '</b></p>' : '') + (moves ? '<div class="moves">' + moves + '</div>' : '') +
-        (using ? '<button class="btn" disabled style="width:100%">Your partner</button>' : pickBtn(dex, p, viewShiny))
+        ('<div class="partner-choice" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"><span class="mut center">Choose appearance</span>'+colorChoice+(using ? '<button class="btn" disabled style="width:100%">Your partner</button>' : pickBtn(dex, p, viewShiny))+'</div>')
         : '<p class="center mut">You don\'t have it yet.<br>Get it from the <b class="gold">' + (GEN[p.gen - 1] || '') + '</b> banner' + (p.rarity === 5 ? ', a Legendary Den,' : '') + ' or by defeating it when it shows up shiny.</p>');
     const head=window.PS_PORTRAITS?.element(dex,80,{silhouette:!own,name:own?p.name:'Unknown Pokémon',shiny:own&&viewShiny});if(head){head.style.margin='0 auto';head.title=(viewShiny&&window.PS_PORTRAITS?.hasShiny(dex)?'Shiny':'Normal')+' portrait artwork · SpriteCollab';d.prepend(head);}
     if(hasSh){const compare=document.createElement('button');compare.className='chip';compare.textContent='Compare Normal / Shiny';let panel=null;compare.onclick=()=>{if(panel){panel.remove();panel=null;return;}panel=document.createElement('div');panel.style.cssText='display:flex;justify-content:center;gap:6px;flex-wrap:wrap';compare.after(panel);for(const shiny of [false,true]){const item=document.createElement('div'),label=document.createElement('div'),canvas=document.createElement('canvas');label.textContent=shiny?'Shiny':'Normal';label.className='center';canvas.width=100;canvas.height=100;canvas.style.imageRendering='pixelated';item.append(label,canvas);panel.append(item);N.UI.sprite(canvas,dex,{lively:true,spin:true,scale:2,hero:true,shiny});}};d.appendChild(compare);}
