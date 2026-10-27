@@ -1,0 +1,181 @@
+{
+  "sources": {
+    "tutners": "https://tutners.com/credits.html",
+    "almia": "https://github.com/wesmillet/Shadows-of-Almia-Showdown",
+    "almiaTreeSHA": "4966579ad2857ca743e36abb6244111618843d29",
+    "pokedive": "https://pokedive.com/?beta=REDDIT",
+    "reddit": "https://www.reddit.com/r/pokemonbrowsergames/"
+  },
+  "pokediveRoster": 1935,
+  "newCostumes": [
+    "Surfing Pikachu",
+    "Witch Gengar",
+    "Count Dragonite"
+  ],
+  "newDirectionalMegaMetagross": false,
+  "newDirectionalMegaMewtwoX": false,
+  "exclusions": [
+    "Paid Fan-tasy tiles/expansions",
+    "Unverified skins or static sprites",
+    "Original game music",
+    "Trainer battles and story systems"
+  ],
+  "files": {
+    "assets/fx/guardian-signs/fx_200.png": {
+      "bytes": 5651,
+      "sha256": "cfb8558bd5c4c16bb0ecf17bcf7327a8c0d029778d49e0a58854b95d181c2c18"
+    },
+    "assets/fx/guardian-signs/fx_163.png": {
+      "bytes": 2138,
+      "sha256": "c4d0cc366551e61747684018e62a1769bf600a86bd96847ecadcff12624dce0f"
+    },
+    "assets/fx/guardian-signs/fx_014.png": {
+      "bytes": 4756,
+      "sha256": "ef7a3532797fde04d5d4f5096564fa5f37a220521e00d46fb231d3b2bd7b0617"
+    },
+    "assets/fx/guardian-signs/fx_067.png": {
+      "bytes": 4385,
+      "sha256": "1a57bac1d36b59a31c6748f0c507297b2f6b0773e9b37cc4c7866955e5e16c15"
+    },
+    "assets/fx/guardian-signs/fx_071.png": {
+      "bytes": 394,
+      "sha256": "b458ec16beb717b0ff9468a4f174e9ac72f48b6a57479426fcbcf89add3c433c"
+    },
+    "assets/fx/guardian-signs/fx_041.png": {
+      "bytes": 2578,
+      "sha256": "206b22bc7e5be4be0eb97282f07bdc7555987491bcbdebf376afef7c5d02e1cd"
+    },
+    "assets/fx/guardian-signs/fx_096.png": {
+      "bytes": 917,
+      "sha256": "70d24e051e68ceccee399c039d7fe3930e549d95df72a138b9f274f887f446c3"
+    },
+    "assets/fx/guardian-signs/fx_056.png": {
+      "bytes": 4104,
+      "sha256": "693f657f19b368874fe9e8c38705b58a06dff25d8200348f4d5bdc31fcd13e57"
+    },
+    "assets/fx/guardian-signs/fx_132.png": {
+      "bytes": 8075,
+      "sha256": "18baef161616340791b434d20cb4dde1117dd5a6c950f597b4a2543284ebbece"
+    },
+    "assets/fx/guardian-signs/fx_052.png": {
+      "bytes": 3435,
+      "sha256": "f3d88051428245d1ff2643fa16c7338bbbce970c2ef199865e4e43b0d851c97f"
+    },
+    "assets/fx/guardian-signs/fx_046.png": {
+      "bytes": 2762,
+      "sha256": "33364bade2783b25de2942891dbbec344bf990c8e8e875f0dc15336f9ea6b00b"
+    },
+    "assets/fx/guardian-signs/fx_044.png": {
+      "bytes": 4529,
+      "sha256": "ab972ff6269d31e76f954893b5976b9020130a114d2bf8479a96385aa8a1ea87"
+    },
+    "assets/fx/guardian-signs/fx_168.png": {
+      "bytes": 763,
+      "sha256": "119f0e24db325ef94b174db0c8212a3113b2a52bbc6a86a0965172c905a50e36"
+    },
+    "assets/fx/guardian-signs/fx_035.png": {
+      "bytes": 2859,
+      "sha256": "42ce8425a7b1183d076760418e46b270ff47aa3d2fcab239859baa5ac6b58840"
+    },
+    "assets/fx/guardian-signs/fx_025.png": {
+      "bytes": 1168,
+      "sha256": "2bc360650b91e15e981eee5a18bcae83a6c3129e4beaf0f3c1592f8aab5949ba"
+    },
+    "assets/fx/guardian-signs/fx_152.png": {
+      "bytes": 397,
+      "sha256": "da3ac78a42029db8fde0da2e38a95f882f28f49452f5669013972194897eb870"
+    },
+    "assets/env/sunnyside/spr_deco_mushroom_blue_01_strip4.png": {
+      "bytes": 475,
+      "sha256": "ac54fbde810a274a65535237f8b26ce06fc355d43aeacac53b86595a4643ef1f"
+    },
+    "assets/env/sunnyside/spr_deco_mushroom_red_01_strip4.png": {
+      "bytes": 515,
+      "sha256": "71185a5280746ded3e5d8979b6949ea24bb944546226136d35416ae484e3ea1c"
+    },
+    "assets/pokemon/94-tutners-witch/Faint.png": {
+      "bytes": 7764,
+      "sha256": "9c87d11a9b74bbb63ed161b2635a0317c1cf430069b001db63b06795bf611635"
+    },
+    "assets/pokemon/94-tutners-witch/Charge.png": {
+      "bytes": 9083,
+      "sha256": "7daa21c5716ff7baa7749a19ed2b1957d34229df8f81ad29666597f727e3b9ee"
+    },
+    "assets/pokemon/94-tutners-witch/Idle.png": {
+      "bytes": 10201,
+      "sha256": "05c76b516d586fc6a7709a9945916cc06f3a077a37302aa70809b7693b7e3d26"
+    },
+    "assets/pokemon/94-tutners-witch/Hurt.png": {
+      "bytes": 4567,
+      "sha256": "ed598e4bcbd7e7c9e7630cb0dec869afb21b5e5168b1b09220ad9b7208932df2"
+    },
+    "assets/pokemon/94-tutners-witch/Walk.png": {
+      "bytes": 7561,
+      "sha256": "aba8e5660ac4d0b91599f34e25e787ecfd40ec6b05a23ea8d8147ff9adeb2e91"
+    },
+    "assets/pokemon/94-tutners-witch/Attack.png": {
+      "bytes": 21224,
+      "sha256": "50b43395a7a75ddb1bc2913bb7b54d0b1a291fc4540489d0c19b6cd0909f3611"
+    },
+    "assets/pokemon/94-tutners-witch/Shoot.png": {
+      "bytes": 18244,
+      "sha256": "4e3a49945fff3e687a9bc19c6775544e555820608bf1d7e501f0f2e4fbf92316"
+    },
+    "assets/pokemon/149-tutners-cape/Faint.png": {
+      "bytes": 5669,
+      "sha256": "6bbea943e569d6f46bb320805334a1d4a11a659d8a893016af5ea9023b38504b"
+    },
+    "assets/pokemon/149-tutners-cape/Charge.png": {
+      "bytes": 8551,
+      "sha256": "0d1602b23229b2514d29369313af3a49ae852afbbda0d714a862434e92c79f0d"
+    },
+    "assets/pokemon/149-tutners-cape/Idle.png": {
+      "bytes": 12191,
+      "sha256": "15d842769fd5a3e4e9f541ff6e557a831b03e2ae8008342ec57a5a0fc2aec796"
+    },
+    "assets/pokemon/149-tutners-cape/Hurt.png": {
+      "bytes": 5669,
+      "sha256": "6bbea943e569d6f46bb320805334a1d4a11a659d8a893016af5ea9023b38504b"
+    },
+    "assets/pokemon/149-tutners-cape/Walk.png": {
+      "bytes": 9896,
+      "sha256": "0d1443ba271f3c1d7e480ce6951a3a600d91536b4edec3107a18c340f5be051c"
+    },
+    "assets/pokemon/149-tutners-cape/Attack.png": {
+      "bytes": 25654,
+      "sha256": "acfdcf91e1a6e187eab29a8f376f352a9b078de9605d3601827f0eddfa189260"
+    },
+    "assets/pokemon/149-tutners-cape/Shoot.png": {
+      "bytes": 19244,
+      "sha256": "c6d50a34cc3c74c33b56b0518dada34408dc65f8e5e5538b63f376c34fca6c83"
+    },
+    "assets/pokemon/25-tutners-surf/Faint.png": {
+      "bytes": 8629,
+      "sha256": "fce369fcee19144f8ae3df53a094cb87126f9a0acd3eded57d66e405f386d36b"
+    },
+    "assets/pokemon/25-tutners-surf/Charge.png": {
+      "bytes": 8897,
+      "sha256": "5c82a22bb5fc1bce9573c8a49ed71b18bba2177e43e3eaa3369632ef4f010123"
+    },
+    "assets/pokemon/25-tutners-surf/Idle.png": {
+      "bytes": 9056,
+      "sha256": "d5a2729ef4674393290fb5af40976b76fe202b52b170e612af908e24bdaa71e7"
+    },
+    "assets/pokemon/25-tutners-surf/Hurt.png": {
+      "bytes": 4735,
+      "sha256": "903226a2ac032a5da65238ca97a741c8420e652f2d88b685e8800ad7f82667c2"
+    },
+    "assets/pokemon/25-tutners-surf/Walk.png": {
+      "bytes": 7730,
+      "sha256": "bdf4d1a995a3f241037cce8944ee4470e02b63023478771430c444ff15fc58b1"
+    },
+    "assets/pokemon/25-tutners-surf/Attack.png": {
+      "bytes": 19097,
+      "sha256": "d79ac19cc12c176769484032a2b8ab90ac284196259b42dc2ae6c35c505f685f"
+    },
+    "assets/pokemon/25-tutners-surf/Shoot.png": {
+      "bytes": 12999,
+      "sha256": "01bee916557947adaa87d8d37f6e6521eae685aa948736acd6cb1b1532b13470"
+    }
+  }
+}

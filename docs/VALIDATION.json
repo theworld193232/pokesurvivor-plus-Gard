@@ -1,6 +1,6 @@
 {
   "syntaxCheckedScripts": 119,
-  "regressionsPassed": 172,
+  "regressionsPassed": 177,
   "unchangedFromFriendZip": [
     "js/ai/34-forest.js",
     "js/ai/36-sky.js",
@@ -572,5 +572,13 @@
     "privateAttractFollowers": 2,
     "privateAttractSeconds": 12,
     "speciesItemCatalog": true
+  },
+  "browserImportsV37": {
+    "costumes": 3,
+    "directionalRenderDraws": 840,
+    "invalidDraws": 0,
+    "effectTypes": 9,
+    "unitRegressionsAdded": 5,
+    "camp": "10% active HP, once per generated camp per run; damage/movement/hostiles/pause/co-op gates tested"
   }
 }

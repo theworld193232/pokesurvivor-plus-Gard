@@ -296,3 +296,6 @@ Gigantamax Charizard/Alcremie sprite sheets and additional form headshots: PMDCo
 ## Islands, Regis and expressions v36
 
 Regi encounter code: DexterDamg/pokesurvivor-plus development branch fa6969548cf0d36233a15bb6a352185b0ed2ff19, adapted for Gard maps; provenance in SOURCE_LICENSES/friend-regis-v36. Gardevoir gesture sprites and emotional portraits: supplied by the user and PMDCollab/SpriteCollab (CC BY-NC 4.0), artist IDs and source paths in SOURCE_LICENSES/gardevoir-expressions-v36/CREDITS.json; original PNGs preserved. Sanctuary arch generated with the built-in image tool from the user's architectural reference; prompt in docs/FOREST-SANCTUARY-ART-v36.md.
+
+## Browser game imports v37
+Tutners promo costumes based on PMDCollab SpriteCollab (CC BY-NC 4.0), with original artist records preserved. Selected Pokémon Ranger 3 Guardian Signs effects via Shadows of Almia Showdown / The Spriters Resource. Two Sunnyside World mushroom strips by Daniel Diggle (https://danieldiggle.itch.io/sunnyside). See SOURCE_LICENSES/browser-games-v37/PROVENANCE.md for sources and exclusions. Camp resting was independently implemented from the general concept observed in PokéDive.
