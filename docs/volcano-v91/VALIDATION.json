@@ -1,0 +1,115 @@
+{
+  "base": "pokesurvivor-plus-Gard-main (5).zip / gard-v90-portrait-crop",
+  "version": "gard-v91-cinderwake-caldera",
+  "tests": {
+    "passed": 22,
+    "failed": 0
+  },
+  "native_lava_damage": {
+    "before": 35,
+    "after": 32,
+    "damage": 3,
+    "point": {
+      "x": 592.8367641190619,
+      "y": 415.7870105155248,
+      "lava": true
+    },
+    "afterPos": {
+      "x": 592.8367641190619,
+      "y": 415.7870105155248
+    }
+  },
+  "forest_regression": {
+    "map": "Shady Forest",
+    "active": false,
+    "world": "Shady Forest",
+    "areaZeroUnchanged": true
+  },
+  "native_final_stress": {
+    "map": {
+      "n": 5,
+      "biome": 2,
+      "name": "Cinderwake Caldera",
+      "types": [
+        "fire",
+        "rock",
+        "ground",
+        "flying",
+        "steel",
+        "dark",
+        "poison"
+      ],
+      "arceusK": 45,
+      "legendK": 2.5,
+      "arceusMin": 2000000,
+      "legendMin": 200000,
+      "coins": 45000,
+      "t10": 7,
+      "k": 3,
+      "dk": 2,
+      "bonus": 0.75,
+      "diff": "Caldera",
+      "col": "#f58c4c",
+      "crystalPeak": false,
+      "psLevel": 4,
+      "volcano": true
+    },
+    "player": {
+      "dex": 37,
+      "level": 5,
+      "x": 750.3782507374599,
+      "y": -3315.0354772575033
+    },
+    "worldBiome": 2,
+    "envBiome": 2,
+    "oceanBiome": 25,
+    "oceanOn": false,
+    "stats": {
+      "chunks": 38,
+      "regions": 28,
+      "propCells": 15,
+      "discoveries": 0,
+      "footprints": 0
+    },
+    "pool": [
+      37,
+      58,
+      74,
+      77,
+      88,
+      109,
+      126,
+      155,
+      218,
+      228,
+      240,
+      255,
+      304,
+      322,
+      324,
+      343,
+      390,
+      498,
+      513,
+      524,
+      551,
+      554,
+      607,
+      631,
+      632,
+      636,
+      757,
+      843,
+      850,
+      935
+    ],
+    "entities": 81,
+    "frameTimes": {
+      "samples": 240,
+      "median": 16.699999999982538,
+      "p95": 17.20000000001164
+    }
+  },
+  "runtime_console_warnings_and_errors": [],
+  "validation_scope": "Solo local native engine, multiple seeds and model/unit checks. Live multi-device co-op not validated."
+}

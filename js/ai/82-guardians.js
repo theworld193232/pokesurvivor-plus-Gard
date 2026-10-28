@@ -235,6 +235,164 @@
   }
 
   // ---------------------------------------------------------------- the arenas, dressed
+  /* [Gard v91] The arenas were painted with smooth, see-through shapes (blurry ellipses, thin anti-aliased lines,
+   * pillars drawn at 0.9x so their pixels smeared), which looked pasted on next to the game's pixel art. They're
+   * pixel art now: each floor is drawn once at half resolution (one art pixel = 2 world pixels, like every other
+   * sprite), with hard edges and a small palette, then cached; the pillars are a new hand-made sprite. */
+  const PXS = 2, artCache = new Map();
+  function rng(seed) { let t = seed >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ (t >>> 15), 1 | t); r ^= r + Math.imul(r ^ (r >>> 7), 61 | r); return ((r ^ (r >>> 14)) >>> 0) / 4294967296; }; }
+  function canvasOf(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+  // draw a cached low-res canvas centred on (x, y) (or with its base there), crisp
+  function blit(ctx, c, x, y, base) {
+    if (!c) return;
+    const w = c.width * PXS, h = c.height * PXS, prev = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(c, Math.round(x - w / 2), Math.round(base ? y - h : y - h / 2), w, h);
+    ctx.imageSmoothingEnabled = prev;
+  }
+  function px(g, x, y, col) { g.fillStyle = col; g.fillRect(x | 0, y | 0, 1, 1); }
+  function line(g, x0, y0, x1, y1, col) { // Bresenham, one art pixel wide
+    x0 |= 0; y0 |= 0; x1 |= 0; y1 |= 0;
+    const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1; let e = dx + dy;
+    for (let n = 0; n < 2000; n++) { px(g, x0, y0, col); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } }
+  }
+  // flagstones inside a mask: staggered rows of stones with dark seams, moss in the cracks, a ragged edge
+  function flagstones(g, W, H, inside, pal, rnd, moss) {
+    const TW = 9, TH = 6;
+    for (let row = 0; row * TH < H; row++) {
+      const off = row % 2 ? (TW / 2) | 0 : 0;
+      for (let col = -1; col * TW < W; col++) {
+        const x0 = col * TW + off, y0 = row * TH, c = pal[(rnd() * pal.length) | 0], broken = rnd() < 0.06;
+        if (broken) continue;
+        for (let y = y0; y < y0 + TH - 1; y++) for (let x = x0; x < x0 + TW - 1; x++) {
+          if (x < 0 || y < 0 || x >= W || y >= H || !inside(x, y, rnd)) continue;
+          let k = c;
+          if (y === y0) k = pal.hi; else if (y === y0 + TH - 2 || x === x0 + TW - 2) k = pal.lo;
+          if (rnd() < 0.04) k = pal.lo;
+          px(g, x, y, k);
+        }
+        // moss creeping along the seams
+        if (moss) for (let i = 0; i < 3; i++) if (rnd() < 0.5) { const mx = x0 + ((rnd() * TW) | 0), my = y0 + TH - 1; if (mx >= 0 && mx < W && my < H && inside(mx, my, rnd)) { px(g, mx, my, moss[(rnd() * moss.length) | 0]); if (rnd() < 0.5 && inside(mx, my - 1, rnd)) px(g, mx, my - 1, moss[0]); } }
+      }
+    }
+  }
+  function floorArt(id, a) {
+    const key = id + ':' + Math.round(a.x) + ':' + Math.round(a.y) + ':' + a.r;
+    if (artCache.has(key)) return artCache.get(key);
+    const rnd = rng(Math.round(a.x * 7 + a.y * 13) ^ 0x51a7), r = a.r / PXS;
+    let c = null;
+    if (id === 'bulu') {
+      const W = Math.round(r * 1.2), H = Math.round(r * 0.9); c = canvasOf(W, H); const g = c.getContext('2d');
+      const pal = ['#9c9478', '#8f876c', '#a7a083', '#857d63']; pal.hi = '#b9b294'; pal.lo = '#5f5a47';
+      const edge = (x, y, rn) => { const d = Math.min(x, y, W - 1 - x, H - 1 - y); return d > 2 || (d >= 0 && rn() < 0.55 + d * 0.15); };
+      flagstones(g, W, H, edge, pal, rnd, ['#5f8f3a', '#4a7a2e', '#79a948']);
+      for (let i = 0; i < W * H * 0.012; i++) { const x = (rnd() * W) | 0, y = (rnd() * H) | 0; if (edge(x, y, rnd)) px(g, x, y, rnd() < 0.5 ? '#6c9a40' : '#4a7a2e'); } // grass through the cracks
+      // vines crossing in from the jungle
+      for (let v = 0; v < 4; v++) { let x = rnd() < 0.5 ? 0 : W - 1, y = (rnd() * H) | 0; const dir = x ? -1 : 1; for (let n = 0; n < 18 + rnd() * 20; n++) { px(g, x, y, '#2f5e2a'); if (rnd() < 0.3) px(g, x, y - 1, '#4c8a34'); x += dir; y += rnd() < 0.3 ? 1 : rnd() < 0.3 ? -1 : 0; if (y < 0 || y >= H) break; } }
+    } else if (id === 'fini') {
+      const W = Math.round(r * 1.4), H = Math.round(r * 1.0); c = canvasOf(W, H); const g = c.getContext('2d');
+      const pal = ['#9aa3ab', '#8c959d', '#a6aeb5', '#838b93']; pal.hi = '#bcc4ca'; pal.lo = '#5d646b';
+      const inside = (x, y, rn) => { const u = (x - W / 2) / (W / 2), w = (y - H / 2) / (H / 2), d = 1 - Math.hypot(u, w); return d > 0.06 || (d > 0 && rn() < 0.5); };
+      flagstones(g, W, H, inside, pal, rnd, ['#6f8f8a', '#5a7672']);
+      for (let i = 0; i < W * H * 0.01; i++) { const x = (rnd() * W) | 0, y = (rnd() * H) | 0; if (inside(x, y, rnd)) px(g, x, y, '#cfe6f2'); } // frost-pale glints
+    } else if (id === 'lele') {
+      const W = Math.round(r * 1.6), H = Math.round(r * 1.2); c = canvasOf(W, H); const g = c.getContext('2d');
+      const cols = ['#f7b8d4', '#ffd2e5', '#e98fb9', '#fff0f6'];
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const u = (x - W / 2) / (W / 2), w = (y - H / 2) / (H / 2), d = 1 - Math.hypot(u, w);
+        if (d <= 0) continue;
+        const dens = Math.min(0.42, d * 0.9); // (a meadow carpeted with petals, thinning at its edge)
+        if (rnd() < dens) px(g, x, y, cols[(rnd() * 3) | 0]);
+      }
+      for (let i = 0; i < W * H * 0.004; i++) { // little five-petal flowers
+        const x = 2 + ((rnd() * (W - 4)) | 0), y = 2 + ((rnd() * (H - 4)) | 0), u = (x - W / 2) / (W / 2), w = (y - H / 2) / (H / 2);
+        if (Math.hypot(u, w) > 0.85) continue;
+        const k = cols[(rnd() * 3) | 0]; px(g, x - 1, y, k); px(g, x + 1, y, k); px(g, x, y - 1, k); px(g, x, y + 1, k); px(g, x, y, '#ffe36e');
+      }
+    } else if (id === 'koko') {
+      const rg = a.o.ring, R1 = rg ? rg.r1 / PXS + 2 : r + 2, W = Math.ceil(R1 * 2), H = Math.ceil(R1 * 2 * 0.98); c = canvasOf(W, H); const g = c.getContext('2d');
+      const cx = W / 2, cy = H / 2;
+      // the scorched plateau
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const u = (x - cx) / r, w = (y - cy) / (r * 0.8), d = 1 - Math.hypot(u, w);
+        if (d <= 0) continue;
+        if (d < 0.05 && rnd() < 0.5) continue;
+        const n = rnd(); px(g, x, y, n < 0.12 ? '#3b3742' : n < 0.24 ? '#1e1b23' : '#2b2830');
+      }
+      // lightning-scorched cracks, glowing faintly
+      for (let i = 0; i < 6; i++) {
+        const t0 = i / 6 * 6.283; let x = cx, y = cy;
+        const pts = [[cx + Math.cos(t0) * r * 0.5, cy + Math.sin(t0) * r * 0.4], [cx + Math.cos(t0 + 0.3) * r * 0.8, cy + Math.sin(t0 + 0.3) * r * 0.64]];
+        for (const [qx, qy] of pts) {
+          const steps = 4; for (let k = 1; k <= steps; k++) { const nx = x + (qx - x) / (steps - k + 1) + (k < steps ? (rnd() - 0.5) * 6 : 0), ny = y + (qy - y) / (steps - k + 1) + (k < steps ? (rnd() - 0.5) * 6 : 0); line(g, x + 1, y + 1, nx + 1, ny + 1, '#6b5a22'); line(g, x, y, nx, ny, '#f2d24a'); x = nx; y = ny; }
+        }
+      }
+      // the cliff's edge: a band of dark rock with a lit rim, open where the ramp climbs
+      if (rg) {
+        const r0 = rg.r0 / PXS, r1 = rg.r1 / PXS;
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+          const dx = x - cx, dy = (y - cy) / 0.98, d = Math.hypot(dx, dy);
+          if (d < r0 - 1 || d > r1 + 1) continue;
+          let da = Math.atan2(dy, dx) - rg.gap; da = Math.atan2(Math.sin(da), Math.cos(da));
+          if (Math.abs(da) < rg.gapW) { if (d > r0 && d < r1 && rnd() < 0.5) px(g, x, y, '#4a4650'); continue; } // (the ramp: worn stone)
+          const t = (d - r0) / (r1 - r0);
+          let k = t < 0.12 ? '#6a6872' : t < 0.25 ? '#4a4652' : t > 0.88 ? '#141218' : '#2a2830';
+          if (rnd() < 0.08) k = '#3a3640';
+          if (d < r0 || d > r1) { if (rnd() < 0.5) continue; }
+          px(g, x, y, k);
+        }
+      }
+    }
+    artCache.set(key, c); if (artCache.size > 12) artCache.delete(artCache.keys().next().value);
+    return c;
+  }
+  // Blossomveil's standing stones: tall carved menhirs with a softly glowing pink rune, petals and grass at the foot
+  const stoneC = [];
+  function stoneArt(i) {
+    const v = i % 3; if (stoneC[v]) return stoneC[v];
+    const A = [
+      '....oooo....', '...oLLLMo...', '..oLLLMMMo..', '..oLLMMMMo..', '.oLLMMMMMDo.', '.oLLMpMMMDo.', '.oLLMpPpMDo.',
+      '.oLLMMpMMDo.', '.oLLMMpMMDo.', '.oLLMpMpMDo.', '.oLLMMMMMDo.', '.oLLMMMMDDo.', '.oLLMMMMMDo.', '.oLMMpMMMDo.',
+      '.oLMMMpPMDo.', '.oLMMMMpMDo.', '.oLLMMMMDDo.', 'oLLMMMMMMDDo', 'oLMMMMMMDDDo', 'oGgMMMMMDDGo', 'ogGgMMMDGgGo',
+      'gGgfgGgGfgGg', '.gGgGfGgGg..', '..g..g..g...',
+    ];
+    const P = { o: '#2b2633', L: '#b9b3c4', M: '#918aa0', D: '#6a6479', p: '#ff7ab8', P: '#ffd0e6', g: '#7fb85a', G: '#5a9a42', f: '#ff9cd2' };
+    // (three slightly different stones: a different rune each)
+    const rows = A.map((r) => r);
+    if (v === 1) { rows[5] = '.oLLMMpMMDo.'; rows[6] = '.oLLMpPpMDo.'; rows[9] = '.oLLMpMpMDo.'; rows[13] = '.oLMMMMMMDo.'; rows[14] = '.oLMMpPpMDo.'; }
+    if (v === 2) { rows[6] = '.oLLMPpPMDo.'; rows[7] = '.oLLMpMpMDo.'; rows[8] = '.oLLMMpMMDo.'; rows[14] = '.oLMMpMpMDo.'; }
+    const c = canvasOf(12, rows.length), g = c.getContext('2d');
+    rows.forEach((row, y) => { for (let x = 0; x < 12; x++) { const k = P[row[x]]; if (k) px(g, x, y, k); } });
+    return (stoneC[v] = c);
+  }
+  // the Red and Blue Orbs, in pixels (8x8 art pixels)
+  const orbC = [];
+  function orbArt(i) {
+    if (orbC[i]) return orbC[i];
+    const A = ['..oooo..', '.oLHMMo.', 'oLHMMMDo', 'oHMMMMDo', 'oMMMMDDo', 'oMMMDDDo', '.oDDDDo.', '..oooo..'];
+    const P = i === 0 ? { o: '#5a1410', H: '#ffffff', L: '#ff9a80', M: '#e0402e', D: '#a02418' } : { o: '#10245a', H: '#ffffff', L: '#9ac4ff', M: '#2f6fe0', D: '#1c47a8' };
+    const c = canvasOf(8, 8), g = c.getContext('2d');
+    A.forEach((row, y) => { for (let x = 0; x < 8; x++) { const k = P[row[x]]; if (k) px(g, x, y, k); } });
+    return (orbC[i] = c);
+  }
+  // a vine-wrapped jungle pillar with Tapu Bulu's red-and-gold band (16x34 art pixels)
+  let pillarC = null;
+  function pillarArt() {
+    if (pillarC) return pillarC;
+    const ART = [
+      '..oooooooooooo..', '.oggLLLLLLLLMMo.', 'oGgLLLLLLLLLMMDo', 'oMMMMMMMMMMMMDDo', '.ooDDDDDDDDDDoo.',
+      '..oLLMMMMMMDDo..', '..oLLMMvMMMDDo..', '..oLvMMMvMMDDo..', '..ovLMMMMvMDDo..', '..oLLMMMMMvDDo..',
+      '..okkkkkkkkkko..', '..oyrrryyrrryo..', '..orryykkyyrro..', '..oyrrryyrrryo..', '..okkkkkkkkkko..',
+      '..oLLMMMMMMDDo..', '..oLLMkMMkMDDo..', '..oLLMMMMMMDDo..', '..oLLMkkkkMDDo..', '..oLLMMMMMMDDo..',
+      '..oLvMMMMMMDDo..', '..oLLvMMMMMDDo..', '..oLLMvMMMMgDo..', '..oLLMMvMMgGDo..', '..ogLMMMvgGGDo..',
+      '..oggMMMMgGGDo..', '..oGgLMMggGGDo..', '..oGggMgggGGGo..', '..oGGgggggGGGo..',
+      '.ooDDDDDDDDDDoo.', 'oLLLLMMMMMMMMDDo', 'oMMMMMMMMMMMDDDo', 'oDDDDDDDDDDDDDDo', '.oooooooooooooo.',
+    ];
+    const PAL = { o: '#1f2622', L: '#9aa58f', M: '#737f6d', D: '#535d52', g: '#7cb04a', G: '#4c7f34', v: '#2f5e2a', r: '#c9452f', y: '#e9c34a', k: '#2c332e' };
+    pillarC = canvasOf(16, ART.length); const g = pillarC.getContext('2d');
+    ART.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const k = PAL[row[x]]; if (k) px(g, x, y, k); } });
+    return pillarC;
+  }
   function drawUnder(ctx) {
     if (!on()) return;
     const cam = AI.R.Camera;
@@ -243,29 +401,21 @@
       if (!a || !cam.sees(a.x, a.y, a.r + 120)) continue;
       ctx.save();
       if (id === 'koko') {
-        // the cliff-top: a scorched, cracked plateau
-        ctx.fillStyle = 'rgba(20,18,24,0.35)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, a.r, a.r * 0.8, 0, 0, 6.283); ctx.fill();
-        ctx.strokeStyle = 'rgba(255,225,80,0.35)'; ctx.lineWidth = 2;
-        for (let i = 0; i < 6; i++) { const t0 = i / 6 * 6.283; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(a.x + Math.cos(t0) * a.r * 0.5, a.y + Math.sin(t0) * a.r * 0.4); ctx.lineTo(a.x + Math.cos(t0 + 0.3) * a.r * 0.8, a.y + Math.sin(t0 + 0.3) * a.r * 0.64); ctx.stroke(); }
-        // the cliff's edge, and the ramp
-        const rg = a.o.ring;
-        if (rg) {
-          ctx.strokeStyle = '#2a2830'; ctx.lineWidth = rg.r1 - rg.r0;
-          ctx.beginPath(); ctx.ellipse(a.x, a.y, (rg.r0 + rg.r1) / 2, (rg.r0 + rg.r1) / 2 * 0.98, 0, rg.gap + rg.gapW, rg.gap - rg.gapW + 6.283); ctx.stroke();
-          ctx.strokeStyle = '#5a5862'; ctx.lineWidth = 3;
-          ctx.beginPath(); ctx.ellipse(a.x, a.y, rg.r0 + 2, rg.r0 + 2, 0, rg.gap + rg.gapW, rg.gap - rg.gapW + 6.283); ctx.stroke();
-        }
+        // the cliff-top: a scorched, cracked plateau, and the cliff's edge with its ramp (pixel art, [Gard v91])
+        blit(ctx, floorArt(id, a), a.x, a.y);
       } else if (id === 'lele') {
-        ctx.fillStyle = 'rgba(255,190,220,0.25)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, a.r * 0.8, a.r * 0.6, 0, 0, 6.283); ctx.fill();
-        for (let i = 0; i < 9; i++) { const t0 = i / 9 * 6.283; if (AI.Art) AI.Art.draw(ctx, 'x_runestone', a.x + Math.cos(t0) * a.r * 0.82, a.y + Math.sin(t0) * a.r * 0.62, { scale: 0.8 }); }
+        blit(ctx, floorArt(id, a), a.x, a.y);
+        for (let i = 0; i < 9; i++) { const t0 = i / 9 * 6.283; blit(ctx, stoneArt(i), a.x + Math.cos(t0) * a.r * 0.82, a.y + Math.sin(t0) * a.r * 0.62, true); }
       } else if (id === 'bulu') {
-        ctx.fillStyle = 'rgba(180,170,140,0.5)'; ctx.fillRect(a.x - a.r * 0.6, a.y - a.r * 0.45, a.r * 1.2, a.r * 0.9);
-        ctx.strokeStyle = 'rgba(120,110,90,0.6)'; ctx.lineWidth = 1;
-        for (let k = -3; k <= 3; k++) { ctx.beginPath(); ctx.moveTo(a.x - a.r * 0.6, a.y + k * a.r * 0.13); ctx.lineTo(a.x + a.r * 0.6, a.y + k * a.r * 0.13); ctx.stroke(); }
-        for (const [dx, dy] of [[-0.55, -0.4], [0.55, -0.4], [-0.55, 0.4], [0.55, 0.4], [0, -0.45]]) if (AI.Art) AI.Art.draw(ctx, dy < 0 && dx === 0 ? 'g_statue' : 'g_pillar', a.x + dx * a.r, a.y + dy * a.r, { scale: 0.9 });
+        // the ruined plaza: mossy flagstones, vine-wrapped pillars and the old statue
+        blit(ctx, floorArt(id, a), a.x, a.y);
+        for (const [dx, dy] of [[-0.55, -0.4], [0.55, -0.4], [-0.55, 0.4], [0.55, 0.4], [0, -0.45]]) {
+          if (dy < 0 && dx === 0) { if (AI.Art) AI.Art.draw(ctx, 'g_statue', a.x, a.y + dy * a.r, { scale: 1 }); }
+          else blit(ctx, pillarArt(), a.x + dx * a.r, a.y + dy * a.r, true);
+        }
       } else if (id === 'fini') {
         // the Summit of Two Orbs
-        ctx.fillStyle = 'rgba(160,170,180,0.35)'; ctx.beginPath(); ctx.ellipse(a.x, a.y, a.r * 0.7, a.r * 0.5, 0, 0, 6.283); ctx.fill();
+        blit(ctx, floorArt(id, a), a.x, a.y);
         const s = sea();
         pedestals().forEach((q, i) => {
           const id2 = i === 0 ? 'red' : 'blue';
@@ -276,8 +426,7 @@
           const c = i === 0 ? '255,80,60' : '70,140,255';
           g.addColorStop(0, 'rgba(' + c + ',0.9)'); g.addColorStop(1, 'rgba(' + c + ',0)');
           ctx.fillStyle = g; ctx.fillRect(q[0] - 22, q[1] - 60, 44, 44);
-          ctx.fillStyle = i === 0 ? '#e0402e' : '#2f6fe0'; ctx.beginPath(); ctx.arc(q[0], q[1] - 38 + Math.sin(AI.time * 2 + i) * 2, 7, 0, 6.283); ctx.fill();
-          ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fillRect(q[0] - 3, q[1] - 42 + Math.sin(AI.time * 2 + i) * 2, 2, 2);
+          blit(ctx, orbArt(i), q[0], q[1] - 38 + Math.round(Math.sin(AI.time * 2 + i) * 2));
         });
       }
       ctx.restore();
@@ -322,5 +471,7 @@
   }
   function reset() { st.scene = null; st.battle = null; st.actor = null; st.cool = {}; st.dim = 0; st.fx.length = 0; }
 
+  // (the jungle islands' ruins use the same pillar: 34-ocean-draw.js)
+  try { if (AI.Art && AI.Art.addSheet && document.createElement('canvas').getContext) { AI.Art.addSheet(pillarArt().toDataURL(), { jungle_pillar: [0, 0, 16, 34] }); AI.Art.addSheet(stoneArt(0).toDataURL(), { blossom_stone: [0, 0, 12, 24] }); AI.Art.addSheet(stoneArt(1).toDataURL(), { blossom_stone_b: [0, 0, 12, 24] }); } } catch (e) { /* ignore */ }
   AI.define('Guardians', { st, DEX, tick, busy, done, won, arena, pedestals, startScene, drawUnder, drawAir, drawScreen, lights, reset });
 })();

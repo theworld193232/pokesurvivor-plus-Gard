@@ -14,6 +14,12 @@
       let top = '';
       if (mm && getComputedStyle(mm).display !== 'none' && getComputedStyle(mm).visibility !== 'hidden') { const b = mm.getBoundingClientRect(); if (b.width > 0 && b.bottom > 0 && b.bottom < innerHeight * 0.6) top = Math.round(b.bottom + 12) + 'px'; }
       if (box.style.top !== top) box.style.top = top;
+      // [Gard v91] a burst of catches ("Magikarp joined you!" x6) used to stack the notifications off the bottom of the
+      // screen: the same notice twice keeps only the newest, and the oldest go once the stack would run past the HUD
+      const kids = [...box.children].filter(k => !k.classList.contains('out')), seen = new Set();
+      for (let i = kids.length - 1; i >= 0; i--) { const t = kids[i].textContent.trim(); if (seen.has(t)) { kids[i].remove(); kids.splice(i, 1); } else seen.add(t); }
+      const limit = innerHeight - 150;
+      while (kids.length > 1 && box.getBoundingClientRect().bottom > limit) kids.shift().remove();
     }
     const play = document.querySelector('.pp-play'), toasts = document.querySelectorAll('.toast');
     if (toasts.length) {

@@ -212,7 +212,7 @@
     if (DRY_BIOMES.has(b)) { for (const k of ['drizzle', 'rain', 'storm', 'mist', 'fog', 'deepfog']) if (w[k]) w[k] *= 0.05; }
     if (b === 8) { if (w.breezy) w.breezy *= 2; if (w.gale) w.gale *= 2; } // glacier
     if (b === 16 || b === 20) { for (const k of ['mist', 'fog', 'deepfog']) if (w[k]) w[k] *= 2.5; } // graveyard, enchanted forest
-    if (AI.Ocean && b === AI.Ocean.BIOME) { for (const [k, m] of [['breezy', 1.7], ['gale', 1.5], ['storm', 1.5], ['rain', 1.25], ['fog', 1.2], ['deepfog', 1.3]]) if (w[k]) w[k] *= m; } // the open sea: windier, stormier
+    if (AI.Ocean && b === AI.Ocean.BIOME) { for (const [k, m] of [['breezy', 1.7], ['gale', 1.5], ['storm', 1.5], ['rain', 1.25], ['fog', 0.7], ['deepfog', 0.25]]) if (w[k]) w[k] *= m; } // the open sea: windier, stormier ([Gard v91] and seldom fogbound: dense fog shrank the view to a small circle in about half of all Act 3 runs, and read as the map's edge)
     // fog needs calm, damp air: dawn, night, or just after rain; daytime sun burns it off
     const damp = st.hour >= 4.5 && st.hour < 8.5 ? 3 : isNight() ? 1.6 : 0.5;
     for (const k of ['mist', 'fog', 'deepfog']) if (w[k] && step(st.pattern, k) > 0) w[k] *= damp;

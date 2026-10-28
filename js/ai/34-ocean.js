@@ -189,7 +189,7 @@
     const names = EXTRA_NAMES.slice();
     for (let i = names.length - 1; i > 0; i--) { const j = (r() * (i + 1)) | 0; [names[i], names[j]] = [names[j], names[i]]; }
     const extras = [];
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 0; i++) {   // [Gard v91] (the open sea's islets are generated as you sail: see chunkIsl())
       const R = 130 + Math.round(r() * 170), kind = EXTRA_KINDS[(r() * EXTRA_KINDS.length) | 0];
       const at = spot(R, 1900, 8700, 700);
       if (!at) continue;
@@ -426,10 +426,27 @@
     for (let i = 0; i < E.length; i++) if (LAND[i]) E[i] = -Math.min(32000, Math.round(D[i] - RC / 2));
     AI.stats.oceanRasterMs = Math.round(performance.now() - t0);
   }
+  /* [Gard v91] Past the raster the mainland's coast carries on (it used to stop dead in a straight line at the old
+   * edge of the map): a cached, coarse distance-to-coast worked out from mainland() itself. */
+  const farCache = new Map();
+  function farMainE(x, y) {
+    const G = 48, gx = Math.floor(x / G), gy = Math.floor(y / G), key = gx * 1000003 + gy;
+    let v = farCache.get(key);
+    if (v === undefined) {
+      const cx = (gx + 0.5) * G, cy = (gy + 0.5) * G, land = mainland(cx, cy);
+      v = land ? -900 : 3000;
+      outer: for (const r of [48, 96, 160, 240, 340, 480, 680, 960]) for (let k = 0; k < 12; k++) {
+        const a = k / 12 * 6.283;
+        if (mainland(cx + Math.cos(a) * r, cy + Math.sin(a) * r) !== land) { v = land ? -r : r; break outer; }
+      }
+      farCache.set(key, v); if (farCache.size > 60000) farCache.clear();
+    }
+    return v;
+  }
   function rasterE(x, y) {
     const fx = (x - R0) / RC - 0.5, fy = (y - R0) / RC - 0.5;
     const i = Math.floor(fx), j = Math.floor(fy);
-    if (i < 0 || j < 0 || i >= RN - 1 || j >= RN - 1) return 3000;
+    if (i < 0 || j < 0 || i >= RN - 1 || j >= RN - 1) return farMainE(x, y);
     const tx = fx - i, ty = fy - j, k = j * RN + i;
     return (E[k] * (1 - tx) + E[k + 1] * tx) * (1 - ty) + (E[k + RN] * (1 - tx) + E[k + RN + 1] * tx) * ty;
   }
@@ -491,7 +508,7 @@
   }
   function reefK(x, y) {
     let k = 0;
-    for (const r of plan().reefs) {
+    for (const L of [plan().reefs, genNear(x, y).reefs]) for (const r of L) {
       const d = Math.hypot(x - r.x, y - r.y);
       if (d > r.R * 1.4) continue;
       k = Math.max(k, sm(r.R * (1.15 + (vn(x / 110, y / 110, 9321) - 0.5) * 0.5), r.R * 0.5, d));
@@ -501,6 +518,7 @@
   function lagoonK(x, y) {
     let k = 0;
     for (const l of plan().lagoons) { const d = Math.hypot(x - l.x, y - l.y); if (d < l.R * 1.2) k = Math.max(k, sm(l.R * 1.2, l.R * 0.55, d)); }
+    for (const o of genNear(x, y)) if (o.kind === 'beach' || o.kind === 'pools') { const d = Math.hypot(x - o.x, y - o.y), lr = o.R * 1.3; if (d < lr * 1.2) k = Math.max(k, sm(lr * 1.2, lr * 0.55, d)); }
     return k;
   }
   function inTrench(x, y) { const tr = plan().trench; return lineDist(x, y, tr.pts) < tr.w / 2 + (vn(x / 300, y / 300, 9331) - 0.5) * 160; }
@@ -508,6 +526,7 @@
     plan();
     const o = S0;
     let e = rasterE(x, y);
+    for (const g of genNear(x, y)) { const ge = -islE(g, x, y); if (ge < e) e = ge; }   // [Gard v91] the generated islets
     o.solid = false; o.reef = 0; o.lagoon = 0; o.tidal = null; o.trench = false; o.ring = false;
     const a = artAt(x, y);
     o.art = a;
@@ -541,8 +560,6 @@
       }
     }
     if (dv <= 0 && ringAt(x, y)) { o.solid = true; o.ring = true; }
-    // [Gard v80] the edge of the charted sea: a fog bank you can't sail or swim past (fliers still can)
-    if (Math.abs(x) > EDGE || Math.abs(y) > EDGE) o.solid = true;
     o.e = e; o.dv = dv;
     o.cls = dv <= 0 ? 0 : Math.min(4, 1 + Math.floor(dv));
     if(!o.solid&&window.PS_GROUDON_LAND?.has(x,y)){o.e=-1;o.dv=-.1;o.cls=0;o.tidal=null;}
@@ -567,9 +584,60 @@
       const d = Math.hypot(x - o.x, y - o.y);
       if (d < o.R * 1.25 + 140) { Z0.isl = o; Z0.id = o.id; Z0.d = d; Z0.k = U.clamp(1 - d / (o.R * 1.25 + 140), 0, 1); return Z0; }
     }
+    for (const o of genNear(x, y)) {
+      const d = Math.hypot(x - o.x, y - o.y);
+      if (d < o.R * 1.25 + 140) { Z0.isl = o; Z0.id = o.id; Z0.d = d; Z0.k = U.clamp(1 - d / (o.R * 1.25 + 140), 0, 1); return Z0; }
+    }
     for (const w of p.wrecks) if (Math.hypot(x - w.x, y - w.y) < 420) { Z0.id = w.ghost ? 'ghostwreck' : 'wreck'; return Z0; }
     if (reefK(x, y) > 0.1) { Z0.id = 'reef'; return Z0; }
     return Z0;
+  }
+  /* [Gard v91] The endless sea. Past the friend's harbour and the special islands (placed fresh each run in
+   * makePlan), the open sea is generated as you go: it's cut into chunks, and each chunk rolls 0-2 islets of its
+   * own from the run's seed (beaches, rocks, crags, tide pools, each with a name, plants and wildlife through
+   * zoneAt()). There is no edge: sail any way and there's always more to find. */
+  const CH = 2200, chunkCache = new Map(), nbrCache = new Map(); let chunkSeed = null;
+  function chunkIsl(cx, cy) {
+    const p = plan(); if (chunkSeed !== p.seed) { chunkSeed = p.seed; chunkCache.clear(); nbrCache.clear(); }
+    const key = cx * 100003 + cy; let L = chunkCache.get(key); if (L) return L;
+    L = []; const hh = (i) => U.hash(p.seed + cx * 7919, cy * 104729 + i, 9183);
+    const n = hh(0) < 0.3 ? 2 : hh(0) < 0.8 ? 1 : 0;   // (about one islet every 2-3 km)
+    for (let i = 0; i < n; i++) {
+      const R = 150 + Math.round(hh(10 + i) * 260), kind = EXTRA_KINDS[(hh(20 + i) * EXTRA_KINDS.length) | 0];
+      const x = Math.round((cx + 0.2 + hh(30 + i) * 0.6) * CH), y = Math.round((cy + 0.2 + hh(40 + i) * 0.6) * CH);
+      if (Math.hypot(x, y) < 1500 + R * 2 || mainland(x, y)) continue;     // (not in the harbour's waters, not on the mainland)
+      let ok = true;
+      for (let j = 0; j < 12 && ok; j++) { const a = j / 12 * 6.283; if (mainland(x + Math.cos(a) * R * 2, y + Math.sin(a) * R * 2)) ok = false; }
+      for (const o of p.isl) if (ok && Math.hypot(x - o.x, y - o.y) < o.R * 1.3 + R * 1.3 + 500) ok = false;
+      for (const q of L) if (ok && Math.hypot(x - q.x, y - q.y) < q.R * 1.3 + R * 1.3 + 400) ok = false;
+      if (ok && p.birth && Math.hypot(x - p.birth.x - 480, y - p.birth.y - 480) < 1300 + R) ok = false;
+      if (ok && p.whirl && Math.hypot(x - p.whirl.x, y - p.whirl.y) < 1300 + R) ok = false;
+      if (!ok) continue;
+      const name = EXTRA_NAMES[(hh(50 + i) * EXTRA_NAMES.length) | 0];
+      L.push(blob('c' + cx + '_' + cy + '_' + i, kind, x, y, R, p.seed + cx * 31 + cy * 17, { name, extra: true, gen: true }));
+    }
+    // and the open water between them isn't one endless deep: reefs and sand shoals (shallow flats) dot it too
+    L.reefs = [];
+    for (let i = 0; i < 2; i++) {
+      if (hh(60 + i) > (i ? 0.25 : 0.55)) continue;
+      const R = 200 + Math.round(hh(70 + i) * 220);
+      const x = Math.round((cx + 0.1 + hh(80 + i) * 0.8) * CH), y = Math.round((cy + 0.1 + hh(90 + i) * 0.8) * CH);
+      if (Math.hypot(x, y) < 1400 + R || mainland(x, y)) continue;
+      if (L.some((q) => Math.hypot(x - q.x, y - q.y) < q.R * 1.5 + R + 150) || p.isl.some((q) => Math.hypot(x - q.x, y - q.y) < q.R * 1.4 + R + 200)) continue;
+      L.reefs.push({ id: 'r' + cx + '_' + cy + '_' + i, x, y, R, gen: true });
+    }
+    chunkCache.set(key, L); if (chunkCache.size > 900) { const k0 = chunkCache.keys().next().value; chunkCache.delete(k0); }
+    return L;
+  }
+  // the generated islets that can touch (x, y): the 3x3 chunks around it (cached per chunk)
+  function genNear(x, y) {
+    const cx = Math.floor(x / CH), cy = Math.floor(y / CH), key = cx * 100003 + cy;
+    plan(); if (chunkSeed !== P.seed) chunkIsl(cx, cy);
+    let L = nbrCache.get(key); if (L) return L;
+    L = []; L.reefs = [];
+    for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) { const C = chunkIsl(cx + i, cy + j); for (const o of C) L.push(o); for (const r of C.reefs) L.reefs.push(r); }
+    nbrCache.set(key, L); if (nbrCache.size > 900) { const k0 = nbrCache.keys().next().value; nbrCache.delete(k0); }
+    return L;
   }
   function islandById(id) { return plan().byId[id] || null; }
   function insideIsland(o, x, y) { return islE(o, x, y) > 0; }
@@ -605,7 +673,7 @@
     // (no snow in the tropics; winter only brings more wind)
     tgt.snow = 0;
     if (AI.Sky && AI.Sky.season() === 'winter') { tgt.rain = AI.Sky.PATTERNS[AI.Sky.st.pattern] ? AI.Sky.PATTERNS[AI.Sky.st.pattern].rain : tgt.rain; tgt.wind = Math.min(1, tgt.wind * 1.2); }
-    { const k = sm(8300, EDGE, Math.max(Math.abs(pl.x), Math.abs(pl.y))); if (k > 0) { tgt.fog = Math.max(tgt.fog, k * 0.95); tgt.cloud = Math.max(tgt.cloud, k * 0.6); } } // (the sea's edge)
+
     for (const f of p.fogs) {
       const d = Math.hypot(pl.x - f.x, pl.y - f.y);
       if (d > f.R) continue;
@@ -824,6 +892,9 @@
   }
   function spawnOk(e) {
     if (!on() || !e || e.dex == null || e.psxPlaced || e.psxStory) return true;
+    // [Gard v91] a breather on the pier: in the first 12 s of a run nothing wild appears within 600 px of you (a dozen
+    // spawned right on top of the starting dock and could take a level-1 starter from full HP to 0 before you moved)
+    try { const R = AI.R, pl = R.Game.player; if (pl && !e.boss && !e.legend && (Number(R.Game.time) || 0) < 12 && Math.hypot(e.x - pl.x, e.y - pl.y) < 600) return false; } catch (_) { /* ignore */ }
     const loco = locomotion(e.dex);
     if (fits(loco, e.x, e.y, e)) return true;
     const q = fitNear(loco, e.x, e.y, 480, e);
@@ -924,7 +995,7 @@
   function reset() { P = null; LAND = null; E = null; locoCache.clear(); SV.t = -9; }
 
   AI.define('Ocean', {
-    on, plan, register, get BIOME() { return BIOME; }, HARBOR, art, artAt, artOf, sample, cls, depthClass, water, solidAt, zoneAt, islandById, insideIsland, islE, mainland,
+    on, plan, register, get BIOME() { return BIOME; }, HARBOR, art, artAt, artOf, sample, genNear, chunkIsl, CH, cls, depthClass, water, solidAt, zoneAt, islandById, insideIsland, islE, mainland,
     tide, tideName, tidalAt, currentAt, localSky, reefK, lagoonK, inTrench,
     locomotion, playerLoco, locoOf, fits, canBe, collide, fitNear, pointFor, isPlayerEnt,
     HOME, jungleAt, HAB, habitat, suits, weight, place, spawnOk, terr, trees, grass, clear, kindAt, blocked, tick, reset, lineDist, segDist, vn, fbm, sm,

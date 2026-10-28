@@ -1,0 +1,12 @@
+{
+  "modified_existing": [
+    "CREDITS.md",
+    "index.html",
+    "js/camp-rest.js",
+    "js/groudon-land.js",
+    "js/levels.js",
+    "version.json"
+  ],
+  "base_version": "gard-v90-portrait-crop",
+  "other_source_files_unchanged": true
+}

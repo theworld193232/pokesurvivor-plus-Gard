@@ -309,3 +309,6 @@ Original pixel/canvas effects referenced to the official Pokémon Evolutions epi
 V41: original Behemoth Blade / Royal Tempest procedural sword effects and reference-based leap animation; user-provided 3.gif used as a motion reference only. Crowned moves and passives use the native game damage and upgrade systems.
 
 V41 held-item locks: per-Pokémon preferences and Pause / Keep-and-lock controls integrated with the native item-choice cleanup.
+
+## Cinderwake Caldera v91
+Original seeded volcanic map, environment behavior and imagegen scenery/variant/landmark atlases. Research references, prompt specifications and source notes: SOURCE_LICENSES/volcano-v91/PROVENANCE.md. Existing Pokémon and environment credits remain applicable.

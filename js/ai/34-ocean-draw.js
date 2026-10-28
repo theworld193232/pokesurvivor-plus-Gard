@@ -455,7 +455,12 @@
       if(!it.water&&r&&O().artAt(it.x,it.y)<0){
         const checks=[[0,0],[-r,0],[r,0],[0,-r*.5],[0,r*.5]];
         if(checks.some(([dx,dy])=>{const s=O().sample(it.x+dx,it.y+dy);return s.cls!==0||s.solid;}))return;
-        if(placed.some(q=>Math.hypot(q.x-it.x,q.y-it.y)<q.r+r+28))return;
+        // [Gard v91] keep a walkable lane between solid props (48px, was 28: big rocks' wide footprints closed it up and
+        // left rock walls you couldn't get through, e.g. across Thundercrest), and keep them off the edge of their decor
+        // chunk, since the next chunk can't see them and used to drop its own rocks right against them (rock walls
+        // along straight lines inside islands)
+        if(placed.some(q=>Math.hypot(q.x-it.x,q.y-it.y)<q.r+r+48))return;
+        const m=r+26;if(it.x-x0<m||x0+ch-it.x<m||it.y-y0<m||y0+ch-it.y<m)return;
       }
       if(r)placed.push({x:it.x,y:it.y,r});emit(it);
     };
@@ -521,7 +526,7 @@
           if (r1 < 0.14) push({ k: 'ocean', n: r2 < 0.5 ? 'pink_a' : 'pink_b', x, y, f, r: 12, sway: true });
           else if (r1 < 0.24) push({ k: 'ocean', n: 'rafflesia', x, y, f, r: 0 });
           else if (r1 < 0.5) push({ k: 'flower', n: ['flower_a1', 'flower_b4', 'flower_c0', 'flower_s2', 'flower_a3'][(r2 * 5) | 0], x, y, s: 0.8, f, flat: true });
-          else if (r1 < 0.58) push({ k: 'stone', n: 'x_runestone', x, y, s: 0.6 + r2 * 0.3, f, r: 8 });
+          else if (r1 < 0.58) push({ k: 'stone', n: r2 < 0.5 ? 'blossom_stone' : 'blossom_stone_b', x, y, f, r: 8 });
           else if (r1 < 0.7) push({ k: 'tuft', n: 'tuft_1', x, y, f, flat: true });
           break;
         case 'jungle':
@@ -530,7 +535,7 @@
           else if (r1 < 0.32) push({ k: 'tree', n: BIG_TREES[(r2 * BIG_TREES.length) | 0], x, y, f, r: 14, sway: true, s: 1.1 });
           else if (r1 < 0.52) push({ k: 'plant', n: ['w_fern_a', 'w_fern_b', 'w_fern_c', 'fern', 'w_bracken'][(r2 * 5) | 0], x, y, s: 1.1, f, hab: 'bush', r: 0 });
           else if (r1 < 0.6) push({ k: 'bush', n: ['bushball_00', 'bushball_11', 'bush_wide', 'bushtiny_13'][(r2 * 4) | 0], x, y, f, hab: 'bush', r: 0 });
-          else if (r1 < 0.64) push({ k: 'stone', n: r2 < 0.5 ? 'g_pillar' : 'x_shrine', x, y, f, r: 12 });
+          else if (r1 < 0.64) push({ k: 'stone', n: r2 < 0.5 ? 'jungle_pillar' : 'x_shrine', x, y, f, r: 12 });
           else if (r1 < 0.66) push({ k: 'ocean', n: r2 < 0.5 ? 'tiki_a' : 'tiki_b', x, y, f, r: 7 });
           else if (r1 < 0.7) push({ k: 'plant', n: 'vines', x, y, f, r: 0 });
           break;

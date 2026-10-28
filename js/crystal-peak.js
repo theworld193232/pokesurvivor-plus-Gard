@@ -5,6 +5,9 @@
  const colors=COLORS;
  // [Gard v90] Regigigas / Terapagos special areas: 15% of runs (was a 50% testing rate).
  const SPECIAL_AREA_CHANCE=.15;
+// [Gard v91] Each stretch of the cave has one way out: 10% of them lead to Terapagos's crystal cave, the other 90% up to the
+// snowy mountain (no more Terapagos doorway right beside where you come in, and never two doorways side by side).
+const TERAPAGOS_DOOR_CHANCE=.10;
  const RETURN_ENTRANCE_CHANCE=.5;
  const destroyedScenery=new Set();
  const snowPrints=[],shedPiles=new Map(),treeBumps=new Map();let lastSnowStep=null,printSide=1,weatherOverride=null,lastWeatherName='snow';
@@ -25,8 +28,8 @@
  const outside=()=>zone==='peak';
  const special=()=>zone==='regigigas'||zone==='terapagos';
  const REGI_TRIO=[377,378,379];let regigigasReleased=false;const missingRegis=owned=>REGI_TRIO.filter(d=>!owned?.[d]);const regigigasEligible=owned=>missingRegis(owned).length===0;function findings(){return {regigigas:hash(0,0,seed+701)<SPECIAL_AREA_CHANCE,terapagos:hash(0,0,seed+1703)<SPECIAL_AREA_CHANCE};}
- function specialSites(){const f=findings();return (outside()?[{target:'regigigas',x:-590,y:-330,cx:-1,cy:-1}]:zone==='cave'?[{target:'terapagos',x:-40,y:150,cx:-1,cy:0}]:[]).filter(d=>f[d.target]);}
- function caveRegionGates(rx,ry){const key=rx+','+ry;if(regionGateCache.has(key))return regionGateCache.get(key);const slots=[];for(let y=0;y<3;y++)for(let x=0;x<3;x++){const cx=rx*3+x,cy=ry*3+y;if(cx===-1&&cy===0||cx===0&&cy===-1)continue;slots.push([cx,cy]);}const gates=[],offset=Math.floor(hash(rx,ry,seed+971)*slots.length);for(let i=0;i<slots.length;i++){const [cx,cy]=slots[(offset+i)%slots.length],n=node(cx,cy),d={x:n.x+(hash(cx,cy,seed+972)-.5)*40,y:n.y+(hash(cx,cy,seed+973)-.5)*40,cx,cy,target:'peak'};if([caveExit(),...specialSites()].some(q=>Math.hypot(d.x-q.x,d.y-q.y)<210))continue;gates.push(d);if(hash(rx,ry,seed+975)<SPECIAL_AREA_CHANCE){const shrine={x:d.x+260,y:d.y-40,cx,cy,target:'terapagos'};if([caveExit(),...specialSites()].every(q=>Math.hypot(shrine.x-q.x,shrine.y-q.y)>210))gates.push(shrine);}break;}regionGateCache.set(key,gates);if(regionGateCache.size>1024)regionGateCache.delete(regionGateCache.keys().next().value);return gates;}
+ function specialSites(){const f=findings();return (outside()?[{target:'regigigas',x:-590,y:-330,cx:-1,cy:-1}]:[]).filter(d=>f[d.target]);}
+ function caveRegionGates(rx,ry){const key=rx+','+ry;if(regionGateCache.has(key))return regionGateCache.get(key);const slots=[];for(let y=0;y<3;y++)for(let x=0;x<3;x++){const cx=rx*3+x,cy=ry*3+y;if(cx===-1&&cy===0||cx===0&&cy===-1)continue;slots.push([cx,cy]);}const gates=[],offset=Math.floor(hash(rx,ry,seed+971)*slots.length);for(let i=0;i<slots.length;i++){const [cx,cy]=slots[(offset+i)%slots.length],n=node(cx,cy),d={x:n.x+(hash(cx,cy,seed+972)-.5)*40,y:n.y+(hash(cx,cy,seed+973)-.5)*40,cx,cy,target:hash(rx,ry,seed+975)<TERAPAGOS_DOOR_CHANCE?'terapagos':'peak'};if([caveExit(),...specialSites()].some(q=>Math.hypot(d.x-q.x,d.y-q.y)<210))continue;gates.push(d);break;}regionGateCache.set(key,gates);if(regionGateCache.size>1024)regionGateCache.delete(regionGateCache.keys().next().value);return gates;}
  function caveCellGates(cx,cy){if(cx===-1&&cy===0)return [{...caveExit(),cx,cy},...specialSites().filter(d=>d.target==='terapagos')];if(cx===0&&cy===-1)return [];return caveRegionGates(Math.floor(cx/3),Math.floor(cy/3)).filter(d=>d.cx===cx&&d.cy===cy);}
  function caveGate(cx,cy){return caveCellGates(cx,cy)[0]||null;}
  function caveGatesNear(x,y,r=1000){const out=[];for(let cy=Math.floor((y-r)/CELL);cy<=Math.floor((y+r)/CELL);cy++)for(let cx=Math.floor((x-r)/CELL);cx<=Math.floor((x+r)/CELL);cx++)out.push(...caveCellGates(cx,cy));return out;}

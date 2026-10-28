@@ -37,13 +37,13 @@
   // tabs on the Play panel
   function tabs() {
     const box = document.getElementById('menu-maps'), N = E(), P = window.PS_LEVELS; if (!box || !N || !P) return;
-    for (const [lv, n, label, open, need] of [[4, P.lv4.n, '4 · Abyss', P.open4(), 'Defeat Arceus on Level 3 to unlock it.'], [5, P.lv5.n, '5 · Nightmare', P.open5(), 'Defeat Arceus on Level 4 to unlock it.']]) {
+    for (const [lv, n, label, open, need] of [[4, P.lv4.n, '4 · Caldera', P.open4(), 'Defeat Arceus on Level 3 to unlock it.'], [5, P.lv5.n, '5 · Nightmare', P.open5(), 'Defeat Arceus on Level 4 to unlock it.']]) {
       let b = box.querySelector('[data-map="' + n + '"]');
       if (!b) { b = document.createElement('button'); b.className = 'lvl-tab'; b.dataset.map = String(n);
         const zz = box.querySelector('.lvl-tab.zz'); zz ? box.insertBefore(b, zz) : box.appendChild(b);
       }
       const txt = (open ? '' : '🔒 ') + label; if (b.textContent.trim() !== txt) b.textContent = txt;
-      b.disabled = !open; b.title = open ? (lv === 4 ? 'Abyss: enemies x3 HP, x2 damage · +75% PokéCoins & EXP' : 'Nightmare: enemies x4.5 HP, x2.6 damage · +100% PokéCoins & EXP') : need;
+      b.disabled = !open; b.title = open ? (lv === 4 ? 'Caldera: enemies x3 HP, x2 damage · +75% PokéCoins & EXP' : 'Nightmare: enemies x4.5 HP, x2.6 damage · +100% PokéCoins & EXP') : need;
       b.classList.toggle('on', N.Maps.selected() === n);
     }
   }
@@ -53,6 +53,7 @@
   function banner() {   // the Play panel shows "Level 4/5" and borrows the Cave / Volcano artwork
     const N = E(), P = window.PS_LEVELS; if (!N || !P) return; const sel = N.Maps.selected(), lv = sel === P.lv4.n ? 4 : sel === P.lv5.n ? 5 : 0; if (!lv) return;
     const nm = document.querySelector('#pp-info .pp-name'); if (nm && /Level \d+/.test(nm.textContent) && !nm.textContent.startsWith('Level ' + lv + ' ')) nm.textContent = nm.textContent.replace(/Level \d+/, 'Level ' + lv);
+    const volcanic=N.Maps.LIST.find(m=>m.n===sel)?.volcano, vb=document.getElementById('pp-banner');if(volcanic&&vb){const img=window.PS_VOLCANO?.bannerImage?.();vb.style.backgroundImage=img?'url("'+img+'")':'linear-gradient(135deg,#29232f,#723c31 65%,#ea8b43)';vb.querySelectorAll('.pp-bgs i').forEach(i=>i.style.backgroundImage='none');return;}
     const zone = lv === 4 ? 2 : 3, bn = document.getElementById('pp-banner'); if (bn && !String(bn.style.backgroundImage).includes('zone-' + zone + '.webp')) { bn.style.backgroundImage = 'url("assets/ui/zone-' + zone + '.webp")'; const i = bn.querySelector('.pp-bgs i'); if (i) i.style.backgroundImage = 'url(assets/ui/zone-' + zone + '-anim.webp)'; }
   }
   // Upgrades screen: 20 levels of pips used to overflow the card. Pips now shrink to fit the card's width.
