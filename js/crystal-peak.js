@@ -3,8 +3,8 @@
  'use strict';
  const CELL=768,STEP=192,COLORS=['#60baff','#5ef5ff','#6fffb2','#bd80ff','#ff99dc','#e7faff','#fb8472','#ffb66b'];
  const colors=COLORS;
- // Temporary testing rate; restore to .01 for normal rarity.
- const SPECIAL_AREA_CHANCE=.5;
+ // [Gard v90] Regigigas / Terapagos special areas: 15% of runs (was a 50% testing rate).
+ const SPECIAL_AREA_CHANCE=.15;
  const RETURN_ENTRANCE_CHANCE=.5;
  const destroyedScenery=new Set();
  const snowPrints=[],shedPiles=new Map(),treeBumps=new Map();let lastSnowStep=null,printSide=1,weatherOverride=null,lastWeatherName='snow';
