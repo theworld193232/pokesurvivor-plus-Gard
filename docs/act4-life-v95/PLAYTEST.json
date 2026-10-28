@@ -1,0 +1,29 @@
+{
+  "midnight": {
+    "hour": 0,
+    "ambient": [
+      34,
+      38,
+      64
+    ],
+    "lightCount": 41,
+    "sources": [
+      "crystal",
+      "log",
+      "magma",
+      "lava"
+    ]
+  },
+  "bridge": {
+    "hit": true,
+    "stoppedBeforeEdge": true,
+    "deckFree": true,
+    "railSolid": true,
+    "projectileBlocked": true
+  },
+  "automated": {
+    "passed": 26,
+    "failed": 0
+  },
+  "mode": "isolated muted solo guest preview"
+}

@@ -202,7 +202,8 @@
     }
   }
   function propAt(lx, ly, r) { if (!st.defeated && st.phase !== 'awake' && Math.abs(lx-STATUE.x)<48+r && Math.abs(ly-STATUE.y)<23+r) return {statue:true}; for (const q of props) { const b = box(q); if (Math.abs(lx - b.x) < b.rx + r && Math.abs(ly - b.y) < b.ry + r) return q; } return null; }
-  function wallAt(lx, ly, r) { for (const [dx, dy] of [[0, 0], [-r, 0], [r, 0], [0, -r * 0.6], [0, r * 0.6]]) if (cell(lx + dx, ly + dy) === 0) return true; return false; }
+  function denRail(lx,ly,r=0){return [DEN.lakeBridge,DEN.chanBridge].some(b=>ly>b.y0+5-r&&ly<b.y1-5+r&&[-1,1].some(side=>Math.abs(lx-(b.x+side*(b.half+1)))<r+3));}
+  function wallAt(lx, ly, r) { if(denRail(lx,ly,r))return true; for (const [dx, dy] of [[0, 0], [-r, 0], [r, 0], [0, -r * 0.6], [0, r * 0.6]]) if (cell(lx + dx, ly + dy) === 0) return true; return false; }
   function lavaAt(lx, ly) { return cell(lx, ly) === 2; }
   function freeDen(x, y, r = 0, wet = false) { build(); const [lx, ly] = L(x, y); if (wallAt(lx, ly, r)) return false; if (propAt(lx, ly, r)) return false; if (!wet && lavaAt(lx, ly)) return false; return true; }
 
@@ -591,7 +592,7 @@
     return add.call(this, e, ...a);
   };
   // lights for the night-light map
-  if (A.Forest && typeof A.Forest.lights === 'function') { const fl = A.Forest.lights; A.Forest.lights = function (list, ...a) { const out = fl.call(this, list, ...a); try { if (den() && Array.isArray(list)) { const p = R.Game.player; for (const f of st.falls) list.push({ x: OX + f.x, y: OY + f.y1, r: 260, c: [255, 120, 50], i: 1 }); for (const q of props) if (q.kind === 8 && p && Math.hypot(OX + q.x - p.x, OY + q.y - p.y) < 900) list.push({ x: OX + q.x, y: OY + q.y - 16, r: 90, c: [255, 90, 60], i: 0.6 }); } } catch (_) {} return out; }; }
+  if (A.Forest && typeof A.Forest.lights === 'function') { const fl = A.Forest.lights; A.Forest.lights = function (list, ...a) { const out = fl.call(this, list, ...a); try { if (den() && Array.isArray(list)) { const p = R.Game.player; for (const f of st.falls) list.push({ x: OX + f.x, y: OY + f.y1, r: 260, c: [255, 120, 50], i: 1 }); for (const q of props) if (q.kind === 8 && p && Math.hypot(OX + q.x - p.x, OY + q.y - p.y) < 900) list.push({ x: OX + q.x, y: OY + q.y - 16, r: 245, c: [255, 166, 126], i: 0.94 }); } } catch (_) {} return out; }; }
   const update = R.Player.prototype.update;
   R.Player.prototype.update = function (dt, ...a) { const out = update.call(this, dt, ...a); try { tick(this); } catch (err) { console.warn('[groudon-den]', err); } return out; };
 
