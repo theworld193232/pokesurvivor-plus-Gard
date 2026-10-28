@@ -1,8 +1,16 @@
-/* LoverGare's Ralts/Gardevoir companion: cosmetic sprite + local world light. */
+/* LoverGare's Ralts/Gardevoir companion: cosmetic sprite + local world light.
+   Updated: Hides automatically when a custom cosmetic skin (like Witch Ralts/Gardevoir) is equipped so it doesn't clash with the Witch Will-O-Wisps. */
 (() => {
  'use strict';
  const R=window.__PSX_REG__,A=window.PSXAI;
- function eligible(p=R.Game.player){return !!p&&p===R.Game.player&&!p.dead&&R.Game.state==='playing'&&[280,282].includes(Number(p.dex))&&String(R.DB?.user||'').trim().toLowerCase()==='lovergare';}
+ function eligible(p=R.Game.player){
+  if(!p||p!==R.Game.player||p.dead||R.Game.state!=='playing')return false;
+  const d=Number(p.dex);
+  if(![280,282].includes(d))return false;
+  if(String(R.DB?.user||'').trim().toLowerCase()!=='lovergare')return false;
+  if(window.PS_COSMETICS?.selected?.(d))return false;
+  return true;
+ }
  // Opaque Idle/Walk half-widths across all eight facings, relative to measured idle height.
  const HALF_WIDTH={280:16/20,282:15/23,'282_mega':15/26,'282-mega':15/26};
  function obstacles(p){

@@ -1,7 +1,8 @@
-/* [Gard v88] Glowing moves for the Witch line (LoverGare's skins), like Primal Kyogre's glowing Water moves:
+/* [Gard v88+] Glowing moves for the Witch line (LoverGare's skins), like Primal Kyogre's glowing Water moves:
    every move Witch Ralts / Kirlia / Gardevoir uses glows in her colours - green, or purple when shiny;
    as Mega (Dreadful) Gardevoir it glows red and gold, or blue and white when shiny.
-   Her shots get a soft halo while they fly; her beams and slashes get a glowing stroke. Appearance only. */
+   Her shots get a soft halo while they fly; her beams and slashes get a glowing stroke. Appearance only.
+   Optimized: Skips full-screen canvas clear/composite when no friendly projectiles or glows are active. */
 (() => {
   'use strict';
   const TAU = Math.PI * 2, B = () => window.PS_MEGA_BRIDGE_V5;
@@ -47,6 +48,11 @@
     for (const g of glows) g.t += dt; for (let i = glows.length - 1; i >= 0; i--) if (glows[i].t >= glows[i].life) glows.splice(i, 1);
     if (!pal) { if (canvas.style.display !== 'none') canvas.style.display = 'none'; glows.length = 0; return; }
     hook();
+    const projs = (b?.projectiles?.all?.() || []).filter(q => q && q.friendly && !q.ghost && !q.dead);
+    if (!projs.length && !glows.length) {
+      if (canvas.style.display !== 'none') canvas.style.display = 'none';
+      return;
+    }
     if (!mounted && document.body) { document.body.appendChild(canvas); mounted = true; }
     const v = view(); if (!v) return;
     const dpr = Math.min(2, devicePixelRatio || 1), w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
@@ -54,8 +60,7 @@
     canvas.style.display = 'block'; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, innerWidth, innerHeight);
     ctx.save(); ctx.beginPath(); ctx.rect(v.r.left, v.r.top, v.r.width, v.r.height); ctx.clip(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
     const lift = Number(b?.lift) || 18, pulse = 0.85 + 0.15 * Math.sin(ts / 1000 * 9), k = v.k;
-    for (const q of b?.projectiles?.all?.() || []) {
-      if (!q || !q.friendly || q.ghost || q.dead) continue;
+    for (const q of projs) {
       halo(v.sx(q.x), v.sy(q.y - lift), Math.max(5, Number(q.r) || 6) * k * 1.6 * pulse, pal, Math.min(1, (Number(q.t) || 0) / 0.12));
     }
     const lines = [[2.2, pal[0], 0.45], [1.2, pal[1], 0.8], [0.45, '255,255,255', 0.95]];
