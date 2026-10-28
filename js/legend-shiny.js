@@ -12,7 +12,7 @@
   const SHINY_RATE = 0.10, KEEP = 15 * 60 * 1000, SKIP = new Set([493]);
   const met = new Map();   // dex -> when a shiny one was met
   const R = () => window.__PSX_REG__;
-  const SCRIPTED = /\/js\/ai\/|forest-sanctuary|crystal-peak|regi-cave|lore-events/, OWN_ODDS = /dens\.js|roamers\.js|hoopa\.js/;
+  const SCRIPTED = /\/js\/ai\/|forest-sanctuary|crystal-peak|regi-cave|lore-events|groudon-den/, OWN_ODDS = /dens\.js|roamers\.js|hoopa\.js/;
   const fromScriptedFight = () => { const st = String(new Error().stack || ''); return SCRIPTED.test(st) && !OWN_ODDS.test(st); };
   const isLegend = d => { try { return !!R().getPokemon(Number(d))?.leg; } catch (_) { return false; } };
   function install() {

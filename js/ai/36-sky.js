@@ -61,7 +61,7 @@
 
   // ---------------------------------------------------------------- clock
   function cfgOn() { return AI.cfg.atmosphere !== false; }
-  function indoor() { try { return INDOOR_BIOMES.has(AI.Env.biome()) || !!(AI.Mansion && AI.Mansion.inside) || !!(AI.Totem && AI.Totem.active()); } catch (e) { return false; } }
+  function indoor() { try { return INDOOR_BIOMES.has(AI.Env.biome()) || !!(AI.Mansion && AI.Mansion.inside) || !!(AI.Totem && AI.Totem.active()) || !!(window.PS_GROUDON_DEN && window.PS_GROUDON_DEN.st.inDen); } catch (e) { return false; } } // ([Gard v92] Groudon's den is underground)
   function hour() { return st.hour; }
   function phaseOf(h) {
     if (h >= 5 && h < 8) return 'dawn';
