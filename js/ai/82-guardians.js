@@ -80,7 +80,7 @@
         if (!on() || st.scene) return base;
         const cam = R.Camera, out = base.slice();
         for (const id of Object.keys(DEX)) {
-          if (won(id) || (st.battle && st.battle.id === id)) continue;
+          if (done(id) || (st.battle && st.battle.id === id) || (st.cool[id] || 0) > AI.time) continue;   // (only when it will actually fight you: not once it's beaten, resting after a fight, or already yours)
           const a = arena(id); if (!a || !cam.sees(a.x, a.y - 60, 140)) continue;
           out.push({ y: a.y, draw: (ctx) => drawIdle(ctx, id, a) });
         }
@@ -99,15 +99,20 @@
     if (st.battle) return tickBattle(dt);
     const p = player();
     if (!p || p.dead) return;
-    if (AI.R.EnemyMgr.bossAlive && AI.R.EnemyMgr.bossAlive()) return;
-    if ((AI.Story && AI.Story.busy()) || (AI.Sea && AI.Sea.busy())) return;
+    const bossUp = !!(AI.R.EnemyMgr.bossAlive && AI.R.EnemyMgr.bossAlive());
+    const otherBusy = !!((AI.Story && AI.Story.busy()) || (AI.Sea && AI.Sea.busy()));
     for (const id of Object.keys(DEX)) {
       if (done(id) || (st.cool[id] || 0) > AI.time) continue;
       const a = arena(id);
       if (!a) continue;
       const d = Math.hypot(p.x - a.x, p.y - a.y);
       const reach = id === 'fini' ? pedestals().some((q) => Math.hypot(p.x - q[0], p.y - q[1]) < 70) : d < a.r * 0.7;
-      if (reach && O().sample(p.x, p.y).cls === 0) { startScene(id); break; }
+      if (!reach && id === 'koko' && d > a.r * 0.95 && d < a.r + 55 && (st.rampSaid || 0) < AI.time) { st.rampSaid = AI.time + 10; try { AI.R.Spawner.say(T('Tapu Koko waits atop the cliff! Climb the stone ramp on the harbour side.', '¡Tapu Koko espera en lo alto del acantilado! Sube por la rampa de piedra del lado del puerto.'), 3.5, 1); } catch (e) { /* ignore */ } }
+      if (reach && O().sample(p.x, p.y).cls === 0) {
+        // ([Gard v95] it used to ignore you without a word while a stage boss was alive)
+        if (bossUp || otherBusy) { if ((st.waitSaid || 0) < AI.time) { st.waitSaid = AI.time + 8; const nm = { koko: 'Tapu Koko', lele: 'Tapu Lele', bulu: 'Tapu Bulu', fini: 'Tapu Fini' }[id]; try { AI.R.Spawner.say(T(nm + (bossUp ? ' watches you… it won\'t fight while another boss is loose. Beat the boss first!' : ' watches you… finish what\'s happening first, then come back.'), nm + ' te observa… no luchará mientras haya otro jefe suelto.'), 3.5, 1); } catch (e) { /* ignore */ } } break; }
+        startScene(id); break;
+      }
     }
   }
   function actor(dex, x, y) {
@@ -182,6 +187,7 @@
       e = new R.Enemy(def, x, y, { hp: 1, spd: 1, dmg: 1 }, true);
       e.psxGuardian = sc.id; e.psxStory = true; e.psxPlaced = true; e.psxForceTemp = 'aggressive'; e.legend = true;
       R.EnemyMgr.add(e);
+      if (!R.EnemyMgr.all().includes(e)) try { R.EnemyMgr.all().push(e); } catch (err) { /* ignore */ }   // (a full population cap must not swallow the guardian)
       if (AI.Talk && AI.Talk.legends) AI.Talk.legends.seen.set(e, { stage: 0 });
     } catch (err) { AI.warn('guardian-battle', err); }
     st.actor = null;

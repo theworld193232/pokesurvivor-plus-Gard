@@ -70,7 +70,20 @@
     return 'night';
   }
   // 0 at noon … 1 at midnight, smooth around dawn/dusk
+  /* [Gard v95] The weather-legends take the sky: Mega Rayquaza's Delta Stream clears every fog, mist, rain, storm and
+   * snow; Primal Groudon's Desolate Land does too and burns the dark away - harsh, bright sun even at night. Primal
+   * Kyogre keeps its own Primordial Sea (primal-kyogre.js). */
+  function legendSky() {
+    try {
+      const p = AI.R && AI.R.Game && AI.R.Game.player; if (!p || p.dead) return null;
+      const f = String(p.megaForm || ''), a = String((p.anim && p.anim.dex) || '');
+      if (f === '384-mega' || /^384-mega/.test(a)) return 'delta';
+      if (f === '383-primal' || /^383-primal/.test(a)) return 'desolate';
+    } catch (e) { /* ignore */ }
+    return null;
+  }
   function darkness() {
+    if (legendSky() === 'desolate' && !indoor()) return 0;
     const h = st.hour;
     if (h >= 7.5 && h <= 17.5) return 0;
     if (h > 17.5 && h < 20.5) return (h - 17.5) / 3;
@@ -81,7 +94,7 @@
   function midday() { return st.hour >= 11 && st.hour < 14.5; }
   function midnight() { return st.hour >= 23 || st.hour < 2.5; }
   // sun: elevation 0..1 (0 below the horizon), and the direction shadows fall
-  function sunElev() { return Math.max(0, Math.sin(((st.hour - 6) / 12) * Math.PI)); }
+  function sunElev() { return legendSky() === 'desolate' && !indoor() ? 1 : Math.max(0, Math.sin(((st.hour - 6) / 12) * Math.PI)); }
   function shadowDir() {
     // morning shadows stretch west, noon short and slightly north, evening east
     const k = U.clamp((st.hour - 6) / 12, 0, 1);
@@ -128,7 +141,7 @@
     if (cfgOn() && AI.Totem && AI.Totem.active()) return AI.Totem.ambient();
     if (cfgOn() && AI.Mansion && AI.Mansion.inside) return AI.Mansion.ambient();
     if (!cfgOn() || indoor()) return [255, 255, 255];
-    const c = lerpKeys(AMBIENT, st.hour);
+    const c = lerpKeys(AMBIENT, legendSky() === 'desolate' ? 12.5 : st.hour);
     const d = darkness();
     // night is properly dark; a full moon on a clear night is noticeably brighter, a new moon is not
     const moon = 0.8 + 0.42 * moonLight() * (1 - st.cur.cloud * 0.8);
@@ -149,7 +162,7 @@
     return out.map((v) => U.clamp(Math.round(v), 0, 255));
   }
   function skyColor() {
-    const c = lerpKeys(SKY, st.hour);
+    const c = lerpKeys(SKY, legendSky() === 'desolate' && !indoor() ? 12.5 : st.hour);
     const g = st.cur.cloud * 0.6 + st.cur.rain * 0.3;
     return c.map((v) => Math.round(U.lerp(v, 120 + (1 - darkness()) * 60, g)));
   }
@@ -304,12 +317,18 @@
     if (indoor()) { st.tgt.rain = 0; st.tgt.storm = 0; st.tgt.snow = 0; st.tgt.wind = Math.min(st.tgt.wind, 0.1); st.tgt.cloud = 0; }
     if (AI.Ocean) AI.Ocean.localSky(st.tgt); // (the Tropical Ocean's fog banks and Thundercrest's storm: 34-ocean.js)
     if (st.forced) Object.assign(st.tgt, st.forced);
+    const ls = legendSky();
+    if (ls) {
+      Object.assign(st.tgt, { fog: 0, rain: 0, storm: 0, snow: 0, cloud: ls === 'desolate' ? 0 : 0.05, wind: ls === 'delta' ? Math.max(st.tgt.wind, 0.55) : Math.min(st.tgt.wind, 0.2) });
+      st.flash = 0; st.pulses.length = 0; st.strikes.length = 0; st.next = null;   // (no leftover lightning)
+      try { const W = AI.R && AI.R.Weather, k = W && W.current && W.current.kind; if (k && ATMOS.has(k) && k !== 'sun' && k !== 'harsh') W.clear(); } catch (e) { /* ignore */ }
+    }
     // believable transitions: fog creeps in, rain builds up, wind picks up faster than it dies
     // gradual: fog creeps in over minutes, rain builds and fades, a storm grows, peaks and weakens
     // (one step of the chain blends in over roughly 20–40 s, well inside its minute)
     const RATE = { cloud: 0.025, rain: 0.028, fog: 0.022, wind: 0.04, storm: 0.03, snow: 0.025 };
     for (const k in st.cur) {
-      const r = (st.forced && k in st.forced ? 3 : 1) * RATE[k] * dt;
+      const r = (ls ? 12 : st.forced && k in st.forced ? 3 : 1) * RATE[k] * dt;   // (a legend clears the sky in a few seconds)
       const d = st.tgt[k] - st.cur[k];
       st.cur[k] += U.clamp(d, -r, r);
     }
@@ -441,7 +460,7 @@
 
   AI.define('Sky', {
     st, PATTERNS, HOLD, NEXT, holdFor, pickPattern, tick, reset, set, bolt,
-    hour, phase: () => st.phase, phaseOf, darkness, isNight, midday, midnight, hot,
+    hour, phase: () => st.phase, phaseOf, darkness, isNight, midday, midnight, hot, legendSky,
     sunElev, shadowDir, shadowLen, shadowStrength, moonPhase, moonLight, season, ambient, skyColor,
     windVec, windNow, visibility, weatherKind, indoor,
     get rain() { return st.cur.rain; }, get fog() { return st.cur.fog; }, get wind() { return st.cur.wind; },
