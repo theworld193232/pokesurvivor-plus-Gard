@@ -1,0 +1,28 @@
+{
+  "dex": 282,
+  "shiny": true,
+  "anim": "282-witch-s",
+  "face": {
+    "src": "assets/ui/witch-shiny-emotions-v83.png",
+    "rect": [
+      0,
+      0,
+      413,
+      396
+    ],
+    "atlasSize": [
+      1983,
+      793
+    ],
+    "grid": [
+      5,
+      2
+    ],
+    "cell": [
+      0,
+      0
+    ],
+    "skin": "witch-shiny",
+    "mood": "Normal"
+  }
+}
