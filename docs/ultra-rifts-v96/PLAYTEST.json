@@ -1,0 +1,67 @@
+{
+  "entry": {
+    "arena": {
+      "tx": 7681,
+      "ty": 5405,
+      "r": 11,
+      "dex": 793,
+      "shiny": false,
+      "type": "electric",
+      "x": 245808,
+      "y": 172976,
+      "back": {
+        "x": 0,
+        "y": 0
+      },
+      "biome": 2,
+      "t": 0,
+      "phase": "fight",
+      "endT": 0,
+      "bossId": 66,
+      "psOriginalDex": 642,
+      "psUltra": true
+    },
+    "enemies": [
+      {
+        "dex": 793,
+        "shiny": false,
+        "legend": true,
+        "id": 66
+      }
+    ]
+  },
+  "victory": {
+    "phase": "won",
+    "dex": 793,
+    "owned": true,
+    "rewarded": false
+  },
+  "shinyException": {
+    "arena": {
+      "tx": 6000,
+      "ty": 6000,
+      "r": 11,
+      "dex": 144,
+      "shiny": true,
+      "type": "ice",
+      "x": 192016,
+      "y": 192016,
+      "back": {
+        "x": 0,
+        "y": 0
+      },
+      "biome": 2,
+      "t": 0,
+      "phase": "fight",
+      "endT": 0,
+      "bossId": 0
+    },
+    "preserved": true
+  },
+  "automated": {
+    "passed": 42,
+    "failed": 0
+  },
+  "mode": "muted isolated solo guest preview",
+  "liveCoopTested": false
+}

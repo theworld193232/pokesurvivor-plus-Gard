@@ -1,0 +1,7 @@
+Wormhole and dialogue revision v97
+
+Wormhole: narrow initial tear widens over 2.5 seconds into a luminous perspective funnel. Animated offset depth rings, curved meridians, broken auroral ribbons, inward-moving particles and branching radial fractures replace the old static white oval and three hoops. The final 2.4 seconds contract and fade the effect. It remains tied to the native rift object, so entering or expiry removes it. Reduced-effects mode uses fewer rays, rings and particles. Local light radius increases to 285.
+
+Dialogue: 111 species now have individual English entrance, mid-battle and low-health lines (333 lines). Includes all eleven Ultra Beasts, classic legendaries, mythicals, the Regis, wolves, Tapus, Paradox special encounters and recent legendary encounters. Original fan-written dialogue uses species traits and the game’s Mystery Dungeon style, rather than claiming to reproduce canonical quotations. Existing translated entries are merged where available; untranslated entries use English fallback. Ultra Beasts qualify for the dedicated legendary speaker box even if their base rarity is lower.
+
+Validated: 46 automated checks, including renderer state balance and finite geometry across opening/closing stages, acquisition rules from v96, all 111 real dialogue-box routes at all three stages, preservation of existing Spanish dialogue, and volcano regression checks. Live isolated, muted solo preview inspected opening and stable portal rendering. Multi-device co-op was not live-tested.
