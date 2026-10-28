@@ -75,8 +75,17 @@
   else if(t===4){L.name='Fossil Dig';L.say='An old dig site: spades, packs and a fossil half out of the rock.';P(-60,0,19,1.1);P(80,-30,11,.9);P(60,70,20,.8);P(-130,85,4,.8);}
   else if(t===5){L.name='Ember Shrine';L.say='A campfire burns in a ring of fruiting trees. Someone tends it still.';P(0,10,10,1);for(let i=0;i<5;i++){const a=i/5*TAU+.6;P(Math.cos(a)*165,Math.sin(a)*105,i%2?15:7,i%2?.8:1);}}
   return L;}
+ function travelLane(x,y){const cx=Math.floor(x/CELL),cy=Math.floor(y/CELL),p=region(cx,cy),vertical=p.x+775+Math.sin(y/340+p.h*6)*135,horizontal=p.y+540+Math.sin(x/310+p.h*5)*110;return Math.min(Math.abs(x-vertical),Math.abs(y-horizontal));}
+ function placementRadius(d){const a=ART[d.kind];return a.rx?Math.max(a.rx,a.w*.36)*d.scale:0;}
+ function bridgeApproach(x,y,r=90){const cx=Math.floor(x/CELL),cy=Math.floor(y/CELL);for(let yy=cy-1;yy<=cy+1;yy++)for(let xx=cx-1;xx<=cx+1;xx++)for(const b of ropeRuns(xx,yy)){const u=b.dir==='h'?x:y,v=b.dir==='h'?y:x;if(u>=b.a-r&&u<=b.b+r&&Math.abs(v-b.line(Math.max(b.a,Math.min(b.b,u))))<b.half+r)return true;}return false;}
  function props(cx,cy){const key=cx+','+cy;if(propCache.has(key))return propCache.get(key);const out=[],pit={id:'pit'+key,x:cx*CELL+310+hash(cx,cy,seed+992)*45,y:cy*CELL+650,kind:12,scale:1,h:hash(cx,cy,seed+993)};const hasPit=(cx===0&&cy===0||hash(cx,cy,seed+994)<.74)&&dry(pit.x,pit.y,135)&&route(pit.x,pit.y)>140&&!(reserveFn&&reserveFn(pit.x,pit.y)?.clear);
   const TH=THEMES[theme(cx,cy)],LM=landmarkOf(cx,cy);if(LM)out.push(...LM.parts);
+  // Walk-through ruins and small, quiet miner camps are landmarks rather than blocked roads.
+  const p=region(cx,cy),site={x:p.x+180,y:p.y+190};
+  if(p.h<.45&&dry(site.x,site.y,130)&&Math.hypot(site.x,site.y)>280&&!(reserveFn&&reserveFn(site.x,site.y)?.clear)&&!(LM&&Math.hypot(site.x-LM.x,site.y-LM.y)<420)){out.push({id:'arch'+key,x:site.x,y:site.y,kind:9,scale:1,h:p.h});out.push({id:'fire'+key,x:site.x+85,y:site.y+70,kind:10,scale:1,h:p.h});out.push({id:'packs'+key,x:site.x+120,y:site.y+30,kind:11,scale:1,h:p.h});}
+  if(region(cx,cy).hero&&!(reserveFn&&reserveFn(region(cx,cy).hero.x,region(cx,cy).hero.y)?.clear))out.push(region(cx,cy).hero);
+  if(hasPit)out.push(pit);
+  if(cx===-1&&cy===-1)out.push({id:'start-packs',x:-175,y:-120,kind:11,scale:1,h:.2},{id:'start-fire',x:-105,y:-165,kind:10,scale:1,h:.4},{id:'start-log',x:-255,y:-160,kind:5,scale:.9,h:.3});
   for(let gy=0;gy<12;gy++)for(let gx=0;gx<12;gx++){const ix=cx*12+gx,iy=cy*12+gy,h=hash(ix,iy,seed+208),x=cx*CELL+(gx+.3+hash(ix,iy,seed+209)*.4)*CELL/12,y=cy*CELL+(gy+.3+hash(ix,iy,seed+210)*.4)*CELL/12,s=sample(x,y);
    if(region(cx,cy).hero&&Math.abs(x-region(cx,cy).hero.x)<255&&y>region(cx,cy).hero.y-260&&y<region(cx,cy).hero.y+65)continue;
    if(route(x,y)<78||Math.hypot(x,y)<210||!dry(x,y,88)||s.bridge||s.rv&&s.rv.clear||hasPit&&Math.hypot(x-pit.x,y-pit.y)<175)continue;
@@ -85,17 +94,11 @@
    let kind=grove?(h<.72?0:h<.91?5:2):bank?(h<.32?1:h<.64?2:h<.83?4:8):(h<.16?3:h<.27?2:5);
    if(kind===0){const choices=region(cx,cy).grove?[0,13,14,15,16]:[0,13,14,16];kind=choices[Math.floor(hash(ix,iy,seed+213)*choices.length)];}else if(kind===1&&hash(ix,iy,seed+214)<.5)kind=18;else if(kind===2&&hash(ix,iy,seed+215)<.5)kind=17;else if(kind===4){const r=hash(ix,iy,seed+216);kind=r<.25?22:r<.62?20:4;}else if(kind===8&&hash(ix,iy,seed+217)<.3)kind=19;
    if(TH.k&&hash(ix,iy,seed+218)<(grove?.25:.55))kind=TH.k[Math.floor(hash(ix,iy,seed+219)*TH.k.length)];
-   if(LM&&Math.hypot(x-LM.x,(y-LM.y)*1.3)<260)continue;
-   if(h>.97)continue;const scale=.8+hash(ix,iy,seed+211)*.35;if(!dry(x,y-3,ART[kind].rx*scale+5))continue;if(route(x,y)<Math.max(78,ART[kind].rx*scale+28))continue;
-   if(out.some(d=>Math.hypot(d.x-x,(d.y-y)*1.3)<(ART[d.kind].rx*d.scale+ART[kind].rx*scale)+24))continue;
+   if(LM&&Math.hypot(x-LM.x,(y-LM.y)*1.3)<340)continue;
+   if(h>.97)continue;const scale=.8+hash(ix,iy,seed+211)*.35;if(!dry(x,y-3,ART[kind].rx*scale+5))continue;const radius=placementRadius({kind,scale});if(radius&&Math.min(x-cx*CELL,(cx+1)*CELL-x,y-cy*CELL,(cy+1)*CELL-y)<radius+42)continue;if(route(x,y)<Math.max(104,radius+48)||radius&&(travelLane(x,y)<radius+64||bridgeApproach(x,y,radius+75)))continue;
+   if(radius&&out.some(d=>placementRadius(d)&&Math.hypot(d.x-x,(d.y-y)*1.15)<placementRadius(d)+radius+82))continue;
    out.push({id:'p'+ix+','+iy,x,y,kind,scale,h});
   }
-  // Walk-through ruins and small, quiet miner camps are landmarks rather than blocked roads.
-  const p=region(cx,cy),site={x:p.x+180,y:p.y+190};
-  if(p.h<.45&&dry(site.x,site.y,130)&&Math.hypot(site.x,site.y)>280&&!(reserveFn&&reserveFn(site.x,site.y)?.clear)&&!(LM&&Math.hypot(site.x-LM.x,site.y-LM.y)<420)){out.push({id:'arch'+key,x:site.x,y:site.y,kind:9,scale:1,h:p.h});out.push({id:'fire'+key,x:site.x+85,y:site.y+70,kind:10,scale:1,h:p.h});out.push({id:'packs'+key,x:site.x+120,y:site.y+30,kind:11,scale:1,h:p.h});}
-  if(region(cx,cy).hero&&!(reserveFn&&reserveFn(region(cx,cy).hero.x,region(cx,cy).hero.y)?.clear))out.push(region(cx,cy).hero);
-  if(hasPit)out.push(pit);
-  if(cx===-1&&cy===-1)out.push({id:'start-packs',x:-175,y:-120,kind:11,scale:1,h:.2},{id:'start-fire',x:-105,y:-165,kind:10,scale:1,h:.4},{id:'start-log',x:-255,y:-160,kind:5,scale:.9,h:.3});
   return put(propCache,key,out,64);
  }
  function near(x,y,r=900){const out=[];for(let cy=Math.floor((y-r)/CELL);cy<=Math.floor((y+r)/CELL);cy++)for(let cx=Math.floor((x-r)/CELL);cx<=Math.floor((x+r)/CELL);cx++)for(const d of props(cx,cy))if(Math.abs(d.x-x)<r+200&&Math.abs(d.y-y)<r+240)out.push(d);return out;}
@@ -200,7 +203,7 @@
  function pool(level){return [...POOL,...HIGH].filter(d=>R.DEX_BY[d]&&R.SPRITE_META[d]&&(window.PS_WILD_LEVELS?.minimum(d)||1)<=level);}
  function bag(base){const ids=pool(Number(R.Game.player?.level)||1);if(!base?.length)return [];return ids.map((dex,i)=>({...base[i%base.length],dex,name:R.DEX_BY[dex].name}));}
  function bannerImage(){if(bannerUrl)return bannerUrl;if(!atlases.every(im=>im.complete&&im.naturalWidth>0))return null;const cv=document.createElement('canvas');cv.width=640;cv.height=240;const g=cv.getContext('2d'),p=region(0,0),x0=p.crater.x-460,y0=p.crater.y-140,sc=640/920;g.imageSmoothingEnabled=false;g.scale(sc,sc);g.translate(-x0,-y0);for(let cy=Math.floor(y0/CH);cy<=Math.floor((y0+350)/CH);cy++)for(let cx=Math.floor(x0/CH);cx<=Math.floor((x0+920)/CH);cx++)g.drawImage(terrain(cx,cy),cx*CH,cy*CH,CH,CH);for(const d of near(p.crater.x,p.crater.y,700).sort((a,b)=>a.y-b.y))drawSprite(g,d);bannerUrl=cv.toDataURL('image/png');return bannerUrl;}
- const api=window.PS_VOLCANO={landmarkOf,theme,THEMES,setReserve(fn){reserveFn=fn||null;lmCache.clear();chunks.clear();propCache.clear();ropeCache.clear();lavaLightCache.clear();bannerUrl=null;},ropeRuns,railBoxes,lightSources,active,bannerImage,reset,region,sample,route,dry,near,props,boxes,blocked,free,repair,hash,pool,ART,drawGround,drawables,atmosphere,discovered,get seed(){return seed;},get ready(){return atlases.every(im=>im.complete&&im.naturalWidth>0);},stats:()=>({chunks:chunks.size,regions:regions.size,propCells:propCache.size,discoveries:discovered.size,footprints:prints.length})};
+ const api=window.PS_VOLCANO={landmarkOf,theme,THEMES,setReserve(fn){reserveFn=fn||null;lmCache.clear();chunks.clear();propCache.clear();ropeCache.clear();lavaLightCache.clear();bannerUrl=null;},travelLane,placementRadius,bridgeApproach,ropeRuns,railBoxes,lightSources,active,bannerImage,reset,region,sample,route,dry,near,props,boxes,blocked,free,repair,hash,pool,ART,drawGround,drawables,atmosphere,discovered,get seed(){return seed;},get ready(){return atlases.every(im=>im.complete&&im.naturalWidth>0);},stats:()=>({chunks:chunks.size,regions:regions.size,propCells:propCache.size,discoveries:discovered.size,footprints:prints.length})};
  function wrap(o,k,fn){const old=o?.[k];if(typeof old==='function')o[k]=function(...a){return active()?fn.call(this,old,...a):old.apply(this,a);};}
  const resetWorld=R.World.reset;R.World.reset=function(s,...a){reset(s);return resetWorld.call(this,s,...a);};
  wrap(R.World,'biomeName',()=> 'Cinderwake Caldera');wrap(R.World,'drawGround',(_,ctx)=>drawGround(ctx));wrap(R.World,'drawLiquid',()=>{});wrap(A.Ground,'drawGround',()=>{});wrap(A.Light,'drawAir',(_,ctx)=>atmosphere(ctx));wrap(A.Sky,'weatherKind',()=> 'clear');

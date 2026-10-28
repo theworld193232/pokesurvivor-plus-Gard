@@ -1,0 +1,133 @@
+{
+  "cases": 21,
+  "totalOld": 23898,
+  "totalFixed": 0,
+  "results": [
+    {
+      "scale": 0.73,
+      "offset": 0.1,
+      "old": 1908,
+      "fixed": 0
+    },
+    {
+      "scale": 0.73,
+      "offset": 0.3,
+      "old": 1908,
+      "fixed": 0
+    },
+    {
+      "scale": 0.73,
+      "offset": 0.7,
+      "old": 1908,
+      "fixed": 0
+    },
+    {
+      "scale": 1,
+      "offset": 0.1,
+      "old": 1354,
+      "fixed": 0
+    },
+    {
+      "scale": 1,
+      "offset": 0.3,
+      "old": 1354,
+      "fixed": 0
+    },
+    {
+      "scale": 1,
+      "offset": 0.7,
+      "old": 1354,
+      "fixed": 0
+    },
+    {
+      "scale": 1.125,
+      "offset": 0.1,
+      "old": 1354,
+      "fixed": 0
+    },
+    {
+      "scale": 1.125,
+      "offset": 0.3,
+      "old": 1354,
+      "fixed": 0
+    },
+    {
+      "scale": 1.125,
+      "offset": 0.7,
+      "old": 1354,
+      "fixed": 0
+    },
+    {
+      "scale": 1.333,
+      "offset": 0.1,
+      "old": 1116,
+      "fixed": 0
+    },
+    {
+      "scale": 1.333,
+      "offset": 0.3,
+      "old": 1116,
+      "fixed": 0
+    },
+    {
+      "scale": 1.333,
+      "offset": 0.7,
+      "old": 1116,
+      "fixed": 0
+    },
+    {
+      "scale": 1.667,
+      "offset": 0.1,
+      "old": 1116,
+      "fixed": 0
+    },
+    {
+      "scale": 1.667,
+      "offset": 0.3,
+      "old": 1116,
+      "fixed": 0
+    },
+    {
+      "scale": 1.667,
+      "offset": 0.7,
+      "old": 1116,
+      "fixed": 0
+    },
+    {
+      "scale": 2.5,
+      "offset": 0.1,
+      "old": 559,
+      "fixed": 0
+    },
+    {
+      "scale": 2.5,
+      "offset": 0.3,
+      "old": 559,
+      "fixed": 0
+    },
+    {
+      "scale": 2.5,
+      "offset": 0.7,
+      "old": 559,
+      "fixed": 0
+    },
+    {
+      "scale": 3.33,
+      "offset": 0.1,
+      "old": 559,
+      "fixed": 0
+    },
+    {
+      "scale": 3.33,
+      "offset": 0.3,
+      "old": 559,
+      "fixed": 0
+    },
+    {
+      "scale": 3.33,
+      "offset": 0.7,
+      "old": 559,
+      "fixed": 0
+    }
+  ]
+}
