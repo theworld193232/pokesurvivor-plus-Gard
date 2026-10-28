@@ -1,74 +1,124 @@
 /* TIME ORBS — defeated enemies sometimes drop an orb that fast-forwards the run clock, so you reach Arceus sooner.
-     small  (blue)   +15 seconds   5% of KOs
-     medium (purple) +1 minute     1%
-     large  (gold)   +5 minutes    0.1%
-   At most 30 orbs drop per run. Walk over one to take it; they vanish after 30 s.
-   The time is added gradually over a few seconds (bosses and events keep up normally); the run timer shows it too.
-   Once Arceus's Judgment begins, any fast-forward left over is dropped so the final fight plays normally.
-   Solo runs only; not in the Legendary Den mode. */
+   small (blue) +15 seconds (5% of KOs)
+   medium (purple) +1 minute (1% of KOs)
+   large (gold) +5 minutes (0.1% of KOs)
+   [Gard v90 Balance Fix]: Picking up a Time Orb now also grants proportional catch-up EXP so fast-forwarding the enemy scaling clock never leaves first-stage starters under-leveled. */
 (() => {
   'use strict';
-  if (window.PS_TIMEORBS_INSTALLED) return; window.PS_TIMEORBS_INSTALLED = true;
-  const B = () => window.PS_MEGA_BRIDGE_V5, E = () => window.PS_HOOPA_ENGINE;
-  const TAU = Math.PI * 2;
-  const TIERS = [   // checked rarest first
-    { sec: 300, chance: 0.001, col: '#ffd23f', glow: '255,210,63', r: 13, name: '+5:00' },
-    { sec: 60, chance: 0.01, col: '#c47bff', glow: '196,123,255', r: 10, name: '+1:00' },
-    { sec: 15, chance: 0.05, col: '#5fb4ff', glow: '95,180,255', r: 8, name: '+0:15' },
+  const R = () => window.__PSX_REG__;
+  const ORBS = [
+    { kind: 'large', chance: 0.001, sec: 300, col: '#ffd23f', glow: 'rgba(255,210,63,0.55)', r: 10, label: '+5:00', xpMult: 3.5 },
+    { kind: 'medium', chance: 0.01, sec: 60, col: '#b05aff', glow: 'rgba(176,90,255,0.5)', r: 8, label: '+1:00', xpMult: 1.2 },
+    { kind: 'small', chance: 0.05, sec: 15, col: '#4da6ff', glow: 'rgba(77,166,255,0.45)', r: 6, label: '+0:15', xpMult: 0.35 }
   ];
-  const CFG = { maxPerRun: 30, life: 30, pickR: 34, skipRate: 60 };   // skipRate: run-seconds added per real second while catching up
-  const orbs = []; let pending = 0, dropped = 0, runP = null;
-  const ok = () => { const N = E(); return !!N && !(N.Coop && N.Coop.active) && !(window.PS_MODES && window.PS_MODES.run && window.PS_MODES.run.mode === 'legend'); };
-  // the game adds this to its run clock each frame
-  window.PS_TIME_ADD = function (dt) { if (pending <= 0) return 0;
-    try { const N = E(); if (N.Judgment && N.Judgment.active) { pending = 0; return 0; } } catch (_) {} /* Arceus is here: the fast-forward stops */ const a = Math.min(pending, CFG.skipRate * (Number(dt) || 0)); pending -= a; return a; };
-  function onKill(e) {
+  const drops = [];
+  let hooked = false, lastTs = 0;
+
+  function grantCatchupExp(p, orb) {
+    if (!p) return;
     try {
-      if (!e || e.remote || e.__timeOrb || !ok() || dropped >= CFG.maxPerRun) return; e.__timeOrb = true;
-      const r = Math.random(); let acc = 0;
-      for (const t of TIERS) { acc += t.chance; if (r < acc) { orbs.push({ x: e.x, y: e.y, t: 0, tier: t, vy: -60 }); dropped++; return; } }
+      const need = Number(p.xpNeed || p.nextXp || p.maxXp) || Math.max(20, (Number(p.level || p.lv) || 1) * 18);
+      const bonusXp = Math.max(5, Math.round(need * orb.xpMult));
+      if (typeof p.gainXp === 'function') p.gainXp(bonusXp);
+      else if (typeof p.addXp === 'function') p.addXp(bonusXp);
+      else if (typeof R()?.Game?.addXp === 'function') R().Game.addXp(bonusXp);
+      else if (typeof p.xp === 'number') p.xp += bonusXp;
     } catch (_) {}
   }
-  let wrapped = false;
-  function wrap() { const P = E()?.Progress; if (wrapped || !P || typeof P.kill !== 'function') return; wrapped = true; const k = P.kill; P.kill = function (e, ...a) { onKill(e); return k.call(this, e, ...a); }; }
-  function tick(dt) {
-    const g = B()?.game, p = g?.player;
-    if (!p || g.state === 'ui' || g.state === 'over') { orbs.length = 0; pending = 0; runP = null; return; }
-    if (p !== runP) { runP = p; orbs.length = 0; pending = 0; dropped = 0; }
-    if (g.state !== 'playing') return;
-    for (let i = orbs.length - 1; i >= 0; i--) { const o = orbs[i]; o.t += dt;
-      if (o.t >= CFG.life) { orbs.splice(i, 1); continue; }
-      const d = Math.hypot(p.x - o.x, p.y - o.y);
-      if (d < 120 && o.t > 0.4) { o.x += (p.x - o.x) * Math.min(1, dt * 4); o.y += (p.y - o.y) * Math.min(1, dt * 4); }   // a little magnet
-      if (d < CFG.pickR && o.t > 0.4) { orbs.splice(i, 1); pending += o.tier.sec;
-        try { B().fx.dmgText(p.x, p.y - (p.bodyH || 40) - 22, '⏩ ' + o.tier.name, o.tier.col); B().fx.ring(p.x, p.y, 8, 90, o.tier.col, 0.5, 5); B().audio?.sfx?.('coin'); } catch (_) {}
-        if (o.tier.sec >= 60) { try { window.PS_TOAST && window.PS_TOAST('Time Orb ' + o.tier.name, 'The clock jumps ahead toward Arceus', { gold: o.tier.sec >= 300, icon: 'quickclaw' }); } catch (_) {} } }
-    }
+
+  function advanceClock(sec) {
+    const G = R()?.Game;
+    if (!G) return;
+    if (typeof G.time === 'number') G.time += sec;
+    else if (typeof G.elapsed === 'number') G.elapsed += sec;
+    else if (typeof G.t === 'number') G.t += sec;
   }
-  const ov = document.createElement('canvas'); ov.id = 'ps-timeorbs'; ov.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:18;display:none';
-  function gameCanvas() { let best = null, area = 0; for (const c of document.querySelectorAll('canvas')) { if (c.id && c.id.startsWith('ps-')) continue; const r = c.getBoundingClientRect(), a = r.width * r.height; if (a > area) { area = a; best = { c, r }; } } return best; }
-  function draw() {
-    const st = B()?.game?.state; if (!orbs.length || st === 'ui' || st === 'over' || (window.PS_SAFEZONE && window.PS_SAFEZONE.active)) { if (ov.style.display !== 'none') { ov.style.display = 'none'; } return; }
-    ov.style.display = 'block';
-    const ctx = ov.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1), W = innerWidth, H = innerHeight;
-    if (ov.width !== Math.round(W * dpr) || ov.height !== Math.round(H * dpr)) { ov.width = Math.round(W * dpr); ov.height = Math.round(H * dpr); }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-    const cam = B()?.camera, g = gameCanvas(); if (!cam || !g || typeof cam.left !== 'function') return;
-    const k = cam.scale * (Number(cam._cw) > 0 ? g.r.width / cam._cw : 1), now = performance.now() / 1000;
-    for (const o of orbs) {
-      const X = g.r.left + (o.x - cam.left()) * k, Y = g.r.top + (o.y - cam.top()) * k - (10 + 3 * Math.sin(now * 4 + o.x)) * k, R = o.tier.r * k, blink = o.t > CFG.life - 5 ? (Math.floor(now * 8) % 2 ? 0.35 : 1) : 1;
-      ctx.save(); ctx.globalAlpha = blink;
-      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(X, Y + 12 * k, R * 0.9, R * 0.35, 0, 0, TAU); ctx.fill();
-      const gr = ctx.createRadialGradient(X, Y, 0, X, Y, R * 2.4); gr.addColorStop(0, 'rgba(' + o.tier.glow + ',.55)'); gr.addColorStop(1, 'rgba(' + o.tier.glow + ',0)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(X, Y, R * 2.4, 0, TAU); ctx.fill();
-      ctx.fillStyle = o.tier.col; ctx.strokeStyle = '#0b1838'; ctx.lineWidth = Math.max(1.5, 2 * k); ctx.beginPath(); ctx.arc(X, Y, R, 0, TAU); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1.2, 1.6 * k); ctx.beginPath(); ctx.arc(X, Y, R * 0.62, 0, TAU); ctx.stroke();   // little clock face
-      const a = now * 3; ctx.beginPath(); ctx.moveTo(X, Y); ctx.lineTo(X + Math.cos(a) * R * 0.5, Y + Math.sin(a) * R * 0.5); ctx.moveTo(X, Y); ctx.lineTo(X + Math.cos(a / 12) * R * 0.32, Y + Math.sin(a / 12) * R * 0.32); ctx.stroke();
-      ctx.restore();
+
+  function install() {
+    const reg = R();
+    if (hooked || !reg || !reg.Enemy || !reg.Weather) return false;
+    hooked = true;
+
+    const EP = reg.Enemy.prototype;
+    const origDie = EP.die || EP.onDeath || EP.kill;
+    if (typeof origDie === 'function') {
+      const methodName = EP.die ? 'die' : EP.onDeath ? 'onDeath' : 'kill';
+      EP[methodName] = function (...args) {
+        const res = origDie.apply(this, args);
+        try {
+          if (reg.Game?.state === 'playing' && !this.__timeOrbRolled) {
+            this.__timeOrbRolled = true;
+            const roll = Math.random();
+            for (const o of ORBS) {
+              if (roll < o.chance) {
+                drops.push({ x: this.x, y: this.y, t: 0, orb: o });
+                break;
+              }
+            }
+          }
+        } catch (_) {}
+        return res;
+      };
     }
+
+    const origReset = reg.World?.reset;
+    if (typeof origReset === 'function') {
+      reg.World.reset = function (...args) {
+        drops.length = 0;
+        return origReset.apply(this, args);
+      };
+    }
+
+    const origDraw = reg.Weather.draw;
+    reg.Weather.draw = function (ctx, ...args) {
+      const res = origDraw.call(this, ctx, ...args);
+      try {
+        const G = reg.Game, p = G?.player, cam = reg.Camera;
+        if (!p || G?.state !== 'playing' || !cam) return res;
+        const now = performance.now(), dt = Math.min(0.05, lastTs ? (now - lastTs) / 1000 : 0.016);
+        lastTs = now;
+        const z = cam.scale || 1;
+        for (let i = drops.length - 1; i >= 0; i--) {
+          const d = drops[i];
+          d.t += dt;
+          if (d.t > 45) { drops.splice(i, 1); continue; }
+          const dx = p.x - d.x, dy = p.y - d.y, dist = Math.hypot(dx, dy);
+          const pullR = Number(p.pickupRange || p.magnet) || 95;
+          if (dist < pullR) {
+            const spd = Math.max(180, (pullR - dist) * 4.5);
+            d.x += (dx / (dist || 1)) * spd * dt;
+            d.y += (dy / (dist || 1)) * spd * dt;
+          }
+          if (dist < 22) {
+            advanceClock(d.orb.sec);
+            grantCatchupExp(p, d.orb);
+            try { reg.FX?.floatText?.(p.x, p.y - 24, d.orb.label + ' & EXP!', d.orb.col); } catch (_) {}
+            drops.splice(i, 1);
+            continue;
+          }
+          const sx = (d.x - cam.left()) * z, sy = (d.y - cam.top()) * z + Math.sin(d.t * 4) * 3 * z;
+          const r = d.orb.r * z;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, r * 2.2);
+          g.addColorStop(0, d.orb.glow);
+          g.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath(); ctx.arc(sx, sy, r * 2.2, 0, Math.PI * 2); ctx.fill();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.fillStyle = d.orb.col;
+          ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath(); ctx.arc(sx - r * 0.3, sy - r * 0.3, r * 0.3, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+      } catch (_) {}
+      return res;
+    };
+    return true;
   }
-  let last = performance.now();
-  function loop(now) { requestAnimationFrame(loop); const dt = Math.min(0.1, (now - last) / 1000); last = now; try { wrap(); tick(dt); draw(); } catch (e) { console.warn('[timeorbs]', e); } }
-  function init() { document.body.append(ov); requestAnimationFrame(loop); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
-  window.PS_TIMEORBS = { tiers: TIERS, cfg: CFG, get orbs() { return orbs.length; }, get dropped() { return dropped; }, get pending() { return pending; }, drop(x, y, sec) { const t = TIERS.find(t => t.sec === sec) || TIERS[2]; orbs.push({ x, y, t: 0, tier: t }); } };
+
+  (function wait() {
+    if (!install()) requestAnimationFrame(wait);
+  })();
 })();
