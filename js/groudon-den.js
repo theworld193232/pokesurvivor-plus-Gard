@@ -1,4 +1,4 @@
-/* [Gard v92] Groudon's Den — a place inside a place, like the haunted mansion in the Shady Forest or the Regigigas
+/* [Gard v93] Groudon's Den — a place inside a place, like the haunted mansion in the Shady Forest or the Regigigas
    temple on the snowy mountain.
    Somewhere out in Cinderwake Caldera (Act 4) a mountain stands with a cave in its foot, lava pouring down its face on
    both sides. As you get close the ground starts to tremble, magma fissures and black glass spires show up, and the
@@ -76,6 +76,9 @@
   }
 
   // --- pixel art: the mountainside with its cave, lavafalls and crystals (220 x 160 art px, 2 world px each)
+  const denAtlas=new Image(); denAtlas.src='assets/env/groudon-den-v93.png';
+  const DEN_ART=[{r:[24,28,790,516],w:440,rx:155,ry:30},{r:[880,26,596,518],w:150,rx:45,ry:20},{r:[26,624,740,362],w:168,rx:66,ry:17},{r:[802,566,714,440],w:220,rx:77,ry:25}];
+  function drawDenAsset(ctx,index,x,y,width){const a=DEN_ART[index];if(!denAtlas.complete||!denAtlas.naturalWidth)return false;const [sx,sy,sw,sh]=a.r,w=width||a.w,h=w*sh/sw;ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(denAtlas,sx,sy,sw,sh,Math.round(x-w/2),Math.round(y-h),Math.round(w),Math.round(h));ctx.restore();return true;}
   let mountC = null, mountSeed = null;
   function mountainArt() {
     const s = seed();
@@ -124,9 +127,9 @@
   function drawMountain(ctx) {
     const S = site(), c = mountainArt(), t = Number(R.Game.time) || 0, x0 = Math.round(S.x - c.width), y0 = Math.round(S.y - c.height * 2);
     ctx.save(); ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(c, x0, y0, c.width * 2, c.height * 2);
+    if(!drawDenAsset(ctx,0,S.x,S.y,440))ctx.drawImage(c, x0, y0, c.width * 2, c.height * 2);
     // the lavafalls run: bright bands sliding down, and a splash at the bottom
-    for (const fx of [56, 164]) {
+    for (const fx of (denAtlas.complete && denAtlas.naturalWidth ? [] : [56,164])) {
       const top = c.top[fx] + 4;
       for (let y = top; y < c.height; y += 1) {
         const band = ((y - t * 40) % 9 + 9) % 9;
@@ -146,7 +149,7 @@
     corridor: [[960, 1250], [840, 1120], [770, 990], [830, 870], [960, 800]],
     middle: { x: 960, y: 790, rx: 430, ry: 170 }, west: { x: 520, y: 860, rx: 180, ry: 130 }, east: { x: 1410, y: 900, rx: 210, ry: 140 },
     hall: { x: 960, y: 410, rx: 720, ry: 330 }, neck: [[960, 720], [960, 590]],
-    lake: { x: 960, y: 380, rx: 560, ry: 235 }, island: { x: 960, y: 372, rx: 185, ry: 104 },
+    lake: { x: 960, y: 380, rx: 560, ry: 235 }, island: { x: 960, y: 380, rx: 220, ry: 132 }, heart: { x: 960, y: 350, rx: 113, ry: 76 },
     lakeBridge: { x: 960, y0: 460, y1: 640, half: 30 }, chanBridge: { x: 776, y0: 940, y1: 1070, half: 30 },
   };
   function segD(x, y, a, b) { const dx = b[0] - a[0], dy = b[1] - a[1], t = clamp(((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy || 1)); return Math.hypot(x - a[0] - t * dx, y - a[1] - t * dy); }
@@ -159,6 +162,7 @@
     const lb = DEN.lakeBridge, cb = DEN.chanBridge;
     if (Math.abs(x - lb.x) < lb.half && y > lb.y0 && y < lb.y1) return 3;
     if (Math.abs(x - cb.x) < cb.half && y > cb.y0 && y < cb.y1) return 3;
+    if (ellD(x, y, DEN.heart) + wob * 0.12 < 0) return 2;
     if (ellD(x, y, DEN.island) + wob * 0.3 < 0) return 4;
     if (ellD(x, y, DEN.lake) + wob * 0.5 < 0) return 2;
     const chanY = 1005 + Math.sin(x / 90) * 18;
@@ -181,7 +185,7 @@
   // boulders, porous rock, fossil stones, ledges, and black obsidian crystals growing against the walls
   const atl = ['assets/env/volcano-scenery-v91.png', 'assets/env/volcano-variants-v91.png', 'assets/env/volcano-landmarks-v91.png'].map((src) => { const im = new Image(); im.src = src; return im; });
   const OPEN = [1, 2, 17, 19, 20, 4, 18, 2], WALLK = [8, 8, 2, 4];
-  function box(q) { const a = V.ART[q.kind]; return { x: q.x, y: q.y - 3, rx: (a.rx || 14) * q.scale, ry: (a.ry || 8) * q.scale }; }
+  function box(q) { const a = q.denArt != null ? DEN_ART[q.denArt] : V.ART[q.kind], angle=q.angle||0, rx=(a.rx||14)*q.scale, ry=(a.ry||8)*q.scale; return { x:q.x,y:q.y-3,rx:Math.abs(Math.cos(angle))*rx+Math.abs(Math.sin(angle))*ry/.55,ry:Math.abs(Math.sin(angle))*rx*.55+Math.abs(Math.cos(angle))*ry }; }
   function buildProps() {
     props = [];
     const ok = (x, y, r) => { for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r * 0.6], [0, -r * 0.6]]) { if (cell(x + dx, y + dy) !== 1) return false; } return true; };
@@ -189,14 +193,15 @@
       const x = 80 + hash(n, 1, 8210) * (W - 160), y = 120 + hash(n, 2, 8211) * (H - 200);
       let wallNear = false; for (let a = 0; a < 8; a++) if (cell(x + Math.cos(a / 8 * TAU) * 70, y + Math.sin(a / 8 * TAU) * 70) === 0) wallNear = true;
       const list = wallNear ? WALLK : OPEN, kind = list[Math.floor(hash(n, 3, 8212) * list.length)], A0 = V.ART[kind]; if (!A0) continue;
-      const scale = (kind === 8 ? 0.55 : 0.62) + hash(n, 4, 8213) * 0.25, rx = (A0.rx || 14) * scale;
+      const scale = (kind === 8 ? 0.55 : 0.62) + hash(n, 4, 8213) * 0.25, rx = ((kind===1||kind===17?DEN_ART[1].rx:kind===2?DEN_ART[2].rx:A0.rx) || 14) * scale;
       if (!ok(x, y, rx + 18)) continue;
       if (lineD(x, y, DEN.corridor) < rx + 80 || lineD(x, y, DEN.neck) < rx + 70 || Math.hypot(x - DEN.start.x, y - DEN.start.y) < 150 || Math.abs(x - DEN.lakeBridge.x) < rx + 70 || Math.abs(x - DEN.chanBridge.x) < rx + 70 && y > 880 && y < 1130) continue;
       if (props.some((q) => Math.abs(q.x - x) < box(q).rx + rx + 64 && Math.abs(q.y - y) < box(q).ry + rx * 0.5 + 56)) continue;   // (always a walkable gap between them)
-      props.push({ x, y, kind, scale, h: hash(n, 5, 8214), id: 'den' + n });
+      const q={x,y,kind,denArt:kind===1||kind===17?1:kind===2?2:undefined,scale,h:hash(n,5,8214),id:'den'+n,flip:hash(n,6,8214)<.5,angle:kind===2?[0,Math.PI/2,Math.PI,-Math.PI/2][Math.floor(hash(n,7,8214)*4)]:0};
+      const b=box(q); if(!ok(x,y,Math.max(b.rx,b.ry)+18))continue; if(props.some(z=>{const a=box(z);return Math.abs(a.x-b.x)<a.rx+b.rx+42&&Math.abs(a.y-b.y)<a.ry+b.ry+38}))continue; props.push(q);
     }
   }
-  function propAt(lx, ly, r) { for (const q of props) { const b = box(q); if (Math.abs(lx - b.x) < b.rx + r && Math.abs(ly - b.y) < b.ry + r) return q; } return null; }
+  function propAt(lx, ly, r) { if (!st.defeated && st.phase !== 'awake' && Math.abs(lx-STATUE.x)<48+r && Math.abs(ly-STATUE.y)<23+r) return {statue:true}; for (const q of props) { const b = box(q); if (Math.abs(lx - b.x) < b.rx + r && Math.abs(ly - b.y) < b.ry + r) return q; } return null; }
   function wallAt(lx, ly, r) { for (const [dx, dy] of [[0, 0], [-r, 0], [r, 0], [0, -r * 0.6], [0, r * 0.6]]) if (cell(lx + dx, ly + dy) === 0) return true; return false; }
   function lavaAt(lx, ly) { return cell(lx, ly) === 2; }
   function freeDen(x, y, r = 0, wet = false) { build(); const [lx, ly] = L(x, y); if (wallAt(lx, ly, r)) return false; if (propAt(lx, ly, r)) return false; if (!wet && lavaAt(lx, ly)) return false; return true; }
@@ -226,14 +231,14 @@
         if (grain > 0.985) col = [255, 230, 150];
       } else {
         const island = v === 4;
-        col = island ? (n < 0.5 ? [66, 44, 40] : [80, 54, 48]) : n < 0.33 ? [150, 108, 76] : n < 0.66 ? [166, 122, 86] : [178, 134, 96];
-        if (!island && grain > 0.975) col = [206, 168, 128];
-        if (!island && grain < 0.025) col = [112, 78, 56];
+        col = island ? (n < 0.5 ? [66, 44, 40] : [80, 54, 48]) : n < 0.33 ? [69, 57, 54] : n < 0.66 ? [79, 65, 59] : [91, 74, 65];
+        if (!island && grain > 0.975) col = [118, 98, 80];
+        if (!island && grain < 0.025) col = [51, 43, 42];
         if (!island && vn(lx / 90, ly / 90, 8225) > 0.68) col = col.map((c) => c * 0.9);
         const dw = DW[k], dl = DL[k];
         if (dw <= 1) col = col.map((c) => c * 0.72); else if (dw === 2) col = col.map((c) => c * 0.86);
         if (dl <= 1) col = [74, 40, 30]; else if (dl === 2 && grain > 0.6) col = [150, 64, 34];
-        if (island) { const crack = Math.abs(vn(lx / 34, ly / 34, 8224) - 0.5) < 0.035; if (crack) col = [255, 110, 40]; const rr = Math.hypot((lx - DEN.island.x) / DEN.island.rx, (ly - DEN.island.y) / DEN.island.ry); if (Math.abs(rr - 0.62) < 0.025) col = [200, 50, 30]; }
+        if (island) { const crack = Math.abs(vn(lx / 34, ly / 34, 8224) - 0.5) < 0.035; if (crack) col = [109, 65, 43]; const rr = Math.hypot((lx - DEN.island.x) / DEN.island.rx, (ly - DEN.island.y) / DEN.island.ry); if (rr > 0.91) col = grain > .6 ? [112, 83, 71] : [73, 54, 49]; }
       }
       const o = (y * AW + x) * 4; d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
     }
@@ -258,6 +263,7 @@
     }
   }
   function drawModel(ctx, q, x, y) {
+    if(q.denArt!=null&&denAtlas.complete&&denAtlas.naturalWidth){ctx.save();ctx.translate(x,y-3);if(q.flip)ctx.scale(-1,1);if(q.angle){ctx.scale(1,.55);ctx.rotate(q.angle);ctx.scale(1,1/.55);}drawDenAsset(ctx,q.denArt,0,q.angle?DEN_ART[q.denArt].w*q.scale*DEN_ART[q.denArt].r[3]/DEN_ART[q.denArt].r[2]*.5:3,DEN_ART[q.denArt].w*q.scale);ctx.restore();return;}
     const a = V.ART[q.kind], im = atl[a.atlas || 0]; if (!im.complete || !im.naturalWidth) return;
     const [sx, sy, sw, sh] = a.rect, w = a.w * q.scale, h = w * sh / sw;
     ctx.save(); ctx.imageSmoothingEnabled = false;
@@ -382,14 +388,14 @@
    * Orb (Tapu Fini's test on the Isle of Lost Souls, Act 3): with it, stepping onto the platform makes the orb blaze,
    * cracks of fire run through the stone, it shakes, sheds its grey shell - and Groudon is awake (like Regigigas). */
   const hasOrb = () => { try { return !!(A.Sea && A.Sea.has('red')) || !!(R.DB.save && R.DB.save.psxOcean && R.DB.save.psxOcean.orbs && R.DB.save.psxOcean.orbs.red); } catch (_) { return false; } };
-  const CRACK = 4.6;
+  const CRACK = 6.4;
   const sheet = new Image(); sheet.src = 'assets/pokemon/383/Idle.png';
   let stoneC = null;
   function stoneArt() {
     if (stoneC) return stoneC;
     if (!sheet.complete || !sheet.naturalWidth) return null;
     const m = R.SPRITE_META[GROUDON] && R.SPRITE_META[GROUDON].a && R.SPRITE_META[GROUDON].a.Idle, fw = m ? m.w : 64, fh = m ? m.h : 80;
-    const c = canvasOf(fw, fh), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(sheet, 0, fh * 7, fw, fh, 0, 0, fw, fh);   // (first Idle frame, turned toward the platform: down-left)
+    const c = canvasOf(fw, fh), g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(sheet, 0, 0, fw, fh, 0, 0, fw, fh);   // (first Idle frame, turned toward the platform: down-left)
     const im = g.getImageData(0, 0, fw, fh), d = im.data;
     for (let k = 0; k < d.length; k += 4) { if (!d[k + 3]) continue; const l = 0.3 * d[k] + 0.59 * d[k + 1] + 0.11 * d[k + 2], v = Math.round((34 + l * 0.48) / 6) * 6; d[k] = v + 4; d[k + 1] = v + 2; d[k + 2] = v; }   // (cold grey stone, a few flat tones)
     g.putImageData(im, 0, 0); c.ax = m ? m.ax : 32; c.ay = m ? m.ay : 44;
@@ -407,13 +413,13 @@
     rg.putImageData(ri, 0, 0); c.red = red;
     return (stoneC = c);
   }
-  const STATUE = { x: 1236, y: 408 }, SC = 3.4;   // (in the lava just east of the platform, facing it)
+  const STATUE = { x: DEN.heart.x, y: DEN.heart.y }, SC = 3.4;   // (in the lava just east of the platform, facing it)
   const CRACKS = [[[0, -36], [-3, -28], [4, -20], [-2, -12], [5, -4]], [[-3, -28], [-12, -24], [-18, -16], [-26, -13]], [[4, -20], [13, -17], [18, -9], [25, -6]], [[-14, -6], [-9, 2], [-15, 8]], [[12, -2], [8, 6], [14, 11]], [[0, -12], [-6, -4], [-2, 6]]];
   function drawStatue(ctx) {
     if (st.defeated || st.phase === 'awake') return;
     const c = stoneArt(), t = Number(R.Game.time) || 0, x = OX + STATUE.x, y = OY + STATUE.y; if (!c) return;
-    const k = st.phase === 'cracking' ? clamp(st.age / CRACK) : 0, sh = k > 0.15 ? Math.round(Math.sin(st.age * 31) * k * 2) * 2 : 0;
-    const w = c.width * SC, h = c.height * SC, left = Math.round(x - c.ax * SC + sh), top = Math.round(y - c.ay * SC + 22);   // (its feet are 22 px under the surface: waist-deep in the magma)
+    const progress = st.phase === 'cracking' ? clamp(st.age / CRACK) : 0, k = clamp((progress - .18) / .82), sh = k > 0.15 ? Math.round(Math.sin(st.age * 31) * k * 2) * 2 : 0;
+    const w = c.width * SC, h = c.height * SC, left = Math.round(x - c.ax * SC + sh), top = Math.round(y - c.ay * SC + 22 - Math.round(clamp((progress - .72) / .28) * 24));   // (its feet are 22 px under the surface: waist-deep in the magma)
     ctx.save(); ctx.imageSmoothingEnabled = false;
     // sunk to the waist in the lava: draw only what stands above the surface
     ctx.beginPath(); ctx.rect(left - 40, top - 60, w + 80, y - (top - 60)); ctx.clip();
@@ -422,21 +428,23 @@
       // the red heat builds inside the stone, and the cracks run through it pixel by pixel, red then white-hot
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(0.85, k * k * (0.6 + 0.3 * Math.sin(st.age * 10))); ctx.drawImage(c.red, left, top, w, h);
       ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
-      const shown = Math.floor(c.cracks.length * Math.min(1, k * 1.25));
+      const shown = Math.floor(c.cracks.length * clamp((k-.13)/.65));
       for (let i = 0; i < shown; i++) { const q = c.cracks[i], X = left + q.x * SC, Y = top + q.y * SC; ctx.fillStyle = k > 0.75 ? '#fff2b8' : i > shown - 6 ? '#ffd36a' : '#ff5a1e'; ctx.fillRect(Math.round(X), Math.round(Y), Math.ceil(SC), Math.ceil(SC)); }
       // grey chips flaking off
       for (let i = 0; i < 26; i++) { const ph = (st.age * 0.8 + hash(i, 1, 8290)) % 1; if (ph > k) continue; ctx.fillStyle = i % 2 ? '#6a6460' : '#8e8a84'; ctx.fillRect(Math.round((x + (hash(i, 2, 8291) - 0.5) * w * 0.8 + Math.sin(i) * ph * 22) / 2) * 2, Math.round((top + h * 0.15 + hash(i, 3, 8292) * h * 0.4 + ph * ph * 90) / 2) * 2, 4, 4); }
     }
     ctx.restore();
+    // Outward stone fragments and concentric lava wakes mark the shell breaking.
+    if (progress > .72) { const u = clamp((progress-.72)/.28); ctx.save(); for(let i=0;i<32;i++){ const a=i/32*TAU, r=35+u*(55+hash(i,2,83)*65), yy=y+Math.sin(a)*r*.36-Math.sin(u*Math.PI)*(30+hash(i,3,84)*55); ctx.globalAlpha=1-u*.7; ctx.fillStyle=i%3?'#77716c':'#e0c29a'; ctx.fillRect(Math.round((x+Math.cos(a)*r)/2)*2,Math.round(yy/2)*2,4+(i%3)*2,4); } ctx.restore(); }
     // the lava laps around it: a glowing ring where stone meets magma
-    ctx.save(); ctx.globalAlpha = 0.7 + 0.2 * Math.sin(t * 3); ctx.fillStyle = '#ffcf6a'; for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI; ctx.fillRect(Math.round((x - Math.cos(a) * w * 0.32) / 2) * 2, Math.round((y + Math.sin(i * 1.7 + t * 2) * 2) / 2) * 2, 4, 2); } ctx.restore();
+    ctx.save(); ctx.globalAlpha = 0.7 + 0.2 * Math.sin(t * 3); ctx.fillStyle = '#ffcf6a'; for(let ring=0;ring<3;ring++){ const u=(t*.4+ring/3)%1; ctx.globalAlpha=(1-u)*.5; ctx.strokeStyle='#ffbd56'; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(x,y,35+u*66,8+u*22,0,0,TAU);ctx.stroke(); } for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI; ctx.fillRect(Math.round((x - Math.cos(a) * w * 0.32) / 2) * 2, Math.round((y + Math.sin(i * 1.7 + t * 2) * 2) / 2) * 2, 4, 2); } ctx.restore();
     // the Red Orb rises above you while it wakes
     if (st.phase === 'cracking') { const p = R.Game.player, u = clamp(st.age / 1.2); if (p) { const ox = p.x, oy = p.y - 60 - u * 30 + Math.sin(st.age * 5) * 3; ctx.save(); ctx.globalCompositeOperation = 'lighter'; const gr = ctx.createRadialGradient(ox, oy, 0, ox, oy, 34); gr.addColorStop(0, 'rgba(255,80,40,0.9)'); gr.addColorStop(1, 'rgba(255,80,40,0)'); ctx.fillStyle = gr; ctx.fillRect(ox - 34, oy - 34, 68, 68); ctx.restore(); ctx.fillStyle = '#5a1410'; ctx.fillRect(ox - 7, oy - 7, 14, 14); ctx.fillStyle = '#e0402e'; ctx.fillRect(ox - 6, oy - 6, 12, 12); ctx.fillStyle = '#ff9a80'; ctx.fillRect(ox - 4, oy - 4, 4, 4); ctx.fillStyle = '#ffffff'; ctx.fillRect(ox - 3, oy - 3, 2, 2); } }
   }
   function startCracking() {
     st.phase = 'cracking'; st.age = 0;
     try { R.Sprites.preload && R.Sprites.preload([GROUDON], 4500); } catch (_) {}
-    say('The Red Orb blazes in your hands… cracks of fire run through the grey stone!', 4);
+    say('The Red Orb blazes in your hands… cracks of fire run through the grey stone!', 6);
     try { R.Audio.sfx('legend'); } catch (_) {}
   }
   function wake(p) {
@@ -501,7 +509,7 @@
     statueTick(p, t, Math.max(0, t - (st.lastT || t)), cell(lx, ly) === 4); st.lastT = t;
     bossTick(p, t);
     if (t > st.enterCd && ly > DEN.exit.y - 22 && Math.abs(lx - DEN.exit.x) < 40) leave();
-    if (!st.msg.lake && ly < 700) { st.msg.lake = true; say(st.defeated ? 'The great lava lake. Only ripples where Groudon stood.' : 'A lake of fire… and in the magma beyond the island, a grey giant stands as still as stone.', 4); }
+    if (!st.msg.lake && ly < 700) { st.msg.lake = true; say(st.defeated ? 'The great lava lake. Only ripples where Groudon stood.' : 'A lake of fire… and in the island’s central lava basin, a grey giant stands as still as stone.', 4); }
   }
   function tick(p) {
     if (!p || p !== R.Game.player || p.dead || R.Game.state !== 'playing' || st.moving) return;
@@ -538,7 +546,7 @@
   wrap(R.World, 'isFree', (_, x, y, r, wet) => freeDen(x, y, r || 0, wet));
   wrap(R.World, 'underCanopy', () => false);
   wrap(R.World, 'clearance', () => null);
-  wrap(R.World, 'propsInCircle', (_, x, y, r) => { build(); const [lx, ly] = L(x, y); return props.map((q) => ({ q, b: box(q) })).filter(({ b }) => Math.hypot(b.x - lx, b.y - ly) < r + b.rx).map(({ b }) => ({ x: OX + b.x, y: OY + b.y, r: Math.max(b.rx, b.ry), rx: b.rx, ry: b.ry, type: 'rock', solid: true, volcano: true })); });
+  wrap(R.World, 'propsInCircle', (_, x, y, r) => { build(); const [lx, ly] = L(x, y); return [...props.map((q) => ({ q, b: box(q) })), ...(!st.defeated&&st.phase!=='awake'?[{b:{x:STATUE.x,y:STATUE.y,rx:48,ry:23}}]:[])].filter(({ b }) => Math.hypot(b.x - lx, b.y - ly) < r + b.rx).map(({ b }) => ({ x: OX + b.x, y: OY + b.y, r: Math.max(b.rx, b.ry), rx: b.rx, ry: b.ry, type: 'rock', solid: true, volcano: true })); });
   wrap(R.World, 'projectileBlock', (_, x, y, r = 0) => { build(); const [lx, ly] = L(x, y); return wallAt(lx, ly, r) || propAt(lx, ly, r) ? { x, y, r: 12, type: 'rock' } : null; });
   wrap(R.World, 'obstacleNear', (_, x, y, r = 12) => { build(); const [lx, ly] = L(x, y); return wallAt(lx, ly, r) || !!propAt(lx, ly, r); });
   // collision: walls and stalagmites stop you where you were (sliding along them); only Fire types wade into lava
@@ -587,5 +595,5 @@
   const update = R.Player.prototype.update;
   R.Player.prototype.update = function (dt, ...a) { const out = update.call(this, dt, ...a); try { tick(this); } catch (err) { console.warn('[groudon-den]', err); } return out; };
 
-  window.PS_GROUDON_DEN = { st, site, enter, leave, at, freeDen, DEN, OX, OY, build, get props() { return props; }, mountainSolid, reserve };
+  window.PS_GROUDON_DEN = { st, site, enter, leave, at, freeDen, DEN, STATUE, CRACK, OX, OY, build, get props() { return props; }, mountainSolid, reserve };
 })();
