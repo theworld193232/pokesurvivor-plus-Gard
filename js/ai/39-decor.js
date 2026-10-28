@@ -382,7 +382,13 @@
     const s = it.s || 1;
     switch (it.k) {
       case 'ocean': sh = AI.OceanDraw ? AI.OceanDraw.solidOf(it) : null; break;
-      case 'tree': sh = it.r ? { r: it.r * 0.6 * s } : null; break;
+      case 'tree': {   // ([Gard v92] at sea, a trunk and its roots you can't walk through - not a tiny dot at the base)
+        if (!it.r) { sh = null; break; }
+        if (AI.Ocean && AI.Ocean.on()) { const w = Math.max(26, (AI.Art && AI.Art.ready ? AI.Art.size(it.n)[0] : 60) * s * 0.3); sh = { rect: [it.x - w / 2, it.y - 14, it.x + w / 2, it.y + 3] }; }
+        else sh = { r: it.r * 0.6 * s };
+        break;
+      }
+      case 'bush': sh = AI.Ocean && AI.Ocean.on() ? { r: 10 * s } : null; break;
       case 'log': {
         const w = AI.Art && AI.Art.ready ? AI.Art.size(it.n)[0] * s : 60 * s;
         sh = { rect: [it.x - w * 0.42, it.y - 12 * Math.min(1.4, s), it.x + w * 0.42, it.y + 2] };
@@ -390,7 +396,7 @@
       }
       case 'stump': sh = { r: 11 * s }; break;
       case 'stone': {const width=AI.Art?.ready?AI.Art.size(it.n)[0]*s:0;
-        sh=AI.Ocean?.on()&&/wall|shrine/.test(it.n||'')?{rect:[it.x-Math.max(12,width*.38),it.y-18*s,it.x+Math.max(12,width*.38),it.y+2]}:{r:Math.max((it.r||8)*s,AI.Ocean?.on()&&/stone/.test(it.n||'')?width*.28:0)};break;}
+        sh=AI.Ocean?.on()&&/wall|shrine|pillar/.test(it.n||'')?{rect:[it.x-Math.max(12,width*.38),it.y-18*s,it.x+Math.max(12,width*.38),it.y+2]}:{r:Math.max((it.r||8)*s,AI.Ocean?.on()&&/stone/.test(it.n||'')?width*.28:0)};break;}
       case 'ridge': { const w = AI.Art && AI.Art.ready ? AI.Art.size(it.n)[0] * s : 200; sh = { rect: [it.x - w * 0.45, it.y - 30, it.x + w * 0.45, it.y + 2] }; break; }
       case 'grave': case 'gargoyle': case 'gpillar': sh = it.r ? { r: Math.max(7, it.r) } : null; break;
       case 'cave': sh = { r: 30 }; break;

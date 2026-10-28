@@ -52,8 +52,46 @@
     lost: { koko: T('Tapu Koko streaks back into the storm, laughing.', 'Tapu Koko vuelve a la tormenta como un rayo, riendo.'), lele: T('Tapu Lele giggles and vanishes in a swirl of petals.', 'Tapu Lele se ríe y desaparece entre pétalos.'), bulu: T('Tapu Bulu sinks back among the ruins.', 'Tapu Bulu se hunde de nuevo entre las ruinas.'), fini: T('Tapu Fini dissolves into the fog. The orbs remain on their pedestals.', 'Tapu Fini se disuelve en la niebla. Los orbes siguen en sus pedestales.') },
   };
 
+  // ---------------------------------------------------------------- [Gard v92] the guardians wait where you can see them
+  /* Each island spirit hovers over its arena until you step in (it used to be invisible until the scene started, so
+   * an island looked empty): its own sprite, gently bobbing, with a soft glow in its colour and a shadow below. */
+  const idleImg = {}, idleHooked = { on: false };
+  function idleSheet(dex) { if (!idleImg[dex]) { const im = new Image(); im.src = 'assets/pokemon/' + dex + '/Idle.png'; idleImg[dex] = im; } return idleImg[dex]; }
+  function drawIdle(ctx, id, a) {
+    const R = AI.R, dex = DEX[id], im = idleSheet(dex), m = R.SPRITE_META && R.SPRITE_META[dex] && R.SPRITE_META[dex].a && R.SPRITE_META[dex].a.Idle;
+    if (!im.complete || !im.naturalWidth || !m) return;
+    const t = AI.time || 0, d = m.d || [10], total = d.reduce((x, y) => x + y, 0), tick = Math.floor(t * 30) % total;
+    let f = 0, acc = 0; for (; f < d.length; f++) { acc += d[f]; if (tick < acc) break; }
+    const SC = 2.2, bob = Math.round(Math.sin(t * 2 + dex) * 3) * 2, x = a.x, y = a.y + 18;
+    ctx.save(); ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, 26, 8, 0, 0, 6.283); ctx.fill();
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.18 + 0.08 * Math.sin(t * 3); const g = ctx.createRadialGradient(x, y - 40 + bob, 0, x, y - 40 + bob, 70); g.addColorStop(0, COL[id]); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(x - 70, y - 110 + bob, 140, 140);
+    ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = id === 'fini' ? 0.85 : 1;
+    ctx.drawImage(im, f * m.w, 0, m.w, m.h, Math.round(x - m.ax * SC), Math.round(y - m.ay * SC - 10 + bob), Math.round(m.w * SC), Math.round(m.h * SC));
+    ctx.restore();
+  }
+  function hookIdle() {
+    const R = AI.R; if (idleHooked.on || !R || !R.Training || typeof R.Training.drawables !== 'function') return;
+    idleHooked.on = true;
+    const nd = R.Training.drawables;
+    R.Training.drawables = function (...args) {
+      const base = nd.apply(this, args) || [];
+      try {
+        if (!on() || st.scene) return base;
+        const cam = R.Camera, out = base.slice();
+        for (const id of Object.keys(DEX)) {
+          if (won(id) || (st.battle && st.battle.id === id)) continue;
+          const a = arena(id); if (!a || !cam.sees(a.x, a.y - 60, 140)) continue;
+          out.push({ y: a.y, draw: (ctx) => drawIdle(ctx, id, a) });
+        }
+        return out;
+      } catch (e) { return base; }
+    };
+  }
+
   // ---------------------------------------------------------------- per frame
   function tick(dt) {
+    hookIdle();
     st.dim = Math.max(0, st.dim - dt * 0.3);
     for (let i = st.fx.length - 1; i >= 0; i--) { st.fx[i].t += dt; if (st.fx[i].t > st.fx[i].life) st.fx.splice(i, 1); }
     if (!on()) return;

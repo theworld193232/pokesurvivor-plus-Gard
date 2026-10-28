@@ -350,8 +350,12 @@
   }
   /* The mainland around the harbour: its coast carries on from the painting's edges, north (all
    * jungle beyond) and west as far as a headland, past which the open sea begins. */
+  /* [Gard v92] The mainland is a landmass, not half the world: its clearings, then the jungle around them, then a
+   * coast all the way round, and the sea beyond (it used to run on forever to the north and west). */
+  function mainEdge(x, y) { const a = Math.atan2(y - HARBOR.y - 300, x - HARBOR.x - 550); return 4700 + (vn(Math.cos(a) * 3 + 11, Math.sin(a) * 3 + 11, 9305) - 0.5) * 1300 + (vn(x / 700, y / 700, 9306) - 0.5) * 500; }
   function mainland(x, y) {
     const hx = HARBOR.x, hy = HARBOR.y;
+    if (Math.hypot(x - hx - 550, y - hy - 300) > mainEdge(x, y)) return false;
     // (bays and headlands grow bigger away from the painting, whose own edges the coast must meet)
     const far = sm(250, 1600, Math.max(hx - x, hy - y, x - hx - 1500, 0));
     const n = (vn(x / 260, y / 260, 9301) - 0.5) * 160 + (vn(x / 70, y / 70, 9302) - 0.5) * 30 + (vn(x / 900, y / 900, 9304) - 0.5) * 900 * far;

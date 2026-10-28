@@ -452,6 +452,7 @@
   function decor(cx, cy, ch, R, emit, ok) {
     const placed=[];
     const push=it=>{const sh=solidOf(it),r=sh?.r||(sh?.rect&&it.n!=='wreck'?(sh.rect[2]-sh.rect[0])/2:0)||it.r||0;
+      if(!it.water&&r&&O().artOf(it.x,it.y,90))return;   // ([Gard v92] nothing solid crowding the harbour's stairs and paths)
       if(!it.water&&r&&O().artAt(it.x,it.y)<0){
         const checks=[[0,0],[-r,0],[r,0],[0,-r*.5],[0,r*.5]];
         if(checks.some(([dx,dy])=>{const s=O().sample(it.x+dx,it.y+dy);return s.cls!==0||s.solid;}))return;
@@ -459,10 +460,14 @@
         // left rock walls you couldn't get through, e.g. across Thundercrest), and keep them off the edge of their decor
         // chunk, since the next chunk can't see them and used to drop its own rocks right against them (rock walls
         // along straight lines inside islands)
-        if(placed.some(q=>Math.hypot(q.x-it.x,q.y-it.y)<q.r+r+48))return;
-        const m=r+26;if(it.x-x0<m||x0+ch-it.x<m||it.y-y0<m||y0+ch-it.y<m)return;
+        // ([Gard v92] only rocks and stones need the wide lane and the chunk-edge margin; trees and palms keep their
+        // old, close spacing, or the islands' forests thinned out to almost nothing)
+        const rocky=/^(rock_|stack|wreck)|stone|wall|shrine|pillar/.test(it.n||'');
+        if(placed.some(q=>Math.hypot(q.x-it.x,q.y-it.y)<q.r+r+(rocky||q.rocky?48:14)))return;
+        if(rocky){const m=r+26;if(it.x-x0<m||x0+ch-it.x<m||it.y-y0<m||y0+ch-it.y<m)return;}
+        it._rocky=rocky;
       }
-      if(r)placed.push({x:it.x,y:it.y,r});emit(it);
+      if(r)placed.push({x:it.x,y:it.y,r,rocky:!!it._rocky});emit(it);
     };
     const Oc = O();
     const p = Oc.plan();
@@ -474,6 +479,13 @@
       const x = x0 + ((n % 7) + R()) * (ch / 7), y = y0 + (((n / 7) | 0) + R()) * (ch / 7);
       const s = Object.assign({}, Oc.sample(x, y));
       const r1 = R(), r2 = R(), f = R() < 0.5;
+      // [Gard v92] the jungle wall beyond the mainland's clearings is a real forest now: a dense, swaying canopy of big
+      // trees (it used to be bare green ground that looked walkable and endless). The ground there is solid already.
+      if (s.solid && !s.ring && s.art < 0 && Oc.mainland(x, y)) {
+        for (let k = 0; k < 2; k++) { const jx = x + (k ? (R() - 0.5) * 60 : 0), jy = y + (k ? (R() - 0.5) * 50 : 0), q = R(); emit({ k: 'tree', n: q < 0.22 ? (q < 0.11 ? 'palm_a' : 'palm_b') : BIG_TREES[(R() * BIG_TREES.length) | 0], x: jx, y: jy, f: R() < 0.5, r: 0, sway: true, s: 1.1 + R() * 0.35, ...(q < 0.22 ? { k: 'ocean' } : {}) }); }
+        if (r1 < 0.35) emit({ k: 'plant', n: ['w_fern_a', 'w_fern_b', 'w_fern_c', 'fern'][(r2 * 4) | 0], x: x + 20, y: y + 18, s: 1.1, f, r: 0 });
+        continue;
+      }
       if (s.art >= 0 || s.solid || s.tidal) continue; // (nothing on ground the tide covers and bares)
       if (s.cls >= 1) {
         // at sea: coral heads on the reefs, kelp at the edges of the shallows, the odd sea stack
@@ -722,6 +734,14 @@
     // [Gard v80] boulders block like boulders: the lower half of the drawn rock, edge to edge (the old small
     // circle at the base let you walk into most of the rock's body, e.g. on Thundercrest)
     if(/^rock_/.test(it.n||'')&&size[0]>0){const h=size[1]*scale;return {rect:[it.x-w*.43,it.y-h*.5,it.x+w*.43,it.y+3]};}
+    // ([Gard v92] palms get a real trunk footprint too)
+    // ([Gard v92] trunk/base footprints sized to each sprite, from a prop-by-prop audit: you walk behind canopies, not through bodies)
+    const n=it.n||'';
+    if(/^(palm_|pink_)/.test(n))return {rect:[it.x-Math.max(12,w*.16),it.y-14,it.x+Math.max(12,w*.16),it.y+3]};
+    if(/^tiki/.test(n))return {rect:[it.x-10*scale,it.y-20*scale,it.x+10*scale,it.y+4]};
+    if(n==='shard')return {rect:[it.x-10*scale,it.y-18*scale,it.x+10*scale,it.y+2]};
+    if(/pillar|x_shrine|g_wall/.test(n))return {rect:[it.x-Math.max(14,w*.32),it.y-18,it.x+Math.max(14,w*.32),it.y+3]};
+    if(/^(crate|barrel)/.test(n))return {rect:[it.x-10*scale,it.y-10*scale,it.x+10*scale,it.y+2]};
     const footprint=/^(rock_|crate|barrel)/.test(it.n||'')?Math.max(it.r*scale,w*.32):it.n==='stack'?Math.max(it.r*scale,26*scale):it.r*scale;
     return {r:footprint};
   }
