@@ -345,6 +345,32 @@
     ctx.restore();
   }
 
+  // Act 4 reuses small glow textures instead of rasterizing a gradient per source per frame.
+  // Other maps retain their original lighting path.
+  const glowTextures = new Map();
+  function cachedGlow(ctx, x, y, r, color, intensity, halo) {
+    if (!window.PS_VOLCANO?.active()) return false;
+    if (!(r > 0) || !(intensity > 0)) return true;
+    const key = color.join(',') + (halo ? ':halo' : ':light');
+    let texture = glowTextures.get(key);
+    if (!texture) {
+      texture = document.createElement('canvas');
+      texture.width = texture.height = halo ? 64 : 128;
+      const g = texture.getContext('2d'), center = texture.width / 2;
+      const gradient = g.createRadialGradient(center, center, 0, center, center, center);
+      gradient.addColorStop(0, 'rgba(' + color.join(',') + ',1)');
+      if (!halo) gradient.addColorStop(.45, 'rgba(' + color.join(',') + ',.45)');
+      gradient.addColorStop(1, 'rgba(' + color.join(',') + ',0)');
+      g.fillStyle = gradient;g.fillRect(0, 0, texture.width, texture.height);
+      glowTextures.set(key, texture);
+      if (glowTextures.size > 48) glowTextures.delete(glowTextures.keys().next().value);
+    }
+    const alpha = ctx.globalAlpha, smooth = ctx.imageSmoothingEnabled;
+    try {ctx.globalAlpha = alpha * Math.min(1, intensity);ctx.imageSmoothingEnabled = true;ctx.drawImage(texture, x-r, y-r, r*2, r*2);}
+    finally {ctx.globalAlpha = alpha;ctx.imageSmoothingEnabled = smooth;}
+    return true;
+  }
+
   // ---------------------------------------------------------------- main draw (screen space)
   function draw(ctx, w, h) {
     const R = AI.R;
@@ -372,6 +398,7 @@
         const x = sx(l.x) * k, y = sy(l.y) * k, r = l.r * cam.scale * k;
         if (x < -r || y < -r || x > lw + r || y > lh + r) continue;
         const a = l.i * (0.35 + night * 0.75);
+        if (cachedGlow(lg, x, y, r, l.c, a, false)) continue;
         const g = lg.createRadialGradient(x, y, 0, x, y, r);
         g.addColorStop(0, 'rgba(' + l.c[0] + ',' + l.c[1] + ',' + l.c[2] + ',' + a.toFixed(3) + ')');
         g.addColorStop(0.45, 'rgba(' + l.c[0] + ',' + l.c[1] + ',' + l.c[2] + ',' + (a * 0.45).toFixed(3) + ')');
@@ -393,6 +420,7 @@
           const x = sx(l.x), y = sy(l.y), r = Math.min(46, l.r * (l.body ? 0.2 : 0.28)) * cam.scale;
           if (x < -r || y < -r || x > w + r || y > h + r) continue;
           const a = l.i * dark * (l.body ? 0.3 * l.halo : 0.32);
+          if (cachedGlow(ctx, x, y, r, l.c, a, true)) continue;
           const g = ctx.createRadialGradient(x, y, 0, x, y, r);
           g.addColorStop(0, 'rgba(' + l.c[0] + ',' + l.c[1] + ',' + l.c[2] + ',' + a.toFixed(3) + ')');
           g.addColorStop(1, 'rgba(' + l.c[0] + ',' + l.c[1] + ',' + l.c[2] + ',0)');
@@ -751,7 +779,7 @@
 
   AI.define('Light', {
     draw, drawAir, drawClock, wrapWeatherDraw, patchVignette, gather, lanternOn, lights: L, tick,
-    BODY, MOVE_LIGHT, bodyOf, carriesLight, moveLight, flash, flashes: FL, lamp, toggleLantern, addOil,
+    cachedGlow, glowTextureCount: () => glowTextures.size, BODY, MOVE_LIGHT, bodyOf, carriesLight, moveLight, flash, flashes: FL, lamp, toggleLantern, addOil,
     reset() { FL.length = 0; lamp.lit = false; lamp.oil = 240; },
   });
 })();

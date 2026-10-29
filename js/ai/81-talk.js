@@ -70,6 +70,7 @@
   // (a few the game has no data for, like Zarude, which is only ever heard)
   const MYTHIC = new Set([151, 251, 385, 386, 489, 490, 491, 492, 493, 494, 647, 648, 649, 719, 720, 721, 801, 802, 807, 808, 809, 893]);
   function isLegend(dex) {
+    if (window.PS_ULTRA_RIFTS?.isUB(dex)) return true;
     try { if (!AI.R.DEX_BY[dex]) return MYTHIC.has(dex); return AI.Legend ? AI.Legend.isLegendDex(dex) || MYTHIC.has(dex) : MYTHIC.has(dex); } catch (e) { return false; }
   }
   function nameOf(dex) { const d = AI.R.DEX_BY[dex]; return d ? d.name : dex === 893 ? 'Zarude' : '???'; }
@@ -183,14 +184,14 @@
     144: { in: T('…Cold. Like the summit wind.', '…Frío. Como el viento de la cumbre.') }, 145: { in: T('The storm has a voice. Hear it.', 'La tormenta tiene voz. Escúchala.') }, 146: { in: T('Burn bright, little one. Briefly.', 'Arde con fuerza, pequeño. Brevemente.') },
   };
   const BY_TYPE = {
-    fire: T('Feel the heat of something older than this forest.', 'Siente el calor de algo más antiguo que este bosque.'), water: T('The tide answers to me.', 'La marea me obedece.'),
-    electric: T('Every hair on your body knows what\'s coming.', 'Cada pelo de tu cuerpo sabe lo que viene.'), psychic: T('I saw you coming long before you did.', 'Te vi venir mucho antes que tú.'),
+    fire: T('Prepare to face the heat.', 'Siente el calor de algo más antiguo que este bosque.'), water: T('The tide answers to me.', 'La marea me obedece.'),
+    electric: T('The air is charged. Be ready.', 'Cada pelo de tu cuerpo sabe lo que viene.'), psychic: T('I saw you coming long before you did.', 'Te vi venir mucho antes que tú.'),
     dragon: T('Kneel, or be made to.', 'Arrodíllate, o serás obligado.'), ghost: T('You hear me, but you cannot find me.', 'Me oyes, pero no puedes encontrarme.'),
     dark: T('The shadows here belong to me.', 'Las sombras de aquí me pertenecen.'), grass: T('Tread carefully. Everything here is alive.', 'Pisa con cuidado. Todo aquí está vivo.'),
     ice: T('Stillness. Silence. Cold.', 'Quietud. Silencio. Frío.'), steel: T('I do not bend.', 'Yo no me doblego.'), rock: T('I was here before the first tree.', 'Yo estaba aquí antes del primer árbol.'),
     fairy: T('How sweet. You think you can win.', 'Qué tierno. Crees que puedes ganar.'), flying: T('Look up. You\'re already too late.', 'Mira arriba. Ya es tarde.'),
     ground: T('The ground itself will turn on you.', 'El propio suelo se volverá contra ti.'), fighting: T('Show me your strength!', '¡Muéstrame tu fuerza!'),
-    normal: T('So you\'re the one making all this noise.', 'Así que tú eres quien hace tanto ruido.'), bug: T('The forest is mine to protect.', 'Proteger el bosque es cosa mía.'), poison: T('Breathe deep.', 'Respira hondo.'),
+    normal: T('So you\'re the one making all this noise.', 'Así que tú eres quien hace tanto ruido.'), bug: T('I will defend this place.', 'Proteger el bosque es cosa mía.'), poison: T('Breathe deep.', 'Respira hondo.'),
   };
   const MID = T('You\'re stronger than you look.', 'Eres más fuerte de lo que pareces.'), LOW = T('…Remarkable.', '…Admirable.');
   function lang() { return AI.lang ? AI.lang() : 'en'; }
@@ -218,7 +219,8 @@
       for (const e of this.seen.keys()) if (e.dead || !R.EnemyMgr.all().includes(e)) this.seen.delete(e);
     },
     speak(e, when) {
-      const own = LINES[e.dex];
+      const custom = window.PS_LEGEND_DIALOGUE?.[e.dex];
+      const own = custom ? Object.fromEntries(['in', 'mid', 'low'].map(stage => [stage, { ...(LINES[e.dex]?.[stage] || {}), ...custom[stage] }])) : LINES[e.dex];
       const ty = (e.types || (AI.R.DEX_BY[e.dex] || {}).types || ['normal'])[0];
       const line = (own && own[when]) || (when === 'in' ? BY_TYPE[ty] || BY_TYPE.normal : when === 'mid' ? MID : LOW);
       legend({ dex: e.dex, id: e.id }, tr(line), { emo: when === 'low' ? 'Pain' : when === 'mid' ? 'Determined' : 'Normal' });

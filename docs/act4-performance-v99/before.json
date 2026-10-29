@@ -1,0 +1,1 @@
+{ "results": [ { "hour": 12, "frames": 180, "medianMs": 16.69999999999709, "p95Ms": 17.60000000000582, "gradientBuilds": 8523 }, { "hour": 0, "frames": 180, "medianMs": 33.30000000000291, "p95Ms": 34.30000000000291, "gradientBuilds": 12167 } ], "viewport": [ 1280, 720 ], "dpr": 2 }
