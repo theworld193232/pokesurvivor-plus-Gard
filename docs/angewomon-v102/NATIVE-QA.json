@@ -1,0 +1,1 @@
+{ "passed": 56, "animations": [ "Idle", "Walk", "Attack", "Shoot", "Charge", "Hurt", "Faint" ], "minimumPixels": 10432 }

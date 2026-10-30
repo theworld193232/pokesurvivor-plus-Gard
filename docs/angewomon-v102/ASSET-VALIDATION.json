@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Idle",
+    "frames": 32,
+    "width": 320,
+    "height": 704,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Idle.png"
+  },
+  {
+    "name": "Walk",
+    "frames": 32,
+    "width": 320,
+    "height": 704,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Walk.png"
+  },
+  {
+    "name": "Attack",
+    "frames": 32,
+    "width": 384,
+    "height": 768,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Attack.png"
+  },
+  {
+    "name": "Shoot",
+    "frames": 32,
+    "width": 384,
+    "height": 768,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Shoot.png"
+  },
+  {
+    "name": "Charge",
+    "frames": 32,
+    "width": 384,
+    "height": 768,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Shoot.png"
+  },
+  {
+    "name": "Hurt",
+    "frames": 32,
+    "width": 320,
+    "height": 704,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Hurt.png"
+  },
+  {
+    "name": "Faint",
+    "frames": 32,
+    "width": 320,
+    "height": 704,
+    "source": "/Users/joshua/Documents/Codex/PokeSurvivor-v102/docs/angewomon-v102/source-art/Faint.png"
+  }
+]
